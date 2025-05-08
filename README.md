@@ -9,7 +9,7 @@ Dự án Django giúp quản lý cư dân, hộ gia đình và các khoản thu 
 
 ## Cài đặt và chạy dự án
 
-### 1️⃣ Tạo môi trường ảo
+### 1️⃣ Tạo môi trường ảo (ở thư mục gốc dự án)
 
 ```bash
 # Tạo môi trường ảo tên là venv
