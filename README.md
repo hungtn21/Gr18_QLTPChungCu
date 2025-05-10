@@ -9,7 +9,7 @@ Dự án Django giúp quản lý cư dân, hộ gia đình và các khoản thu 
 
 ## Cài đặt và chạy dự án
 
-### 1️⃣ Tạo môi trường ảo (ở thư mục gốc dự án)
+### 1️. Tạo môi trường ảo (ở thư mục gốc dự án)
 
 ```bash
 # Tạo môi trường ảo tên là venv
@@ -22,13 +22,13 @@ source venv/bin/activate
 # Trên Windows
 .\venv\Scripts\activate
 ```
-### 2️⃣ Cài đặt các thư viện phụ thuộc
+### 2️. Cài đặt các thư viện phụ thuộc
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Tạo cơ sở dữ liệu
+### 3️. Tạo cơ sở dữ liệu
 
 ```bash
 # Tạo file migration từ các model
@@ -36,4 +36,10 @@ python manage.py makemigrations
 
 # Tạo database và các bảng
 python manage.py migrate
+```
+
+### 4. Chạy dự án
+
+```bash
+python manage.py runserver
 ```
