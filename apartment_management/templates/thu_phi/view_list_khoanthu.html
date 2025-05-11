@@ -1,0 +1,53 @@
+{% extends 'nguoi_dung/kt_base.html' %}
+
+{% block title %}Danh sách khoản thu{% endblock %}
+
+{% block content %}
+<h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Danh sách khoản thu</h2>
+
+<form method="get" style="display: flex; justify-content: space-between; margin: 10px 0;">
+    <input type="text" name="q" value="{{ query }}" placeholder="🔍 Tìm kiếm"
+        style="padding: 5px; width: 200px; border-radius: 5px; border: 1px solid #ccc;">
+
+    <a href="#" style="background-color: #007BFF; color: white; text-decoration: none; 
+              padding: 6px 10px; border-radius: 5px;">
+        + Thêm khoản thu mới
+    </a>
+</form>
+<br>
+<table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+    <thead style="background-color: #f0f0f0;">
+        <tr>
+            <th style="padding: 10px; text-align: left; width: 10%;">ID</th>
+            <th style="padding: 10px; text-align: left; width: 30%;">Tên khoản thu</th>
+            <th style="padding: 10px; text-align: left; width: 20%;">Loại</th>
+            <th style="padding: 10px; text-align: left; width: 30%;">Ghi chú</th>
+            <th style="padding: 10px; text-align: left; width: 10%;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if khoan_thu_list %}
+        {% for kt in khoan_thu_list %}
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 10px; text-align: left;">{{ kt.id }}</td>
+            <td style="padding: 10px; text-align: left;">{{ kt.ten_khoan_thu }}</td>
+            <td style="padding: 10px; text-align: left;">{{ kt.loai_khoan_thu }}</td>
+            <td style="padding: 10px; text-align: left;">{{ kt.ghi_chu|default:"-" }}</td>
+            <td style="padding: 10px; text-align: left;">
+                 <a href="{% url 'update_khoanthu' pk=kt.id %}">
+                    <button>Sửa</button>
+                </a> 
+                <a href="{% url 'update_khoanthu' pk=kt.id %}">
+                    <button>Xóa</button>
+                </a> 
+            </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="5" style="text-align: center; padding: 20px;">Hiện không có khoản thu nào</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

@@ -27,4 +27,9 @@ urlpatterns = [
     path('dashboard/admin/', nguoi_dung_views.admin_dashboard, name='AdminDashboard'),
     path('dashboard/bqlcc/', nguoi_dung_views.bqlcc_dashboard, name='BQLCCDashboard'),
     path('dashboard/ketoan/', nguoi_dung_views.kt_dashboard, name='KTDashboard'),
+
+
+    #==========================Ke toan routes=========================================================
+    path('ketoan/view-list-khoanthu', thu_phi_views.view_list_khoanthu, name='view_list_khoanthu'),
+    path('ketoan/update-khoanthu/<int:pk>', thu_phi_views.update_khoanthu, name='update_khoanthu' )
 ]
