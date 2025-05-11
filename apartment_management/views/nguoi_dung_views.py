@@ -50,14 +50,17 @@ def login_view(request):
 
     return render(request, 'nguoi_dung/login.html')
 
+@login_required
 @role_required('BQL Chung cư')
 def bqlcc_dashboard(request):
     return render(request, 'nhan_khau/BQLCCDashboard.html')
 
+@login_required
 @role_required('Kế toán')
 def kt_dashboard(request):
     return render(request, 'thu_phi/KTDashboard.html')
 
+@login_required
 @role_required('Quản trị hệ thống')
 def admin_dashboard(request):
     return render(request, 'nguoi_dung/AdminDashboard.html')
