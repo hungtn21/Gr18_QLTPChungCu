@@ -43,3 +43,9 @@ python manage.py migrate
 ```bash
 python manage.py runserver
 ```
+
+### 5. Tạo fake data (nếu cần cho các thao tác View những thông tin mình không thể Create)
+
+```bash
+python db.py
+```
