@@ -31,5 +31,6 @@ urlpatterns = [
 
     #==========================Ke toan routes=========================================================
     path('ketoan/view-list-khoanthu', thu_phi_views.view_list_khoanthu, name='view_list_khoanthu'),
-    path('ketoan/update-khoanthu/<int:pk>', thu_phi_views.update_khoanthu, name='update_khoanthu' )
+    path('ketoan/create-khoanthu', thu_phi_views.create_khoanthu, name='create_khoanthu'),
+    path('ketoan/update-khoanthu/<int:pk>', thu_phi_views.update_khoanthu, name='update_khoanthu' ),
 ]

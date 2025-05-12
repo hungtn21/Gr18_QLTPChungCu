@@ -6,7 +6,7 @@ from ..models import KhoanThu
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from ..forms import KhoanThuForm
+from ..forms import KhoanThuCreateForm, KhoanThuForm
 
 @login_required
 @role_required('Kế toán')
@@ -26,6 +26,20 @@ def view_list_khoanthu(request):
         'query': query or ''
     })
 
+
+@login_required
+@role_required('Kế toán')
+def create_khoanthu(request):
+    if request.method == 'POST':
+        form = KhoanThuCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thêm khoản thu mới thành công!')
+            return redirect('view_list_khoanthu')
+    else:
+        form = KhoanThuCreateForm()
+
+    return render(request, 'thu_phi/create_khoanthu.html', {'form': form})
 
 @login_required
 @role_required('Kế toán')
