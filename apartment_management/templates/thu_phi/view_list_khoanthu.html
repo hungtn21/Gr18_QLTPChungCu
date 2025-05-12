@@ -9,11 +9,11 @@
 
 <!-- Toast Message -->
 {% if messages %}
-    <div id="toast-container">
-        {% for message in messages %}
-            <div class="toast-message">{{ message }}</div>
-        {% endfor %}
-    </div>
+<div id="toast-container">
+    {% for message in messages %}
+    <div class="toast-message">{{ message }}</div>
+    {% endfor %}
+</div>
 {% endif %}
 
 <h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Danh sách khoản thu</h2>
@@ -23,7 +23,8 @@
     <div style="position: relative; width: 250px;">
         <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm"
             style="padding: 8px 30px 8px 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
-        <i class="fa fa-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: gray;"></i>
+        <i class="fa fa-search"
+            style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); color: gray;"></i>
     </div>
 
     <a href="{% url 'create_khoanthu' %}" class="btn-add">
@@ -46,26 +47,29 @@
     </thead>
     <tbody>
         {% if khoan_thu_list %}
-            {% for kt in khoan_thu_list %}
-                <tr style="border-bottom: 1px solid #ccc;">
-                    <td style="padding: 10px; text-align: left;">{{ kt.id }}</td>
-                    <td style="padding: 10px; text-align: left;">{{ kt.ten_khoan_thu }}</td>
-                    <td style="padding: 10px; text-align: left;">{{ kt.loai_khoan_thu }}</td>
-                    <td style="padding: 10px; text-align: left;">{{ kt.ghi_chu|default:"-" }}</td>
-                    <td style="padding: 10px; text-align: left;">
-                        <a href="{% url 'update_khoanthu' pk=kt.id %}">
-                            <button style="margin-right: 5px;">Sửa</button>
-                        </a>
-                        <a href="{% url 'update_khoanthu' pk=kt.id %}">
-                            <button>Xóa</button>
-                        </a>
-                    </td>
-                </tr>
-            {% endfor %}
+        {% for kt in khoan_thu_list %}
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 10px; text-align: left;">{{ kt.id }}</td>
+            <td style="padding: 10px; text-align: left;">{{ kt.ten_khoan_thu }}</td>
+            <td style="padding: 10px; text-align: left;">{{ kt.loai_khoan_thu }}</td>
+            <td style="padding: 10px; text-align: left;">{{ kt.ghi_chu|default:"-" }}</td>
+            <td style="padding: 10px; text-align: left;">
+                <div style="display: flex; gap: 5px;">
+                    <a href="{% url 'update_khoanthu' pk=kt.id %}">
+                        <button>Sửa</button>
+                    </a>
+                
+                    <a href="{% url 'delete_khoanthu' pk=kt.id %}">
+                    <button>Xóa</button>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
         {% else %}
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 20px;">Hiện không có khoản thu nào</td>
-            </tr>
+        <tr>
+            <td colspan="5" style="text-align: center; padding: 20px;">Hiện không có khoản thu nào</td>
+        </tr>
         {% endif %}
     </tbody>
 </table>
@@ -105,10 +109,24 @@
     }
 
     @keyframes fadeInOut {
-        0% { opacity: 0; transform: translateY(-20px); }
-        10% { opacity: 1; transform: translateY(0); }
-        90% { opacity: 1; }
-        100% { opacity: 0; transform: translateY(-20px); }
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        10% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
     }
 </style>
 
