@@ -1,0 +1,38 @@
+{% extends 'nguoi_dung/kt_base.html' %}
+
+{% block title %}Xác nhận xóa khoản thu{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<h2 style="text-align: center; color: #dc3545;">Xác nhận xóa khoản thu</h2>
+
+<div style="border: 2px solid #dc3545; background: #fff0f0; padding: 30px; width: 450px; margin: auto; border-radius: 10px; text-align: center;">
+    {% if dot_thu_tien_hanh %}
+        <p><strong>Khoản thu đang nằm trong đợt thu:</strong></p>
+        <p style="color: #b30000; font-size: 18px;">{{ dot_thu_tien_hanh.ten_dot_thu }}</p>
+        <p>Bạn có chắc chắn muốn xóa khoản thu này?</p>
+    {% else %}
+        <p>Khoản thu <strong>không nằm trong đợt thu</strong> đang tiến hành nào.</p>
+        <p>Bạn có chắc chắn muốn xóa?</p>
+    {% endif %}
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+        <button type="submit" style="
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;">
+            <i class="fa-solid fa-trash"></i> Xóa
+        </button>
+        <br><br>
+        <a href="{% url 'view_list_khoanthu' %}" style="text-decoration: none; color: #555;">Quay lại</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #003366;
+            /* Xanh nước biển đậm */
+            height: 100vh;
+            padding-top: 20px;
+            float: left;
+        }
+
+        .sidebar button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px;
+            background-color: #ffffff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .sidebar button:hover {
+            background-color: #2891fa;
+            color: white;
+        }
+
+        .content {
+            margin-left: 200px;
+            padding: 40px;
+        }
+
+        h2 {
+            color: #003366;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header" style="display: flex; align-items: center; padding: 10px; color: white;">
+            <i class="fas fa-home" style="margin-right: 8px;"></i>
+            <span style="font-weight: bold;">Kế toán</span>
+        </div>
+        <!-- <button>Trang chủ</button> -->
+        <a href="{% url 'KTDashboard' %}">
+            <button>Trang chủ</button>
+        </a>
+        <button>Danh sách đợt thu</button>
+        <a href="{% url 'view_list_khoanthu' %}">
+            <button>Danh sách khoản thu</button>
+        </a>
+        <button>Danh sách khoản nộp</button>
+    </div>
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+
+</html>

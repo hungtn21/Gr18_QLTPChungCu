@@ -1,0 +1,44 @@
+{% extends 'nguoi_dung/kt_base.html' %}
+
+{% block content %}
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<h2 style="text-align: center;">Tạo mới khoản thu</h2>
+
+<form method="post" id="khoanthu-form">
+    {% csrf_token %}
+    <div
+        style="border: 2px solid #00f; padding: 20px; background: #f9f9f9; width: 400px; margin: auto; border-radius: 10px;">
+
+        <div style="margin-bottom: 15px;">
+            <label><strong>Tên khoản thu:</strong></label><br>
+            {{ form.ten_khoan_thu }}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label><strong>Loại khoản thu:</strong></label><br>
+            {{ form.loai_khoan_thu }}
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label><strong>Ghi chú:</strong></label><br>
+            {{ form.ghi_chu }}
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit"
+                style="padding: 10px 25px; border-radius: 8px; background: #28a745; color: white; border: none;">
+                <i class="fa-solid fa-plus"></i> Tạo mới
+            </button>
+        </div>
+    </div>
+</form>
+
+<style>
+    textarea {
+        resize: vertical;
+    }
+</style>
+{% endblock %}
