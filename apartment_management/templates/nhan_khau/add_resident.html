@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %} Thêm nhân khẩu {% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="margin-left: px;">Thêm nhân khẩu</h1>
+<form method="POST" class="form-container">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="ho_ten">Họ và tên:</label>
+        <input type="text" name="ho_ten" class="input-field" required><br>
+    </div>
+
+    <div class="form-group">
+        <label for="ngay_sinh">Ngày sinh:</label>
+        <input type="date" name="ngay_sinh" class="input-field" required><br>
+    </div>
+
+    <div class="form-group" style ="font-size: 20px">
+        <label for="gioi_tinh">Giới tính:</label><br>
+            <input type="radio" name="gioi_tinh" value="Nam"> Nam
+            <input type="radio" name="gioi_tinh" value="Nữ"> Nữ<br>
+    </div>
+
+    <div class="form-group">
+        <label for="cccd">CCCD:</label>
+        <input type="text" name="cccd" class="input-field" required><br>
+    </div>
+
+    <div class="form-group">
+        <label for="ma_can_ho">Hộ gia đình:</label>
+        <input type="text" name="ho_gia_dinh" class="input-field" required><br>
+    </div>
+
+    <div class="form-group">
+        <label for="thoi_gian_chuyen_den">Thời gian chuyển đến:</label>
+        <input type="date" name="thoi_gian_chuyen_den" class="input-field" required><br>
+    </div>
+
+    <button type="submit" class="submit-btn"onclick="window.location.href='/residents' style ="text-align: center;"> Gửi</button>
+</form>
+
+<style>
+    /* Thiết lập chung cho form */
+    .form-container {
+        width: 1500px; 
+        border-collapse: collapse;
+        margin-left: 120px;
+        padding: 20px;
+        background-color: #f2f2f2;
+        border-radius: 10px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Cỡ chữ tiêu đề */
+    .page-title {
+        font-size: 40px;
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    /* Các trường nhập liệu */
+    .form-group {
+        margin-bottom: 30px;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 15px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 20px;  /* Thay đổi cỡ chữ cho input */
+    }
+
+    /* Cải thiện nút bấm */
+    .submit-btn {
+        padding: 15px 25px;
+        background-color: #4B4B4B;
+        color: white;
+        font-size: 25px;
+        width: 100%;
+        border: none;
+        text-align: center;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        background-color: #7C7C7C;
+    }
+
+    .submit-btn:focus {
+        outline: none;
+    }
+
+    /* Cập nhật cỡ chữ cho nhãn (label) */
+    label {
+        font-size: 20px;
+        display: block;
+        margin-bottom: 10px;
+    }
+</style>
+
+{% endblock %}

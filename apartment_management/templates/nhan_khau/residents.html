@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %} Quản lý nhân khẩu {% endblock %}
+
+{% block content %}
+<!-- Các nút hành động ở trên bảng -->
+<div class="actions" style="margin-left: 150px; position: relative; top: 50px;"> 
+    <ul style="list-style-type: none;display: flex; justify-content: space-between; padding: 0; margin: 0;">
+        <li style="flex: 1; margin-right: 50px;">
+            <button class="action-btn" onclick="window.location.href='/residents/add'" 
+                style="background-color: #4B4B4B; color: white; font-size: 18px; width: 100%; padding: 20px; 
+                border: none; text-align: center; line-height: normal; border-radius: 5px; cursor: pointer; 
+                transition: background-color 0.3s ease;">
+                Thêm nhân khẩu 
+            </button>
+        </li>
+        <li style="flex: 1; margin-right: 50px;">
+            <button class="action-btn" onclick="window.location.href='/residents/edit'" 
+                style="background-color: #4B4B4B; color: white; font-size: 18px; width: 100%; padding: 20px; 
+                border: none; text-align: center; line-height: normal; border-radius: 5px; cursor: pointer; 
+                transition: background-color 0.3s ease;">
+                Thay đổi thông tin nhân khẩu
+            </button>
+        </li>
+        <li style="flex: 1;">
+            <button class="action-btn" onclick="window.location.href='/residents/update-status'" 
+                style="background-color: #4B4B4B; color: white; font-size: 18px; width: 100%; padding: 20px; 
+                border: none; text-align: center; line-height: normal; border-radius: 5px; cursor: pointer; 
+                transition: background-color 0.3s ease;">
+                Xóa nhân khẩu
+            </button>
+        </li>
+    </ul>
+</div>
+
+<!-- Bảng danh sách nhân khẩu -->
+<h1 style="font-size: 30px; margin-left: 150px; position: relative; top: 200px;">Danh sách nhân khẩu</h1>
+<table style="width: 1500px; border-collapse: collapse; margin-left: 150px; position: relative; top: 200px;">
+    <thead>
+        <tr style="background-color: #4B4B4B; color: white;">
+            <th style="padding: 15px; border: 1px solid #ddd; text-align: left;">ID</th>
+            <th style="padding: 15px; border: 1px solid #ddd; text-align: left;">Họ và tên</th>
+            <th style="padding: 15px; border: 1px solid #ddd; text-align: left;">CCCD</th>
+            <th style="padding: 15px; border: 1px solid #ddd; text-align: left;">Hộ gia đình </th>
+            <th style="padding: 15px; border: 1px solid #ddd; text-align: left;">Chi tiết</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for resident in residents %}
+        <tr>
+            <td style="padding: 15px; border: 1px solid #ddd;">{{ resident.id }}</td>
+            <td style="padding: 15px; border: 1px solid #ddd;">{{ resident.ho_ten }}</td>
+            <td style="padding: 15px; border: 1px solid #ddd;">{{ resident.ma_can_cuoc }}</td>
+            <td style="padding: 15px; border: 1px solid #ddd;">{{ resident.ho_gia_dinh }}</td>
+            <td style="padding: 15px; border: 1px solid #ddd;"><a href="/residents/{{ resident.id }}">Chi tiết</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

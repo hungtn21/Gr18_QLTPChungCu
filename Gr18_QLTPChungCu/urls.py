@@ -12,4 +12,8 @@ urlpatterns = [
     path('dashboard/admin/', nguoi_dung_views.admin_dashboard, name='AdminDashboard'),
     path('dashboard/bqlcc/', nguoi_dung_views.bqlcc_dashboard, name='BQLCCDashboard'),
     path('dashboard/ketoan/', nguoi_dung_views.kt_dashboard, name='KTDashboard'),
+    # Quản lý nhân khẩu
+    path('residents/', nhan_khau_views.resident_list, name='resident_list'),
+    path('residents/add/', nhan_khau_views.add_resident, name='add_resident')
+
 ]
