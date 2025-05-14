@@ -34,4 +34,10 @@ urlpatterns = [
     path('ketoan/create-khoanthu', thu_phi_views.create_khoanthu, name='create_khoanthu'),
     path('ketoan/update-khoanthu/<int:pk>', thu_phi_views.update_khoanthu, name='update_khoanthu' ),
     path('ketoan/delete-khoanthu/<int:pk>', thu_phi_views.delete_khoanthu, name='delete_khoanthu'),
+
+    path('ketoan/view-list-khoannop', thu_phi_views.view_list_khoannop, name='view_list_khoannop'),
+    path('ketoan/khoannop-details/<int:pk>', thu_phi_views.khoannop_details, name='khoannop_details'),
+    
+
+    
 ]
