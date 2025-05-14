@@ -5,6 +5,3 @@ from .models import NguoiDung
 @admin.register(NguoiDung)
 class NguoiDungAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'vai_tro', 'trang_thai')
-
-
-

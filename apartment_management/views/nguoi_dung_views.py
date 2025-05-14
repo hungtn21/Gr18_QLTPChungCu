@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
@@ -57,8 +58,7 @@ def bqlcc_dashboard(request):
 @login_required
 @role_required('Kế toán')
 def kt_dashboard(request):
-    username = request.user.username
-    return render(request, 'nguoi_dung/KTDashboard.html', {'username': username})
+    return render(request, 'thu_phi/KTDashboard.html')
 
 @login_required
 @role_required('Quản trị hệ thống')
