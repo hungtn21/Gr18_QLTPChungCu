@@ -27,9 +27,9 @@
            style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); color: gray;"></i>
     </div>
 
-    <button class="btn-add" id="btnAddHoKhau">
+    <a href="#" class="btn-add" id="btnAddHoKhau">
         <i class="fa fa-plus"></i> Thêm hộ khẩu mới
-    </button>
+    </a>
 </form>
 
 <br>
@@ -60,15 +60,7 @@
         <td style="padding: 10px;">{{ ho_khau.thoi_gian_bat_dau_o }}</td>
         <td style="padding: 10px;">{{ ho_khau.tong_thanh_vien }}</td>
         <td style="padding: 10px;">
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <a href="{% url 'update_khoanthu' pk=ho_khau.id %}" title="Sửa">
-                    <i class="fa fa-edit" style="color: #007bff; cursor: pointer;"></i>
-                </a>
-                <a href="{% url 'delete_khoanthu' pk=ho_khau.id %}" title="Xóa">
-                    <i class="fa fa-trash" style="color: #dc3545; cursor: pointer;"></i>
-                </a>
-            </div>
-        </td>
+             </td>
     </tr>
     {% endfor %}
     {% else %}

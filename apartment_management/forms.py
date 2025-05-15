@@ -56,6 +56,18 @@ class KhoanNopCreateForm(forms.ModelForm):
         model = ChiTietThu
         fields = ['ho_gia_dinh', 'so_tien_can_nop']
 
+class DanCuForm(forms.ModelForm):
+    class Meta:
+        model = DanCu
+        fields = ['ho_ten', 'ma_can_cuoc', 'ngay_sinh', 'gioi_tinh', 'trang_thai']
+        widgets = {
+            'ho_ten': forms.TextInput(attrs={'class': 'form-control'}),
+            'ma_can_cuoc': forms.TextInput(attrs={'class': 'form-control'}),
+            'ngay_sinh': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'gioi_tinh': forms.Select(attrs={'class': 'form-control'}),
+            'trang_thai': forms.Select(attrs={'class': 'form-control'}),
+        }
+
 
 class HoGiaDinhForm(forms.ModelForm):
     class Meta:

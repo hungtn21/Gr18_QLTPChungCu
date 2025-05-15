@@ -11,7 +11,8 @@ from django.contrib import messages
 from ..forms import  KhoanNopCreateForm, KhoanThuCreateForm, KhoanThuForm
 from django.utils.dateparse import parse_date
 from django.http import HttpResponse, JsonResponse
-from apartment_management.forms import HoGiaDinhForm
+from apartment_management.forms import HoGiaDinhForm, DanCuForm
+from django.views.decorators.http import require_http_methods
 
 
 @login_required
@@ -43,14 +44,28 @@ def quan_ly_ho_khau(request):
 @role_required('BQL Chung cư')
 def create_ho_khau(request):
     if request.method == 'POST':
-        form = HoGiaDinhForm(request.POST)
-        if form.is_valid():
-            form.save()
+        dan_cu_form = DanCuForm(request.POST)
+        ho_khau_form = HoGiaDinhForm(request.POST)
+
+        if dan_cu_form.is_valid() and ho_khau_form.is_valid():
+            chu_ho = dan_cu_form.save()
+            ho_khau = ho_khau_form.save(commit=False)
+            ho_khau.id_chu_ho = chu_ho
+            ho_khau.save()
+
             return JsonResponse({'success': True})
-        return JsonResponse({'success': False, 'html': render_to_string('nhan_khau/ho_khau_form.html', {'form': form}, request=request)})
+
+        html = render_to_string('nhan_khau/ho_khau_form.html', {
+            'dan_cu_form': dan_cu_form,
+            'ho_khau_form': ho_khau_form
+        }, request=request)
+        return JsonResponse({'success': False, 'html': html})
+
     else:
-        form = HoGiaDinhForm()
-        return render(request, 'nhan_khau/ho_khau_form.html', {'form': form})
+        return render(request, 'nhan_khau/ho_khau_form.html', {
+            'dan_cu_form': DanCuForm(),
+            'ho_khau_form': HoGiaDinhForm()
+        })
 
 
 @login_required
@@ -71,16 +86,12 @@ def quan_ly_nhan_khau(request):
         'query': query or ''
     })
 
-@login_required
-@role_required('BQL Chung cư')
-def create_nhankhau(request):
+@require_http_methods(["GET", "POST"])
+def create_dancu_modal(request):
+    form = DanCuForm(request.POST or None)
     if request.method == 'POST':
-        form = KhoanThuCreateForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Thêm khoản thu mới thành công!')
-            return redirect('view_list_khoanthu')
-    else:
-        form = KhoanThuCreateForm()
-
-    return render(request, 'thu_phi/create_khoanthu.html', {'form': form})
+            new_dancu = form.save()
+            return JsonResponse({'success': True, 'id': new_dancu.id, 'name': new_dancu.ho_ten})
+        return JsonResponse({'success': False, 'html': render_to_string('nhan_khau/dancu_mini_form.html', {'form': form}, request=request)})
+    return render(request, 'nhan_khau/dancu_mini_form.html', {'form': form})

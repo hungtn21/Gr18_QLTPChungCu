@@ -1,78 +1,56 @@
+{% comment %} ho_khau_form.html {% endcomment %}
+
 <form id="hoKhauForm" method="post">
-    {% csrf_token %}
+  {% csrf_token %}
 
-    <div class="form-group">
-        <label>Chọn chủ hộ:</label>
+  <h5>Thông tin chủ hộ</h5>
+  <div class="form-group">
+    <label for="ho_ten">Họ và tên:</label>
+    <input type="text" name="ho_ten" id="ho_ten" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="ma_can_cuoc">Số CCCD:</label>
+    <input type="text" name="ma_can_cuoc" id="ma_can_cuoc" class="form-control" required pattern="\d{12}">
+  </div>
+  <div class="form-group">
+    <label for="ngay_sinh">Ngày sinh:</label>
+    <input type="date" name="ngay_sinh" id="ngay_sinh" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="gioi_tinh">Giới tính:</label>
+    <select name="gioi_tinh" id="gioi_tinh" class="form-control">
+      <option value="Nam">Nam</option>
+      <option value="Nữ">Nữ</option>
+      <option value="Khác">Khác</option>
+    </select>
+  </div>
+    <hr>
 
-        <ul class="nav nav-tabs" id="chuHoTab">
-            <li class="nav-item">
-                <a class="nav-link active" id="chon-cu-tab" data-toggle="tab" href="#chon-cu">Chọn cư dân có sẵn</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="them-moi-tab" data-toggle="tab" href="#them-moi">Thêm cư dân mới</a>
-            </li>
-        </ul>
+  <h5>Thông tin hộ khẩu</h5>
+  <div class="form-group">
+    <label for="so_can_ho">Số căn hộ :</label>
+    <input type="text" name="so_can_ho" id="so_can_ho" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="dien_tich">Diện tích (m²):</label>
+    <input type="number" name="dien_tich" id="dien_tich" class="form-control">
+  </div>
+  <div class="form-group">
+    <label for="thoi_gian_bat_dau_o">Ngày bắt đầu ở:</label>
+    <input type="date" name="thoi_gian_bat_dau_o" id="thoi_gian_bat_dau_o" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="trang_thai">Trạng thái hộ khẩu:</label>
+    <select name="trang_thai" id="trang_thai" class="form-control">
+      <option value="Còn hiệu lực">Còn hiệu lực</option>
+      <option value="Tạm vắng">Tạm vắng</option>
+      <option value="Đã hủy">Đã hủy</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="ghi_chu">Ghi chú:</label>
+    <textarea name="ghi_chu" id="ghi_chu" class="form-control"></textarea>
+  </div>
 
-        <div class="tab-content mt-2">
-            <div class="tab-pane fade show active" id="chon-cu">
-                {{ form.id_chu_ho }}
-            </div>
-
-            <div class="tab-pane fade" id="them-moi">
-                <div id="form-them-dancu">
-                    <!-- Sẽ được load bằng AJAX -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{ form.so_can_ho }}
-    {{ form.dien_tich }}
-    {{ form.ghi_chu }}
-    {{ form.thoi_gian_bat_dau_o }}
-    {{ form.trang_thai }}
-
-    <button type="submit" class="btn btn-primary">Lưu hộ khẩu</button>
+  <button type="submit" class="btn btn-primary">Lưu hộ khẩu</button>
 </form>
-
-<script>
-    // Load mini-form cư dân khi vào tab
-    document.getElementById('them-moi-tab').addEventListener('click', function () {
-        if (!document.getElementById('form-them-dancu').innerHTML.trim()) {
-            fetch("{% url 'create_dancu_modal' %}")
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById('form-them-dancu').innerHTML = html;
-                });
-        }
-    });
-
-    // Submit mini form cư dân
-    document.addEventListener('submit', function (e) {
-        if (e.target.id === 'danCuMiniForm') {
-            e.preventDefault();
-            const form = e.target;
-
-            fetch("{% url 'create_dancu_modal' %}", {
-                method: 'POST',
-                body: new FormData(form),
-                headers: { 'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        const select = document.getElementById('id_id_chu_ho');
-                        const option = document.createElement('option');
-                        option.value = data.id;
-                        option.textContent = data.name;
-                        option.selected = true;
-                        select.appendChild(option);
-
-                        document.getElementById('chon-cu-tab').click();
-                    } else {
-                        document.getElementById('form-them-dancu').innerHTML = data.html;
-                    }
-                });
-        }
-    });
-</script>

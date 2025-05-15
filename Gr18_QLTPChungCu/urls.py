@@ -42,6 +42,9 @@ urlpatterns = [
     #------------------------BQL CC----------------------
     path('bqlChungCu/quan_ly_nhan_khau', nhan_khau_views.quan_ly_nhan_khau, name='quan_ly_nhan_khau'),
     path('bqlChungCu/quan_ly_ho_khau', nhan_khau_views.quan_ly_ho_khau, name='quan_ly_ho_khau'),
+   # Đường dẫn tạo hộ khẩu
     path('ho_khau/create/', nhan_khau_views.create_ho_khau, name='create_ho_khau'),
+    #Đường dẫn tạo cư dân trong modal hộ khẩu
+    path('dancu/create_modal/', nhan_khau_views.create_dancu_modal, name='create_dancu_modal'),
 
 ]
