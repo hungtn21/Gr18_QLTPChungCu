@@ -37,7 +37,11 @@ urlpatterns = [
 
     path('ketoan/view-list-khoannop', thu_phi_views.view_list_khoannop, name='view_list_khoannop'),
     path('ketoan/khoannop-details/<int:pk>', thu_phi_views.khoannop_details, name='khoannop_details'),
-    
 
-    
+
+    #------------------------BQL CC----------------------
+    path('bqlChungCu/quan_ly_nhan_khau', nhan_khau_views.quan_ly_nhan_khau, name='quan_ly_nhan_khau'),
+    path('bqlChungCu/quan_ly_ho_khau', nhan_khau_views.quan_ly_ho_khau, name='quan_ly_ho_khau'),
+    path('ho_khau/create/', nhan_khau_views.create_ho_khau, name='create_ho_khau'),
+
 ]

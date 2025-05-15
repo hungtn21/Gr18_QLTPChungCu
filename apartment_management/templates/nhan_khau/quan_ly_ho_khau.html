@@ -1,0 +1,170 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+
+{% block title %}Danh sách khoản thu{% endblock %}
+
+{% block content %}
+<!-- FontAwesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Toast Message -->
+{% if messages %}
+<div id="toast-container">
+    {% for message in messages %}
+    <div class="toast-message">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Quản lý hộ khẩu</h2>
+
+<!-- Search + Add -->
+<form method="get" style="display: flex; justify-content: space-between; margin: 10px 0; align-items: center;">
+    <div style="position: relative; width: 250px;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm"
+               style="padding: 8px 30px 8px 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
+        <i class="fa fa-search"
+           style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); color: gray;"></i>
+    </div>
+
+    <button class="btn-add" id="btnAddHoKhau">
+        <i class="fa fa-plus"></i> Thêm hộ khẩu mới
+    </button>
+</form>
+
+<br>
+
+<!-- Table -->
+<!-- Table -->
+<!-- Thêm cột Số tiền vào bảng -->
+<table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+    <thead style="background-color: #f0f0f0;">
+    <tr>
+        <th style="padding: 10px; text-align: center; width: 5%;">ID</th>
+        <th style="padding: 10px; text-align: center; width: 25%;">Tên chủ hộ</th>
+        <th style="padding: 10px; text-align: center; width: 15%;">CCCD chủ hộ</th>
+        <th style="padding: 10px; text-align: center; width: 15%;">Số căn hộ</th>
+        <th style="padding: 10px; text-align: center; width: 15%;">Ngày tạo</th>
+        <th style="padding: 10px; text-align: center; width: 15%;">Tổng thành viên</th>
+        <th style="padding: 10px; text-align: center; width: 10%;">Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if ho_khau_list %}
+    {% for ho_khau in ho_khau_list %}
+    <tr style="border-bottom: 1px solid #ccc; text-align: center;">
+        <td style="padding: 10px;">{{ ho_khau.id }}</td>
+        <td style="padding: 10px;">{{ ho_khau.id_chu_ho.ho_ten }}</td>
+        <td style="padding: 10px;">{{ ho_khau.id_chu_ho.ma_can_cuoc }}</td>
+        <td style="padding: 10px;">{{ ho_khau.so_can_ho }}</td>
+        <td style="padding: 10px;">{{ ho_khau.thoi_gian_bat_dau_o }}</td>
+        <td style="padding: 10px;">{{ ho_khau.tong_thanh_vien }}</td>
+        <td style="padding: 10px;">
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <a href="{% url 'update_khoanthu' pk=ho_khau.id %}" title="Sửa">
+                    <i class="fa fa-edit" style="color: #007bff; cursor: pointer;"></i>
+                </a>
+                <a href="{% url 'delete_khoanthu' pk=ho_khau.id %}" title="Xóa">
+                    <i class="fa fa-trash" style="color: #dc3545; cursor: pointer;"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+        <td colspan="6" style="text-align: center; padding: 20px;">Hiện không có hộ khẩu nào</td>
+    </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+<!-- Modal thêm hộ khẩu -->
+<div class="modal fade" id="hoKhauModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="hoKhauModalContent">
+            <!-- Form thêm hộ khẩu sẽ được nhét vào đây bằng AJAX -->
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('btnAddHoKhau').addEventListener('click', function(e) {
+        e.preventDefault();
+        fetch("{% url 'create_ho_khau' %}")
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('hoKhauModalContent').innerHTML = html;
+                $('#hoKhauModal').modal('show');  // nếu dùng Bootstrap
+            });
+    });
+</script>
+
+
+
+<!-- Styles -->
+<style>
+    .btn-add {
+        background-color: #007BFF;
+        color: white;
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .btn-add:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    #toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .toast-message {
+        background-color: #28a745;
+        color: white;
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        animation: fadeInOut 4s ease forwards;
+        font-weight: bold;
+    }
+
+    @keyframes fadeInOut {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        10% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    }
+</style>
+
+<!-- Auto-hide toast -->
+<script>
+    setTimeout(() => {
+        const toast = document.getElementById('toast-container');
+        if (toast) {
+            toast.remove();
+        }
+    }, 4000);
+</script>
+
+{% endblock %}

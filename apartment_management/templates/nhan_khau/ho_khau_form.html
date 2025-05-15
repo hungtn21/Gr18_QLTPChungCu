@@ -1,0 +1,78 @@
+<form id="hoKhauForm" method="post">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label>Chọn chủ hộ:</label>
+
+        <ul class="nav nav-tabs" id="chuHoTab">
+            <li class="nav-item">
+                <a class="nav-link active" id="chon-cu-tab" data-toggle="tab" href="#chon-cu">Chọn cư dân có sẵn</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="them-moi-tab" data-toggle="tab" href="#them-moi">Thêm cư dân mới</a>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-2">
+            <div class="tab-pane fade show active" id="chon-cu">
+                {{ form.id_chu_ho }}
+            </div>
+
+            <div class="tab-pane fade" id="them-moi">
+                <div id="form-them-dancu">
+                    <!-- Sẽ được load bằng AJAX -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ form.so_can_ho }}
+    {{ form.dien_tich }}
+    {{ form.ghi_chu }}
+    {{ form.thoi_gian_bat_dau_o }}
+    {{ form.trang_thai }}
+
+    <button type="submit" class="btn btn-primary">Lưu hộ khẩu</button>
+</form>
+
+<script>
+    // Load mini-form cư dân khi vào tab
+    document.getElementById('them-moi-tab').addEventListener('click', function () {
+        if (!document.getElementById('form-them-dancu').innerHTML.trim()) {
+            fetch("{% url 'create_dancu_modal' %}")
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById('form-them-dancu').innerHTML = html;
+                });
+        }
+    });
+
+    // Submit mini form cư dân
+    document.addEventListener('submit', function (e) {
+        if (e.target.id === 'danCuMiniForm') {
+            e.preventDefault();
+            const form = e.target;
+
+            fetch("{% url 'create_dancu_modal' %}", {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('id_id_chu_ho');
+                        const option = document.createElement('option');
+                        option.value = data.id;
+                        option.textContent = data.name;
+                        option.selected = true;
+                        select.appendChild(option);
+
+                        document.getElementById('chon-cu-tab').click();
+                    } else {
+                        document.getElementById('form-them-dancu').innerHTML = data.html;
+                    }
+                });
+        }
+    });
+</script>
