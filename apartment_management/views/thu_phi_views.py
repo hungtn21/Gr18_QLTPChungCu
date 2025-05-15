@@ -6,9 +6,10 @@ from ..models import ChiTietThu, DanCu, DotThu, HoGiaDinh, KhoanThu
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from ..forms import  KhoanNopCreateForm, KhoanThuCreateForm, KhoanThuForm
+from ..forms import KhoanThuCreateForm, KhoanThuForm
 from django.utils.dateparse import parse_date
 from django.http import HttpResponse, JsonResponse
+from django.db import transaction
 
 def xoa_tat_ca_chi_tiet_thu():
     ChiTietThu.objects.all().delete()
@@ -145,13 +146,18 @@ def khoannop_details(request, pk):
         ho = get_object_or_404(HoGiaDinh, id=ho_id)
 
         new_date = request.POST.get("ngay_nop")
-        new_so_tien = request.POST.get("so_tien_can_nop")
+        new_so_tien_raw = request.POST.get("so_tien_can_nop")
+        try:
+            new_so_tien = int(new_so_tien_raw) if new_so_tien_raw not in [None, ""] else 0
+        except ValueError:
+            return JsonResponse({'success': False, 'error': 'Số tiền không hợp lệ.'})
 
         chi_tiet = ChiTietThu.objects.filter(dot_thu=dot_thu, ho_gia_dinh=ho).first()
 
         if not chi_tiet:
-            if new_so_tien is None:
-                return JsonResponse({'success': False, 'error': 'Cần có số tiền khi tạo mới bản ghi.'})
+            if new_so_tien == 0:
+                return JsonResponse({'success': True})  # Không tạo bản ghi khi tiền = 0
+          
             try:
                 so_tien_int = int(new_so_tien)
             except ValueError:
@@ -165,6 +171,9 @@ def khoannop_details(request, pk):
                 trang_thai_nop="Đã nộp" if new_date else "Chưa nộp"
             )
         else:
+            if (not new_date or new_date.strip() == ""):
+                chi_tiet.delete()
+                return JsonResponse({'success': True, 'deleted': True})
             if new_so_tien is not None:
                 try:
                     chi_tiet.so_tien_can_nop = int(new_so_tien)
