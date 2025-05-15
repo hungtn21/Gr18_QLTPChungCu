@@ -201,6 +201,21 @@
                 var newTien = newTienRaw.trim() === "" ? 0 : parseInt(newTienRaw);
                 var hoId = input.data('ho-id');
 
+                // Kiểm tra xem ngày nộp có tồn tại không
+                var row = input.closest('tr');
+                var ngayNopInput = row.find('.input-ngay-nop');
+                var ngayNopValue = ngayNopInput.val();
+
+                if (ngayNopValue && newTien !== 0) {
+                    showToast("Clear ngày nộp trước khi thay đổi số tiền nộp", "danger");
+
+                    // Khôi phục lại input như ban đầu
+                    input.hide();
+                    input.siblings('.so-tien-hien').show();
+                    input.siblings('.edit-icon-tien').show();
+                    return;
+                }
+
                 $.ajax({
                     url: "",
                     method: "POST",
@@ -208,8 +223,7 @@
                     data: {
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
                         'ho_id': hoId,
-                        'so_tien_can_nop': newTien,
-                        
+                        'so_tien_can_nop': newTien
                     },
                     success: function (response) {
                         if (response.success) {
@@ -219,7 +233,7 @@
                             hienThi.show();
                             input.siblings('.edit-icon-tien').show();
                         } else if (response.error) {
-                            alert(response.error);
+                            showToast(response.error, "danger");
                         }
                     }
                 });
