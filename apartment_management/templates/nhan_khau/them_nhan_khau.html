@@ -1,0 +1,124 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+{% load static %}
+{% load form_tags %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-body">
+            <h4 class="card-title text-primary">Thêm Nhân Khẩu cho Căn hộ {{ ho.so_can_ho }}</h4>
+            <p class="text-muted">Vui lòng điền thông tin để thêm nhân khẩu.</p>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="POST" class="row g-3 mt-3">
+                {% csrf_token %}
+
+                <div class="col-md-6">
+                    <label class="form-label">Họ tên</label>
+                    {{ form.ho_ten|add_class:"form-control" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Ngày sinh</label>
+                    {{ form.ngay_sinh|add_class:"form-control" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Giới tính</label>
+                    {{ form.gioi_tinh|add_class:"form-select" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Mã căn cước</label>
+                    {{ form.ma_can_cuoc|add_class:"form-control" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Số điện thoại</label>
+                    {{ form.so_dien_thoai|add_class:"form-control" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Trạng thái</label>
+                    {{ form.trang_thai|add_class:"form-select" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Thời gian chuyển đến</label>
+                    {{ form.thoi_gian_chuyen_den|add_class:"form-control" }}
+                </div>
+
+<!--                <div class="col-md-6">-->
+<!--                    <label class="form-label">Thời gian chuyển đi</label>-->
+<!--                    {{ form.thoi_gian_chuyen_di|add_class:"form-control" }}-->
+<!--                </div>-->
+
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary">Thêm nhân khẩu</button>
+                    <a href="{% url 'quan_ly_ho_khau' %}" class="btn btn-secondary">Hoàn tất & Quay lại danh sách</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-5 shadow">
+        <div class="card-body">
+            <h5 class="card-title">Danh sách nhân khẩu đã thêm</h5>
+
+            {% if dancu_list %}
+            <table class="table table-bordered mt-3">
+                <thead class="table-light">
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Giới tính</th>
+                    <th>Ngày sinh</th>
+                    <th>Trạng thái</th>
+                    <th>Vai trò</th>  <!-- ✅ Cột mới -->
+                    <th>Thao tác</th> <!-- để đổi chủ hộ -->
+                </tr>
+                </thead>
+                <tbody>
+                {% for dancu in dancu_list %}
+                <tr>
+                    <td>{{ dancu.ho_ten }}</td>
+                    <td>{{ dancu.gioi_tinh }}</td>
+                    <td>{{ dancu.ngay_sinh }}</td>
+                    <td>{{ dancu.trang_thai }}</td>
+                    <td>
+                        {% if ho.id_chu_ho_id == dancu.id %}
+                        <span class="badge bg-primary">Chủ hộ</span>
+                        {% else %}
+                        Thành viên
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if ho.id_chu_ho_id != dancu.id %}
+                        <form method="POST" action="{% url 'doi_chu_ho' ho.id dancu.id %}?next=add">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Chọn làm chủ hộ</button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted">Đã là chủ hộ</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+            <p class="text-muted mt-3">Chưa có nhân khẩu nào được thêm.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

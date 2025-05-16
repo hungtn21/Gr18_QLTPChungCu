@@ -18,14 +18,14 @@ class EditProfileForm(forms.ModelForm):
             )
         ]
     )
-    
+
     class Meta:
         model = NguoiDung
         fields = ['so_dien_thoai']  # Chỉ giữ lại số điện thoại
         labels = {
             'so_dien_thoai': 'Số điện thoại'
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and hasattr(self.instance, 'user'):
@@ -90,21 +90,30 @@ class KhoanNopCreateForm(forms.ModelForm):
 class DanCuForm(forms.ModelForm):
     class Meta:
         model = DanCu
-        fields = ['ho_ten', 'ma_can_cuoc', 'ngay_sinh', 'gioi_tinh', 'trang_thai']
+        fields = [
+            'ho_ten',
+            'ngay_sinh',
+            'gioi_tinh',
+            'ma_can_cuoc',
+            'so_dien_thoai',
+            'trang_thai',
+            'thoi_gian_chuyen_den',
+            'thoi_gian_chuyen_di'
+        ]
         widgets = {
-            'ho_ten': forms.TextInput(attrs={'class': 'form-control'}),
-            'ma_can_cuoc': forms.TextInput(attrs={'class': 'form-control'}),
             'ngay_sinh': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'gioi_tinh': forms.Select(attrs={'class': 'form-control'}),
-            'trang_thai': forms.Select(attrs={'class': 'form-control'}),
+            'thoi_gian_chuyen_den': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'thoi_gian_chuyen_di': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'gioi_tinh': forms.Select(attrs={'class': 'form-select'}),
+            'trang_thai': forms.Select(attrs={'class': 'form-select'}),
         }
+
 
 
 class HoGiaDinhForm(forms.ModelForm):
     class Meta:
         model = HoGiaDinh
         fields = [
-            'id_chu_ho',
             'so_can_ho',
             'dien_tich',
             'ghi_chu',
@@ -112,7 +121,6 @@ class HoGiaDinhForm(forms.ModelForm):
             'trang_thai',
         ]
         widgets = {
-            'id_chu_ho': forms.Select(attrs={'class': 'form-control'}),
             'so_can_ho': forms.NumberInput(attrs={'class': 'form-control'}),
             'dien_tich': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
             'ghi_chu': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
@@ -121,7 +129,5 @@ class HoGiaDinhForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)  # ✅ dùng super() kiểu mới trong Python 3
-        self.fields['id_chu_ho'].queryset = DanCu.objects.filter(trang_thai='Đang sinh sống')
-        self.fields['id_chu_ho'].label = "Chủ hộ"
+        super().__init__(*args, **kwargs)
         self.fields['thoi_gian_bat_dau_o'].label = "Ngày bắt đầu ở"

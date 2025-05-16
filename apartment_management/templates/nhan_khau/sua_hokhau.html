@@ -1,0 +1,170 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+{% load form_tags %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="text-primary">Thông tin căn hộ {{ ho.so_can_ho }}</h3>
+
+    <form method="POST" class="row g-3">
+        {% csrf_token %}
+        <div class="col-md-6">
+            <label class="form-label">Số căn hộ</label>
+            {{ form.so_can_ho|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Diện tích</label>
+            {{ form.dien_tich|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Trạng thái</label>
+            {{ form.trang_thai|add_class:"form-select" }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Thời gian bắt đầu ở</label>
+            {{ form.thoi_gian_bat_dau_o|add_class:"form-control" }}
+        </div>
+
+        {% if form.initial.thoi_gian_ket_thuc_o %}
+        <div class="col-md-6">
+            <label class="form-label">Thời gian kết thúc ở</label>
+            {{ form.thoi_gian_ket_thuc_o|add_class:"form-control" }}
+        </div>
+        {% endif %}
+
+
+        <div class="col-12">
+            <label class="form-label">Ghi chú</label>
+            {{ form.ghi_chu|add_class:"form-control" }}
+        </div>
+
+
+        <h5>Danh sách nhân khẩu</h5>
+        <div class="mb-3 text-end">
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#themNhanKhauModal">
+                <i class="fa fa-user-plus"></i> Thêm nhân khẩu
+            </button>
+        </div>
+        <table class="table table-bordered mt-3">
+            <thead class="table-light">
+            <tr>
+                <th>Họ tên</th>
+                <th>Ngày sinh</th>
+                <th>Trạng thái</th>
+                <th>Vai trò</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for dancu in dancu_list %}
+            <tr>
+                <td>{{ dancu.ho_ten }}</td>
+                <td>{{ dancu.ngay_sinh }}</td>
+                <td>{{ dancu.trang_thai }}</td>
+                <td>
+                    {% if ho.id_chu_ho_id == dancu.id %}
+                    <span class="badge bg-primary">Chủ hộ</span>
+                    {% else %}
+                    Thành viên
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'sua_nhan_khau' dancu.id %}" title="Sửa" class="btn btn-sm btn-outline-primary">
+                        <i class="fa fa-edit"></i>
+                    </a>
+
+                    <form method="POST" action="{% url 'xoa_nhan_khau' dancu.id %}" style="display:inline;" onsubmit="return confirm('Xóa nhân khẩu này?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </form>
+
+
+                    {% if ho.id_chu_ho_id != dancu.id %}
+                    <form method="POST" action="{% url 'doi_chu_ho' ho.id dancu.id %}?next=edit" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-success" title="Chọn làm chủ hộ">
+                            <i class="fa fa-crown"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <hr class="my-4">
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+            <a href="{% url 'quan_ly_ho_khau' %}" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+
+
+</div>
+
+<!-- Modal thêm nhân khẩu -->
+<div class="modal fade" id="themNhanKhauModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'them_nhan_khau_tu_modal' ho.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm nhân khẩu mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Họ tên</label>
+                            <input name="ho_ten" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày sinh</label>
+                            <input type="date" name="ngay_sinh" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Giới tính</label>
+                            <select name="gioi_tinh" class="form-select">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Mã căn cước</label>
+                            <input name="ma_can_cuoc" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input name="so_dien_thoai" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Trạng thái</label>
+                            <select name="trang_thai" class="form-select">
+                                <option value="Đang sinh sống">Đang sinh sống</option>
+                                <option value="Đã chuyển đi">Đã chuyển đi</option>
+                                <option value="Đã qua đời">Đã qua đời</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Thời gian chuyển đến</label>
+                            <input type="date" name="thoi_gian_chuyen_den" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Thời gian chuyển đi</label>
+                            <input type="date" name="thoi_gian_chuyen_di" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

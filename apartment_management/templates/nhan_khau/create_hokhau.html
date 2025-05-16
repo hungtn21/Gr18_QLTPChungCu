@@ -1,0 +1,53 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+{% load static %}
+{% load form_tags %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Thêm Hộ Khẩu Mới</h2>
+
+    <!-- Hiển thị thông báo thành công -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="POST" class="row g-3">
+        {% csrf_token %}
+
+        <div class="col-md-6">
+            <label for="id_so_can_ho" class="form-label">Số căn hộ</label>
+            {{ form.so_can_ho|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+            <label for="id_dien_tich" class="form-label">Diện tích (m²)</label>
+            {{ form.dien_tich|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+            <label for="id_trang_thai" class="form-label">Trạng thái</label>
+            {{ form.trang_thai|add_class:"form-select" }}
+        </div>
+
+        <div class="col-md-6">
+            <label for="id_thoi_gian_bat_dau_o" class="form-label">Thời gian bắt đầu ở</label>
+            {{ form.thoi_gian_bat_dau_o|add_class:"form-control" }}
+        </div>
+
+
+        <div class="col-12">
+            <label for="id_ghi_chu" class="form-label">Ghi chú</label>
+            {{ form.ghi_chu|add_class:"form-control" }}
+        </div>
+
+        <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-primary">Thêm mới</button>
+            <a href="{% url 'quan_ly_ho_khau' %}" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

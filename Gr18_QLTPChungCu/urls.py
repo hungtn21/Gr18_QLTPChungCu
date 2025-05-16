@@ -47,8 +47,24 @@ urlpatterns = [
     path('bqlChungCu/quan_ly_nhan_khau', nhan_khau_views.quan_ly_nhan_khau, name='quan_ly_nhan_khau'),
     path('bqlChungCu/quan_ly_ho_khau', nhan_khau_views.quan_ly_ho_khau, name='quan_ly_ho_khau'),
    # Đường dẫn tạo hộ khẩu
-    path('ho_khau/create/', nhan_khau_views.create_ho_khau, name='create_ho_khau'),
-    #Đường dẫn tạo cư dân trong modal hộ khẩu
-    path('dancu/create_modal/', nhan_khau_views.create_dancu_modal, name='create_dancu_modal'),
+    path('bqlChungCu/quan_ly_ho_khau/create/', nhan_khau_views.create_ho_khau, name='create_ho_khau'),
+    path(
+        'bqlChungCu/them-nhan-khau/<int:ho_gia_dinh_id>/',
+        nhan_khau_views.them_nhan_khau_cho_ho,
+        name='them_nhan_khau_cho_ho'
+    ),
+    path(
+        'bqlChungCu/doi-chu-ho/<int:ho_id>/<int:dan_cu_id>/',
+        nhan_khau_views.doi_chu_ho,
+        name='doi_chu_ho'
+    ),
+    path('bqlChungCu/xoa-ho-khau/<int:pk>/', nhan_khau_views.xoa_ho_khau, name='xoa_ho_khau'),
+    path('bqlChungCu/sua-ho-khau/<int:pk>/', nhan_khau_views.sua_ho_khau, name='sua_ho_khau'),
+    path('bqlChungCu/sua-nhan-khau/<int:pk>/', nhan_khau_views.sua_nhan_khau, name='sua_nhan_khau'),
+    path('bqlChungCu/xoa-nhan-khau/<int:pk>/', nhan_khau_views.xoa_nhan_khau, name='xoa_nhan_khau'),
+    path('bqlChungCu/them-nhan-khau/<int:ho_id>/', nhan_khau_views.them_nhan_khau_tu_sua, name='them_nhan_khau_tu_sua'),
+    path('bqlChungCu/them-nhan-khau-modal/<int:ho_id>/', nhan_khau_views.them_nhan_khau_tu_modal, name='them_nhan_khau_tu_modal'),
+
+
 
 ]
