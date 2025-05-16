@@ -1,0 +1,103 @@
+{% extends 'nguoi_dung/kt_base.html' %}
+
+{% block content %}
+<!-- Load FontAwesome từ CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<h2 style="text-align: center;">Chi tiết khoản thu</h2>
+
+<form method="post" id="khoanthu-form">
+    {% csrf_token %}
+    <div
+        style="border: 2px solid #00f; padding: 20px; background: #f9f9f9; width: 400px; margin: auto; border-radius: 10px;">
+
+        <div style="margin-bottom: 15px;">
+            <label><strong>Tên khoản thu:</strong></label><br>
+            <div style="display: flex; align-items: center;">
+                {{ form.ten_khoan_thu }}
+                <button type="button" onclick="enableField('id_ten_khoan_thu')" class="icon-button">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label><strong>Loại khoản thu:</strong></label><br>
+            <div style="display: flex; align-items: center;">
+                {{ form.loai_khoan_thu }}
+                <button type="button" onclick="enableField('id_loai_khoan_thu')" class="icon-button">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label><strong>Ghi chú:</strong></label><br>
+            <div style="display: flex; align-items: center;">
+                {{ form.ghi_chu }}
+                <button type="button" onclick="enableField('id_ghi_chu')" class="icon-button">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit"
+                style="padding: 10px 25px; border-radius: 8px; background: #888; color: white; border: none;">Lưu</button>
+        </div>
+    </div>
+</form>
+
+<style>
+    .icon-button {
+        background: none;
+        border: none;
+        margin-left: 10px;
+        color: #007BFF;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .icon-button:hover {
+        color: #0056b3;
+    }
+
+    input[readonly],
+    select[disabled],
+    textarea[readonly] {
+        background-color: #e9ecef;
+        border: 1px solid #ccc;
+    }
+
+    input,
+    select,
+    textarea {
+        flex-grow: 1;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+
+    .readonly-select {
+        pointer-events: none;
+        /* Chặn người dùng click */
+        background-color: #e9ecef;
+        border: 1px solid #ccc;
+    }
+</style>
+
+<script>
+    function enableField(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (field.tagName === "SELECT") {
+            field.classList.remove('readonly-select');  // Bật lại chọn
+        } else if (field.tagName === "TEXTAREA" || field.tagName === "INPUT") {
+            field.removeAttribute('readonly');
+        }
+        field.focus();
+    }
+</script>
+
+{% endblock %}
