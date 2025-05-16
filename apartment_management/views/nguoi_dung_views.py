@@ -152,7 +152,6 @@ def create_new_user(request):
 #--------------------------------------Thay đổi mật khẩu---------------------------------------
 
 @login_required
-@role_required('Quản trị hệ thống')
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
@@ -170,7 +169,6 @@ def change_password(request):
 
 #---------------------------------Chỉnh sửa thông tin cá nhân----------------------------------------
 @login_required
-@role_required('Quản trị hệ thống')
 def edit_profile(request):
     try:
         nguoi_dung = request.user.nguoidung
