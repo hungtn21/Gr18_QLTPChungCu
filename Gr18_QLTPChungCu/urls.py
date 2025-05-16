@@ -22,13 +22,17 @@ from apartment_management.views import nguoi_dung_views, nhan_khau_views, thu_ph
 urlpatterns = [
     path('login/', nguoi_dung_views.login_view, name='login'),
     path('', lambda request: redirect('login')),
-    path('admin/user-management/', nguoi_dung_views.login_view, name='admin-user-management'),
+    #==========================Admin routes=========================================================
+    path('admin/user-management/', nguoi_dung_views.user_management, name='admin_user_management'),
+    path('admin/user-management/create-new-user', nguoi_dung_views.create_new_user, name='create_new_user'),
+    path('admin/change-password/', nguoi_dung_views.change_password, name='admin_change_password'),
+    path('admin/edit-profile/', nguoi_dung_views.edit_profile, name='admin_edit_profile'),
+    path('logout/', nguoi_dung_views.logout_view, name='admin_logout'),
     # path('users/', nguoi_dung_views.list_users, name='list_users'),
-    path('dashboard/admin/', nguoi_dung_views.admin_dashboard, name='AdminDashboard'),
+    # path('dashboard/admin/', nguoi_dung_views.admin_dashboard, name='AdminDashboard'),
     path('dashboard/bqlcc/', nguoi_dung_views.bqlcc_dashboard, name='BQLCCDashboard'),
     path('dashboard/ketoan/', nguoi_dung_views.kt_dashboard, name='KTDashboard'),
-
-
+    path('admin/user-management/toggle-status/<int:user_id>/', nguoi_dung_views.toggle_user_status, name='toggle_user_status'),
     #==========================Ke toan routes=========================================================
     path('ketoan/view-list-khoanthu', thu_phi_views.view_list_khoanthu, name='view_list_khoanthu'),
     path('ketoan/create-khoanthu', thu_phi_views.create_khoanthu, name='create_khoanthu'),

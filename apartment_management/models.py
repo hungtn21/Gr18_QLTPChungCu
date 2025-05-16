@@ -23,7 +23,7 @@ class NguoiDung(models.Model):
 
 
 class HoGiaDinh(models.Model):
-    id_chu_ho = models.ForeignKey('DanCu', on_delete=models.PROTECT, related_name='chu_ho')
+    id_chu_ho = models.ForeignKey('DanCu', on_delete=models.PROTECT, related_name='chu_ho', null=True, blank=True)
     so_can_ho = models.IntegerField()
     dien_tich = models.FloatField()
     ghi_chu = models.TextField(null=True, blank=True)

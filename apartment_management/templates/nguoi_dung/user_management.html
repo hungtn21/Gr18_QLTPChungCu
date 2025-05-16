@@ -1,0 +1,203 @@
+{% extends 'nguoi_dung/admin_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users me-2"></i>Quản lý người dùng</h2>
+        <a href="{% url 'create_new_user' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i>Tạo người dùng mới
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered" id="userTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>STT</th>
+                            <th>Họ và tên</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.stt }}</td>
+                            <td>{{ user.ho_ten }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.so_dien_thoai }}</td>
+                            <td>{{ user.vai_tro }}</td>
+                            <td>
+                                <span class="badge {% if user.trang_thai == 'Đang hoạt động' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ user.trang_thai }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm {% if user.trang_thai == 'Đang hoạt động' %}btn-outline-danger{% else %}btn-outline-success{% endif %} toggle-status-btn" 
+                                        data-user-id="{{ user.id }}"
+                                        data-username="{{ user.username }}"
+                                        data-current-status="{{ user.trang_thai }}"
+                                        title="{% if user.trang_thai == 'Đang hoạt động' %}Khóa tài khoản{% else %}Mở khóa tài khoản{% endif %}">
+                                    <i class="fas {% if user.trang_thai == 'Đang hoạt động' %}fa-user-slash{% else %}fa-user-check{% endif %}"></i>
+                                    <span class="ms-1 d-none d-md-inline">
+                                        {% if user.trang_thai == 'Đang hoạt động' %}Khóa{% else %}Mở{% endif %}
+                                    </span>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận thao tác</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Bạn có chắc chắn muốn khóa tài khoản này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmAction">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let currentUserId = null;
+    
+    // Xử lý click nút khóa/mở khóa
+    $('.lock-user-btn').click(function() {
+        const userId = $(this).data('user-id');
+        const username = $(this).data('username');
+        const currentStatus = $(this).data('current-status');
+        
+        currentUserId = userId;
+        
+        // Thiết lập nội dung modal
+        if (currentStatus === 'Đang hoạt động') {
+            $('#modalMessage').text(`Bạn có chắc chắn muốn khóa tài khoản ${username}?`);
+            $('#confirmAction').removeClass('btn-success').addClass('btn-danger').text('Khóa tài khoản');
+        } else {
+            $('#modalMessage').text(`Bạn có chắc chắn muốn mở khóa tài khoản ${username}?`);
+            $('#confirmAction').removeClass('btn-danger').addClass('btn-success').text('Mở khóa tài khoản');
+        }
+        
+        // Hiển thị modal
+        $('#confirmModal').modal('show');
+    });
+    
+    // Xác nhận thao tác
+    $('#confirmAction').click(function() {
+        $.ajax({
+            url: `/admin/user-management/toggle-status/${currentUserId}/`,
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Cập nhật giao diện
+                    const row = $(`button[data-user-id="${currentUserId}"]`).closest('tr');
+                    const statusBadge = row.find('td:nth-child(6) span');
+                    
+                    if (response.action === 'locked') {
+                        statusBadge.removeClass('bg-success').addClass('bg-danger').text('Bị khóa');
+                        // Cập nhật data attribute
+                        $(`button[data-user-id="${currentUserId}"]`).data('current-status', 'Bị khóa');
+                    } else {
+                        statusBadge.removeClass('bg-danger').addClass('bg-success').text('Đang hoạt động');
+                        // Cập nhật data attribute
+                        $(`button[data-user-id="${currentUserId}"]`).data('current-status', 'Đang hoạt động');
+                    }
+                    
+                    // Hiển thị toast thông báo
+                    showToast(response.action === 'locked' ? 
+                        'Đã khóa tài khoản thành công' : 
+                        'Đã mở khóa tài khoản thành công', 'success');
+                } else {
+                    showToast('Có lỗi xảy ra: ' + response.message, 'error');
+                }
+                $('#confirmModal').modal('hide');
+            },
+            error: function(xhr) {
+                showToast('Có lỗi xảy ra khi thực hiện thao tác', 'error');
+                $('#confirmModal').modal('hide');
+            }
+        });
+    });
+    
+    function showToast(message, type) {
+        const toastContainer = $('.toast-container');
+        const toastEl = $(`
+            <div class="toast align-items-center text-white ${type === 'error' ? 'bg-danger' : 'bg-success'} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `);
+        
+        toastContainer.append(toastEl);
+        const toast = new bootstrap.Toast(toastEl[0], { delay: 3000 });
+        toast.show();
+        
+        toastEl.on('hidden.bs.toast', function() {
+            $(this).remove();
+        });
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-status-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            const username = this.dataset.username;
+            const currentStatus = this.dataset.currentStatus;
+            const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
+            
+            if (confirm(`Bạn có chắc muốn ${action} tài khoản ${username}?`)) {
+                fetch(`/admin/user-management/toggle-status/${userId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Reload trang để cập nhật trạng thái
+                        window.location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra: ' + (data.message || ''));
+                    }
+                })
+                .catch(error => {
+                    alert('Lỗi kết nối: ' + error);
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
