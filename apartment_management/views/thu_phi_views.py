@@ -9,7 +9,7 @@ from django.contrib import messages
 from ..forms import KhoanThuCreateForm, KhoanThuForm
 from django.utils.dateparse import parse_date
 from django.http import HttpResponse, JsonResponse
-from django.db import transaction
+from datetime import datetime
 
 def xoa_tat_ca_chi_tiet_thu():
     ChiTietThu.objects.all().delete()
@@ -91,34 +91,82 @@ def delete_khoanthu(request, pk):
 
 
 
+# @login_required
+# @role_required('Kế toán')
+# def view_list_khoannop(request):
+#     query = request.GET.get('q')
+#     khoan_nop_info = []
+#     if query:
+#         dot_thu_list = DotThu.objects.filter(
+#             Q(khoan_thu__ten_khoan_thu__icontains=query) |
+#             Q(ten_dot_thu__icontains=query)
+#         )
+#     else:
+#         dot_thu_list = DotThu.objects.filter(trang_thai="Đang tiến hành")
+
+#     for dot_thu in dot_thu_list:
+#         ho_dang_sinh_song_ids = DanCu.objects.filter(trang_thai='Đang sinh sống')\
+#                                              .values_list('ho_gia_dinh_id', flat=True)\
+#                                              .distinct()
+#         total_ho_gia_dinh = ho_dang_sinh_song_ids.count()
+
+#         ho_da_nop_ids = ChiTietThu.objects.filter(dot_thu=dot_thu, trang_thai_nop='Đã nộp')\
+#                                           .values_list('ho_gia_dinh_id', flat=True)\
+#                                           .distinct()
+      
+#         ho_gia_dinh_da_nop = len(set(ho_da_nop_ids).intersection(set(ho_dang_sinh_song_ids)))
+
+#         khoan_nop_info.append({
+#             'dot_thu': dot_thu,
+#             'ten_khoan_thu': dot_thu.khoan_thu.ten_khoan_thu,
+#             'so_luong_nop': f"{ho_gia_dinh_da_nop}/{total_ho_gia_dinh}",
+#             'thoi_gian': f"{dot_thu.thoi_gian_bat_dau} - {dot_thu.thoi_gian_ket_thuc}",
+#         })
+
+#     return render(request, 'thu_phi/view_list_khoannop.html', {
+#         'khoan_nop_info': khoan_nop_info,
+#         'query': query or ''
+#     })
+from datetime import datetime
+
 @login_required
 @role_required('Kế toán')
 def view_list_khoannop(request):
     query = request.GET.get('q')
-    khoan_nop_info = []
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
 
-    # Lọc các đợt thu đang tiến hành
+    start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date() if start_date_str else None
+    end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() if end_date_str else None
+
+    dot_thu_list = DotThu.objects.all()
+
     if query:
-        dot_thu_list = DotThu.objects.filter(
+        dot_thu_list = dot_thu_list.filter(
             Q(khoan_thu__ten_khoan_thu__icontains=query) |
             Q(ten_dot_thu__icontains=query)
         )
-    else:
-        dot_thu_list = DotThu.objects.filter(trang_thai="Đang tiến hành")
+    
+    # Lọc theo khoảng thời gian nếu có
+    if start_date:
+        dot_thu_list = dot_thu_list.filter(thoi_gian_bat_dau__gte=start_date)
+    if end_date:
+        dot_thu_list = dot_thu_list.filter(thoi_gian_ket_thuc__lte=end_date)
+    
+    if not query and not start_date and not end_date:
+        dot_thu_list = dot_thu_list.filter(trang_thai="Đang tiến hành")
+
+    khoan_nop_info = []
+    ho_dang_sinh_song_ids = DanCu.objects.filter(trang_thai='Đang sinh sống')\
+                                         .values_list('ho_gia_dinh_id', flat=True)\
+                                         .distinct()
+    total_ho_gia_dinh = ho_dang_sinh_song_ids.count()
 
     for dot_thu in dot_thu_list:
-        # Lấy danh sách các hộ đang sinh sống (dựa theo DanCu)
-        ho_dang_sinh_song_ids = DanCu.objects.filter(trang_thai='Đang sinh sống')\
-                                             .values_list('ho_gia_dinh_id', flat=True)\
-                                             .distinct()
-        total_ho_gia_dinh = ho_dang_sinh_song_ids.count()
-
-        # Số hộ đã nộp trong đợt thu này
         ho_da_nop_ids = ChiTietThu.objects.filter(dot_thu=dot_thu, trang_thai_nop='Đã nộp')\
                                           .values_list('ho_gia_dinh_id', flat=True)\
                                           .distinct()
-
-        # Đếm số hộ đã nộp mà vẫn đang sinh sống
+      
         ho_gia_dinh_da_nop = len(set(ho_da_nop_ids).intersection(set(ho_dang_sinh_song_ids)))
 
         khoan_nop_info.append({
@@ -130,8 +178,11 @@ def view_list_khoannop(request):
 
     return render(request, 'thu_phi/view_list_khoannop.html', {
         'khoan_nop_info': khoan_nop_info,
-        'query': query or ''
+        'query': query or '',
+        'start_date': start_date_str or '',
+        'end_date': end_date_str or ''
     })
+
 
 
 
