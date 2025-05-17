@@ -37,50 +37,53 @@
 <!-- Table -->
 <!-- Table -->
 <!-- Thêm cột Số tiền vào bảng -->
+<!-- Table -->
 <table class="table table-bordered mt-3">
     <thead class="table-light">
     <tr>
-        <th>ID</th>
+        <th>STT</th>             {# đổi tên cột #}
         <th>Tên chủ hộ</th>
         <th>CCCD chủ hộ</th>
-        <th >Số căn hộ</th>
-        <th >Ngày tạo</th>
-        <th >Tổng thành viên</th>
-        <th >Thao tác</th>
+        <th>Số căn hộ</th>
+        <th>Ngày tạo</th>
+        <th>Tổng thành viên</th>
+        <th>Thao tác</th>
     </tr>
     </thead>
     <tbody>
     {% if ho_khau_list %}
-    {% for ho_khau in ho_khau_list %}
-    <tr >
-        <td >{{ ho_khau.id }}</td>
-        <td >{{ ho_khau.id_chu_ho.ho_ten }}</td>
-        <td >{{ ho_khau.id_chu_ho.ma_can_cuoc }}</td>
-        <td >{{ ho_khau.so_can_ho }}</td>
-        <td >{{ ho_khau.thoi_gian_bat_dau_o }}</td>
-        <td >{{ ho_khau.tong_thanh_vien }}</td>
-        <td>
-                <a href="{% url 'sua_ho_khau' ho_khau.id %}" title="Chi tiết" class="btn btn-sm btn-outline-primary">
+        {% for ho_khau in ho_khau_list %}
+        <tr>
+            <td>{{ forloop.counter }}</td>   {# số thứ tự #}
+            <td>{{ ho_khau.id_chu_ho.ho_ten }}</td>
+            <td>{{ ho_khau.id_chu_ho.ma_can_cuoc }}</td>
+            <td>{{ ho_khau.so_can_ho }}</td>
+            <td>{{ ho_khau.thoi_gian_bat_dau_o }}</td>
+            <td>{{ ho_khau.tong_thanh_vien }}</td>
+            <td>
+                <a href="{% url 'sua_ho_khau' ho_khau.id %}" title="Chi tiết"
+                   class="btn btn-sm btn-outline-primary">
                     <i class="fa fa-edit"></i>
                 </a>
-                <form method="POST" action="{% url 'xoa_ho_khau' ho_khau.id %}" style="display:inline;"
+                <form method="POST" action="{% url 'xoa_ho_khau' ho_khau.id %}"
+                      style="display:inline;"
                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa hộ khẩu này không?');">
                     {% csrf_token %}
                     <button type="submit" title="Xóa" class="btn btn-sm btn-outline-danger">
-                        <i class="fa fa-trash" ></i>
-                    </button >
-
+                        <i class="fa fa-trash"></i>
+                    </button>
                 </form>
-        </td>
-    </tr>
-    {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
     {% else %}
-    <tr>
-        <td colspan="6" style="text-align: center; padding: 20px;">Hiện không có hộ khẩu nào</td>
-    </tr>
+        <tr>
+            <td colspan="7" style="text-align:center; padding:20px;">Hiện không có hộ khẩu nào</td>
+        </tr>
     {% endif %}
     </tbody>
 </table>
+
 
 
 

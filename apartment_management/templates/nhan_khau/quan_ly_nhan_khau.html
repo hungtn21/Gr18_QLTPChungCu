@@ -1,11 +1,11 @@
 {% extends 'nhan_khau/nhankhau_base.html' %}
 
-{% block title %}Danh sách khoản thu{% endblock %}
+{% block title %}Quản lý nhân khẩu{% endblock %}
 
 {% block content %}
-<!-- FontAwesome CDN -->
+<!-- FontAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+      integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <!-- Toast Message -->
 {% if messages %}
@@ -16,83 +16,67 @@
 </div>
 {% endif %}
 
-<h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Quản lý nhân khẩu</h2>
+<h2 style="margin-top: 0; text-align: center; color: #000000; font-size: 36px;">Quản lý nhân khẩu</h2>
 
-<!-- Search + Add -->
-<form method="get" style="display: flex; justify-content: space-between; margin: 10px 0; align-items: center;">
-    <div style="position: relative; width: 250px;">
-        <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm"
-            style="padding: 8px 30px 8px 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
+<!-- Search bar -->
+<form method="get" style="display: flex; justify-content: flex-start; margin: 10px 0; align-items: center;">
+    <div style="position: relative; width: 300px;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm theo họ tên, CCCD, căn hộ..."
+               style="padding: 8px 30px 8px 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
         <i class="fa fa-search"
-            style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); color: gray;"></i>
+           style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: gray;"></i>
     </div>
-
-    <a href="{% url 'create_khoanthu' %}" class="btn-add">
-        <i class="fa fa-plus"></i> Thêm nhân khẩu mới
-    </a>
 </form>
 
-<br>
-
 <!-- Table -->
-<!-- Table -->
-<!-- Thêm cột Số tiền vào bảng -->
-<table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-    <thead style="background-color: #f0f0f0;">
-        <tr>
-            <th style="padding: 10px; text-align: center; width: 5%;">ID</th>
-            <th style="padding: 10px; text-align: center; width: 25%;">Họ và tên</th>
-            <th style="padding: 10px; text-align: center; width: 15%;">Căn cước công dân</th>
-            <th style="padding: 10px; text-align: center; width: 15%;">Mã căn hộ</th>
-            <th style="padding: 10px; text-align: center; width: 10%;">Thao tác</th>
-        </tr>
+<table class="table table-bordered mt-3">
+    <thead class="table-light">
+    <tr>
+        <th>STT</th>
+        <th>Họ tên</th>
+        <th>Ngày sinh</th>
+        <th>CCCD</th>
+        <th>Số điện thoại</th>
+        <th>Căn hộ</th>
+        <th>Trạng thái</th>
+        <th>Thao tác</th>
+    </tr>
     </thead>
     <tbody>
-        {% if nhan_khau_list %}
-        {% for nhan_khau in nhan_khau_list %}
-        <tr style="border-bottom: 1px solid #ccc; text-align: center;">
-            <td style="padding: 10px;">{{ nhan_khau.id }}</td>
-            <td style="padding: 10px;">{{ nhan_khau.ho_ten }}</td>
-            <td style="padding: 10px;">{{ nhan_khau.ma_can_cuoc }}</td>
-            <td style="padding: 10px;">{{ nhan_khau.ho_gia_dinh }}</td>
-            <td style="padding: 10px;">
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <a href="{% url 'update_khoanthu' pk=kt.id %}" title="Sửa">
-                        <i class="fa fa-edit" style="color: #007bff; cursor: pointer;"></i>
-                    </a>
-                    <a href="{% url 'delete_khoanthu' pk=kt.id %}" title="Xóa">
-                        <i class="fa fa-trash" style="color: #dc3545; cursor: pointer;"></i>
-                    </a>
-                </div>
+    {% if nhan_khau_list %}
+        {% for nk in nhan_khau_list %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ nk.ho_ten }}</td>
+            <td>{{ nk.ngay_sinh }}</td>
+            <td>{{ nk.ma_can_cuoc }}</td>
+            <td>{{ nk.so_dien_thoai }}</td>
+            <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
+            <td>{{ nk.trang_thai }}</td>
+            <td>
+                <a href="{% url 'sua_nhan_khau' nk.id %}" class="btn btn-sm btn-outline-primary" title="Sửa">
+                    <i class="fa fa-edit"></i>
+                </a>
+                <form action="{% url 'xoa_nhan_khau' nk.id %}" method="post" style="display:inline;" 
+                      onsubmit="return confirm('Bạn có chắc muốn xóa nhân khẩu này?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </form>
             </td>
         </tr>
         {% endfor %}
-        {% else %}
+    {% else %}
         <tr>
-            <td colspan="6" style="text-align: center; padding: 20px;">Hiện không có nhân khẩu nào</td>
+            <td colspan="8" class="text-center py-3">Không có nhân khẩu nào</td>
         </tr>
-        {% endif %}
+    {% endif %}
     </tbody>
 </table>
 
-
-
 <!-- Styles -->
 <style>
-    .btn-add {
-        background-color: #007BFF;
-        color: white;
-        text-decoration: none;
-        padding: 8px 14px;
-        border-radius: 5px;
-        transition: background-color 0.3s ease, transform 0.2s;
-    }
-
-    .btn-add:hover {
-        background-color: #0056b3;
-        transform: scale(1.05);
-    }
-
     #toast-container {
         position: fixed;
         top: 20px;

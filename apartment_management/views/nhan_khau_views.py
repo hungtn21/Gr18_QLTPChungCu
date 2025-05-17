@@ -14,6 +14,10 @@ from django.http import HttpResponse, JsonResponse
 from apartment_management.forms import HoGiaDinhForm, DanCuForm
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.http import require_POST
+from apartment_management.forms import EditProfileForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from apartment_management.forms import EditProfileForm
 
 
 @login_required
@@ -24,7 +28,7 @@ def quan_ly_ho_khau(request):
     # Annotate: thêm cột đếm số thành viên đang sinh sống
     ho_khau_list = HoGiaDinh.objects.annotate(
         tong_thanh_vien=Count('dancu', filter=Q(dancu__trang_thai='Đang sinh sống'))
-    )
+    ).order_by('id')  
 
     if query:
         ho_khau_list = ho_khau_list.filter(
@@ -110,8 +114,21 @@ def doi_chu_ho(request, ho_id, dan_cu_id):
 @require_http_methods(["POST"])
 def xoa_ho_khau(request, pk):
     ho = get_object_or_404(HoGiaDinh, id=pk)
-    ho.delete()  # ✅ Xóa HoGiaDinh, đồng thời xóa luôn DanCu liên kết
-    messages.success(request, f'Đã xóa hộ khẩu căn hộ {ho.so_can_ho}.')
+
+    so_can_ho = ho.so_can_ho  # ⬅️ Lưu trước khi xóa để không bị lỗi
+
+    # Gỡ liên kết chủ hộ để tránh lỗi PROTECTED
+    ho.id_chu_ho = None
+    ho.save()
+
+    # Xóa dân cư trước
+    DanCu.objects.filter(ho_gia_dinh=ho).delete()
+
+    # Xóa hộ
+    ho.delete()
+
+    # Thông báo thành công (dùng biến đã lưu)
+    messages.success(request, f'Đã xóa hộ khẩu căn hộ {so_can_ho}.')
     return redirect('quan_ly_ho_khau')
 
 @login_required
@@ -261,13 +278,61 @@ def quan_ly_nhan_khau(request):
         nhan_khau_list = DanCu.objects.filter(
             Q(ho_ten__icontains=query) |
             Q(ma_can_cuoc__icontains=query) |
-            Q(ho_gia_dinh__icontains=query)
-        )
+            Q(so_dien_thoai__icontains=query) |
+            Q(ho_gia_dinh__so_can_ho__icontains=query) |
+            Q(ho_gia_dinh__id_chu_ho__ho_ten__icontains=query)
+    )
     else:
         nhan_khau_list = DanCu.objects.all()
-
     return render(request, 'nhan_khau/quan_ly_nhan_khau.html', {
         'nhan_khau_list': nhan_khau_list,
         'query': query or ''
     })
+#--------------------------------------Thay đổi mật khẩu---------------------------------------
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Cập nhật session để không bị đăng xuất
+            messages.success(request, 'Mật khẩu đã được thay đổi thành công.')
+            return redirect('change_password')
+        else:
+            messages.error(request, 'Vui lòng kiểm tra lại thông tin.')
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'nhan_khau/change_password.html', {'form': form})
+
+#---------------------------------Chỉnh sửa thông tin cá nhân----------------------------------------
+@login_required
+def edit_profile(request):
+    try:
+        nguoi_dung = request.user.nguoidung
+    except NguoiDung.DoesNotExist:
+        messages.error(request, "Không tìm thấy thông tin người dùng")
+        return redirect('BQLCCDashboard')
+
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, instance=nguoi_dung)
+        if form.is_valid():
+            # Cập nhật thông tin User
+            ho_ten = form.cleaned_data.get('ho_ten', '').split()
+            request.user.last_name = ' '.join(ho_ten[:-1]) if len(ho_ten) > 1 else ''
+            request.user.first_name = ho_ten[-1] if ho_ten else ''
+            request.user.email = form.cleaned_data.get('email', '')
+            request.user.save()
+            
+            # Chỉ cập nhật số điện thoại
+            nguoi_dung.so_dien_thoai = form.cleaned_data.get('so_dien_thoai', '')
+            nguoi_dung.save()
+            
+            messages.success(request, 'Cập nhật thông tin thành công!')
+            return redirect('nhan_khau/edit_profile')
+    else:
+        form = EditProfileForm(instance=nguoi_dung)
+
+    return render(request, 'nhan_khau/edit_profile.html', {'form': form})
 

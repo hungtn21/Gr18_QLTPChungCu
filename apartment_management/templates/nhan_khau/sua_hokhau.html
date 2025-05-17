@@ -111,6 +111,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="POST" action="{% url 'them_nhan_khau_tu_modal' ho.id %}">
+
                 {% csrf_token %}
                 <div class="modal-header">
                     <h5 class="modal-title">Thêm nhân khẩu mới</h5>

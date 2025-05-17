@@ -4,7 +4,7 @@ from .models import KhoanThu
 from .models import NguoiDung
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-
+from django.core.exceptions import ValidationError
 class EditProfileForm(forms.ModelForm):
     ho_ten = forms.CharField(label='Họ và tên', required=True)
     email = forms.EmailField(label='Email', required=True)
@@ -131,3 +131,11 @@ class HoGiaDinhForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['thoi_gian_bat_dau_o'].label = "Ngày bắt đầu ở"
+
+    def clean_so_can_ho(self):
+        so_can_ho = self.cleaned_data['so_can_ho']
+        # Kiểm tra trùng số căn hộ khi tạo mới hoặc khi sửa đổi số căn hộ
+        if not self.instance.pk or self.instance.so_can_ho != so_can_ho:
+            if HoGiaDinh.objects.filter(so_can_ho=so_can_ho).exists():
+                raise ValidationError("Số căn hộ này đã tồn tại.")
+        return so_can_ho
