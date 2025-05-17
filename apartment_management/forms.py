@@ -1,4 +1,5 @@
 from django import forms
+from datetime import date
 from .models import ChiTietThu, DanCu, HoGiaDinh, KhoanThu
 from .models import KhoanThu
 from .models import NguoiDung
@@ -107,6 +108,35 @@ class DanCuForm(forms.ModelForm):
             'gioi_tinh': forms.Select(attrs={'class': 'form-select'}),
             'trang_thai': forms.Select(attrs={'class': 'form-select'}),
         }
+    def clean_ma_can_cuoc(self):
+        cccd = self.cleaned_data.get('ma_can_cuoc')
+        if not cccd.isdigit() or len(cccd) != 12:
+            raise forms.ValidationError("CCCD phải có đúng 12 chữ số.")
+        return cccd
+
+    def clean_so_dien_thoai(self):
+        sdt = self.cleaned_data.get('so_dien_thoai')
+        if not sdt.isdigit() or len(sdt) != 10:
+            raise forms.ValidationError("Số điện thoại phải có đúng 10 chữ số.")
+        return sdt
+
+    def clean_ngay_sinh(self):
+        ns = self.cleaned_data.get('ngay_sinh')
+        if ns > date.today():
+            raise forms.ValidationError("Ngày sinh không được lớn hơn hiện tại.")
+        return ns
+
+    def clean(self):
+        cleaned = super().clean()
+        chuyen_den = cleaned.get('thoi_gian_chuyen_den')
+        chuyen_di = cleaned.get('thoi_gian_chuyen_di')
+
+        if chuyen_den is None:
+            self.add_error('thoi_gian_chuyen_den', 'Không được để trống')
+
+        if chuyen_den and chuyen_di and chuyen_di < chuyen_den:
+            self.add_error('thoi_gian_chuyen_di', 'Phải sau ngày chuyển đến')
+        return cleaned
 
 
 

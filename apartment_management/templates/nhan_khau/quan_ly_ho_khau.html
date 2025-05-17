@@ -58,7 +58,7 @@
             <td>{{ ho_khau.id_chu_ho.ho_ten }}</td>
             <td>{{ ho_khau.id_chu_ho.ma_can_cuoc }}</td>
             <td>{{ ho_khau.so_can_ho }}</td>
-            <td>{{ ho_khau.thoi_gian_bat_dau_o }}</td>
+            <td>{{ ho_khau.thoi_gian_bat_dau_o|date:"d/m/Y" }}</td>
             <td>{{ ho_khau.tong_thanh_vien }}</td>
             <td>
                 <a href="{% url 'sua_ho_khau' ho_khau.id %}" title="Chi tiết"

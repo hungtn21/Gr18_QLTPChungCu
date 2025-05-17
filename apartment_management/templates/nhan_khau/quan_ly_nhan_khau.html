@@ -48,23 +48,34 @@
         <tr>
             <td>{{ forloop.counter }}</td>
             <td>{{ nk.ho_ten }}</td>
-            <td>{{ nk.ngay_sinh }}</td>
+            <td>{{ nk.ngay_sinh|date:"d/m/Y" }}</td>
             <td>{{ nk.ma_can_cuoc }}</td>
             <td>{{ nk.so_dien_thoai }}</td>
             <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
             <td>{{ nk.trang_thai }}</td>
             <td>
-                <a href="{% url 'sua_nhan_khau' nk.id %}" class="btn btn-sm btn-outline-primary" title="Sửa">
-                    <i class="fa fa-edit"></i>
-                </a>
-                <form action="{% url 'xoa_nhan_khau' nk.id %}" method="post" style="display:inline;" 
-                      onsubmit="return confirm('Bạn có chắc muốn xóa nhân khẩu này?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </form>
-            </td>
+            <!-- Nút sửa -->
+             <a href="{% url 'sua_nhan_khau' nk.id %}?next={% url 'quan_ly_nhan_khau' %}" class="btn btn-sm btn-outline-primary" title="Sửa">
+                  <i class="fa fa-edit"></i>
+             </a>
+            <!-- Nút xoá -->
+            {% if nk.id != nk.ho_gia_dinh.id_chu_ho_id %}
+                  <form method="POST" action="{% url 'xoa_nhan_khau' nk.id %}" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa nhân khẩu này?');">
+            {% csrf_token %}
+                 <input type="hidden" name="next" value="{% url 'quan_ly_nhan_khau' %}">
+                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Xoá">
+                     <i class="fa fa-trash"></i>
+                 </button>
+                   </form>
+
+            {% else %}
+                <button class="btn btn-sm btn-outline-secondary" title="Không thể xoá chủ hộ" disabled>
+                     <i class="fa fa-trash"></i>
+                 </button>
+             {% endif %}
+</td>
+
+
         </tr>
         {% endfor %}
     {% else %}

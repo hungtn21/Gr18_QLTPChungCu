@@ -87,7 +87,7 @@
             {% for dancu in dancu_list %}
             <tr>
                 <td>{{ dancu.ho_ten }}</td>
-                <td>{{ dancu.ngay_sinh }}</td>
+                <td>{{ dancu.ngay_sinh|date:"d/m/Y" }}</td>
                 <td>{{ dancu.trang_thai }}</td>
                 <td>
                     {% if ho.id_chu_ho_id == dancu.id %}
@@ -275,29 +275,33 @@
                             <label class="form-label">Ghi chú</label>
                             <textarea name="ghi_chu" class="form-control"></textarea>
                         </div>
+
+                        <!-- Danh sách thành viên được chọn -->
                         <div class="col-12">
                             <label class="form-label">Chọn thành viên để chuyển sang hộ mới</label>
                             {% for dancu in dancu_list %}
                             {% if ho.id_chu_ho_id != dancu.id %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="thanh_vien_ids" value="{{ dancu.id }}" id="tv{{ dancu.id }}">
+                                <input class="form-check-input thanh-vien-checkbox"
+                                       type="checkbox"
+                                       name="thanh_vien_ids"
+                                       value="{{ dancu.id }}"
+                                       id="tv{{ dancu.id }}"
+                                       data-label="{{ dancu.ho_ten }} ({{ dancu.ngay_sinh|date:'d/m/Y' }})">
                                 <label class="form-check-label" for="tv{{ dancu.id }}">
-                                    {{ dancu.ho_ten }} ({{ dancu.ngay_sinh }})
+                                    {{ dancu.ho_ten }} ({{ dancu.ngay_sinh|date:"d/m/Y" }})
                                 </label>
                             </div>
                             {% endif %}
                             {% endfor %}
                         </div>
 
+                        <!-- Dropdown chọn chủ hộ mới -->
                         <div class="col-12 mt-3">
                             <label class="form-label">Chọn chủ hộ mới</label>
-                            <select name="id_chu_ho_moi" class="form-select" required>
+                            <select name="id_chu_ho_moi" id="chu_ho_dropdown" class="form-select" required>
                                 <option value="" disabled selected>-- Chọn thành viên --</option>
-                                {% for dancu in dancu_list %}
-                                {% if ho.id_chu_ho_id != dancu.id %}
-                                <option value="{{ dancu.id }}">{{ dancu.ho_ten }} ({{ dancu.ngay_sinh }})</option>
-                                {% endif %}
-                                {% endfor %}
+                                <!-- Option sẽ được tạo động -->
                             </select>
                         </div>
                     </div>
@@ -311,5 +315,46 @@
     </div>
 </div>
 
+<!-- Script cập nhật dropdown chủ hộ -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const checkboxes = document.querySelectorAll(".thanh-vien-checkbox");
+    const chuHoDropdown = document.getElementById("chu_ho_dropdown");
 
+    function updateChuHoOptions() {
+        // Lưu option mặc định
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "-- Chọn thành viên --";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+
+        // Reset dropdown
+        chuHoDropdown.innerHTML = "";
+        chuHoDropdown.appendChild(defaultOption);
+
+        // Thêm các option tương ứng với checkbox được tick
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                const option = document.createElement("option");
+                option.value = cb.value;
+                option.textContent = cb.dataset.label;
+                chuHoDropdown.appendChild(option);
+            }
+        });
+
+        // Vô hiệu hóa dropdown nếu không ai được chọn
+        chuHoDropdown.disabled = chuHoDropdown.options.length <= 1;
+    }
+
+    // Gán sự kiện cho mỗi checkbox
+    checkboxes.forEach(cb => {
+        cb.addEventListener("change", updateChuHoOptions);
+    });
+
+    // Gọi ban đầu
+    updateChuHoOptions();
+});
+</script>
 {% endblock %}
+
