@@ -98,7 +98,6 @@ def them_nhan_khau_cho_ho(request, ho_gia_dinh_id):
         'dancu_list': dancu_list
     })
 
-
 @login_required
 @role_required('BQL Chung cư')
 @require_http_methods(["POST"])
@@ -106,8 +105,12 @@ def doi_chu_ho(request, ho_id, dan_cu_id):
     ho = get_object_or_404(HoGiaDinh, id=ho_id)
     dan_cu = get_object_or_404(DanCu, id=dan_cu_id, ho_gia_dinh=ho)
 
+    # Đổi chủ hộ
     ho.id_chu_ho = dan_cu
     ho.save()
+
+    # Làm mới đối tượng ho để đảm bảo thay đổi được cập nhật ngay
+    ho.refresh_from_db()
 
     messages.success(request, f'Đã đổi chủ hộ thành {dan_cu.ho_ten}.')
 
@@ -118,14 +121,13 @@ def doi_chu_ho(request, ho_id, dan_cu_id):
         return redirect('them_nhan_khau_cho_ho', ho_gia_dinh_id=ho.id)
 
 
-
 @login_required
 @role_required('BQL Chung cư')
 @require_http_methods(["POST"])
 def xoa_ho_khau(request, pk):
     ho = get_object_or_404(HoGiaDinh, id=pk)
 
-    so_can_ho = ho.so_can_ho  # ⬅️ Lưu trước khi xóa để không bị lỗi
+    so_can_ho = ho.so_can_ho  #  Lưu trước khi xóa để không bị lỗi
 
     # Gỡ liên kết chủ hộ để tránh lỗi PROTECTED
     ho.id_chu_ho = None
@@ -148,9 +150,10 @@ def sua_ho_khau(request, pk):
     dancu_list = DanCu.objects.filter(ho_gia_dinh=ho)
 
     if request.method == 'POST':
-        form = HoGiaDinhForm(instance=ho)  # không gán mặc định ở đây
+        form = HoGiaDinhForm(request.POST, instance=ho)
         if form.is_valid():
-            form.save()
+            ho_truoc = ho.trang_thai  # lưu trạng thái cũ
+            ho = form.save()  # cập nhật hộ
             messages.success(request, 'Đã cập nhật thông tin hộ khẩu.')
             return redirect('quan_ly_ho_khau')
     else:
@@ -162,6 +165,7 @@ def sua_ho_khau(request, pk):
         'dancu_list': dancu_list,
         'today': date.today().isoformat(),
     })
+
 @login_required
 @role_required('BQL Chung cư')
 @require_http_methods(["POST"])
@@ -170,12 +174,15 @@ def xoa_nhan_khau(request, pk):
     ho = dan_cu.ho_gia_dinh
     next_url = request.POST.get('next')
 
-    # Không cho phép xoá chủ hộ
+    # Nếu hiện tại là chủ hộ, không xoá
     if ho.id_chu_ho_id == dan_cu.id:
-        messages.error(request, 'Bạn không thể xoá chủ hộ.')
+        messages.error(request, 'Bạn không thể xoá chủ hộ hiện tại.')
         return redirect(next_url or 'sua_ho_khau', pk=ho.id)
 
-    # Xoá nếu không phải chủ hộ
+    # Nếu đã từng là chủ hộ của bất kỳ hộ nào (cũ hoặc hiện tại), hủy liên kết đó
+    HoGiaDinh.objects.filter(id_chu_ho=dan_cu).update(id_chu_ho=None)
+    
+    # Xoá nhân khẩu
     dan_cu.delete()
     messages.success(request, 'Đã xóa nhân khẩu.')
     return redirect(next_url or 'sua_ho_khau', pk=ho.id)
