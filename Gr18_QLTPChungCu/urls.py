@@ -56,4 +56,5 @@ urlpatterns = [
     path('bqlChungCu/sua-nhan-khau/<int:pk>/', nhan_khau_views.sua_nhan_khau, name='sua_nhan_khau'),
     path('bqlChungCu/xoa-nhan-khau/<int:pk>/', nhan_khau_views.xoa_nhan_khau, name='xoa_nhan_khau'),
     path('bqlChungCu/them-nhan-khau-modal/<int:ho_id>/', nhan_khau_views.them_nhan_khau_tu_modal, name='them_nhan_khau_tu_modal'),
+    path('bqlChungCu/tach-ho/<int:ho_id>/', nhan_khau_views.tach_ho, name='tach_ho'),
 ]

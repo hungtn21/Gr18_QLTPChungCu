@@ -18,6 +18,7 @@ from apartment_management.forms import EditProfileForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from apartment_management.forms import EditProfileForm
+from datetime import date
 
 
 @login_required
@@ -28,7 +29,7 @@ def quan_ly_ho_khau(request):
     # Annotate: thêm cột đếm số thành viên đang sinh sống
     ho_khau_list = HoGiaDinh.objects.annotate(
         tong_thanh_vien=Count('dancu', filter=Q(dancu__trang_thai='Đang sinh sống'))
-    ).order_by('id')  
+    ).order_by('id')
 
     if query:
         ho_khau_list = ho_khau_list.filter(
@@ -150,6 +151,7 @@ def sua_ho_khau(request, pk):
         'form': form,
         'ho': ho,
         'dancu_list': dancu_list,
+        'today': date.today().isoformat(),
     })
 @login_required
 @role_required('BQL Chung cư')
@@ -157,27 +159,16 @@ def sua_ho_khau(request, pk):
 def xoa_nhan_khau(request, pk):
     dan_cu = get_object_or_404(DanCu, id=pk)
     ho = dan_cu.ho_gia_dinh
-    is_chu_ho = (ho.id_chu_ho_id == dan_cu.id)
 
-    dancu_trong_ho = DanCu.objects.filter(ho_gia_dinh=ho)
-
-    if dancu_trong_ho.count() <= 1:
-        messages.error(request, 'Không thể xóa. Hộ khẩu phải có ít nhất một nhân khẩu.')
+    # 1. Không cho phép xoá nếu đây là chủ hộ
+    if ho.id_chu_ho_id == dan_cu.id:
+        messages.error(request, 'Bạn không thể xoá chủ hộ.')
         return redirect('sua_ho_khau', pk=ho.id)
 
+    # 3. Xoá bình thường đối với thành viên không phải chủ hộ
     dan_cu.delete()
-
-    # Nếu người bị xóa là chủ hộ → chuyển chủ hộ cho người khác
-    if is_chu_ho:
-        dancu_con_lai = DanCu.objects.filter(ho_gia_dinh=ho).order_by('ngay_sinh')
-        if dancu_con_lai.exists():
-            ho.id_chu_ho = dancu_con_lai.first()
-        else:
-            ho.id_chu_ho = None
-        ho.save()
-
     messages.success(request, 'Đã xóa nhân khẩu.')
-    return redirect('sua_ho_khau', pk=ho.id)  # ✅ luôn quay lại trang sửa hộ khẩu
+    return redirect('sua_ho_khau', pk=ho.id)
 
 
 @login_required
@@ -201,32 +192,6 @@ def sua_nhan_khau(request, pk):
         'dan_cu': dan_cu
     })
 
-@login_required
-@role_required('BQL Chung cư')
-def them_nhan_khau_tu_sua(request, ho_id):
-    ho = get_object_or_404(HoGiaDinh, id=ho_id)
-
-    if request.method == 'POST':
-        form = DanCuForm(request.POST)
-        if form.is_valid():
-            dancu = form.save(commit=False)
-            dancu.ho_gia_dinh = ho
-            dancu.save()
-
-            # Nếu hộ chưa có chủ hộ → gán người này
-            if not ho.id_chu_ho:
-                ho.id_chu_ho = dancu
-                ho.save()
-
-            messages.success(request, f'Đã thêm nhân khẩu cho căn hộ {ho.so_can_ho}.')
-            return redirect('sua_ho_khau', pk=ho.id)
-    else:
-        form = DanCuForm(initial={'thoi_gian_chuyen_den': ho.thoi_gian_bat_dau_o})
-
-    return render(request, 'nhan_khau/them_nhan_khau_tu_sua.html', {
-        'form': form,
-        'ho': ho
-    })
 
 
 @login_required
@@ -243,9 +208,8 @@ def them_nhan_khau_tu_modal(request, ho_id):
     so_dien_thoai = request.POST.get('so_dien_thoai')
     trang_thai = request.POST.get('trang_thai')
     thoi_gian_chuyen_den = request.POST.get('thoi_gian_chuyen_den')
-    thoi_gian_chuyen_di = request.POST.get('thoi_gian_chuyen_di') or None  # có thể để trống
+    thoi_gian_chuyen_di = request.POST.get('thoi_gian_chuyen_di') or None
 
-    # Tạo đối tượng DanCu mới
     try:
         dan_cu = DanCu.objects.create(
             ho_gia_dinh=ho,
@@ -259,16 +223,14 @@ def them_nhan_khau_tu_modal(request, ho_id):
             thoi_gian_chuyen_di=thoi_gian_chuyen_di
         )
 
-        # Nếu hộ chưa có chủ hộ, gán luôn người này
         if ho.id_chu_ho is None:
             ho.id_chu_ho = dan_cu
             ho.save()
 
-        messages.success(request, f'Đã thêm nhân khẩu: {dan_cu.ho_ten}')
+        return JsonResponse({'success': True, 'message': 'Đã thêm thông tin nhân khẩu thành công.'})
     except Exception as e:
-        messages.error(request, f'Lỗi khi thêm nhân khẩu: {str(e)}')
+        return JsonResponse({'success': False, 'message': f'Lỗi: {str(e)}'}, status=400)
 
-    return redirect('sua_ho_khau', pk=ho.id)
 
 @login_required
 @role_required('BQL Chung cư')
@@ -288,6 +250,53 @@ def quan_ly_nhan_khau(request):
         'nhan_khau_list': nhan_khau_list,
         'query': query or ''
     })
+
+@login_required
+@role_required('BQL Chung cư')
+@require_POST
+def tach_ho(request, ho_id):
+    ho_cu = get_object_or_404(HoGiaDinh, id=ho_id)
+
+    # Lấy dữ liệu từ form
+    so_can_ho = request.POST.get('so_can_ho')
+    dien_tich = request.POST.get('dien_tich')
+    ghi_chu = request.POST.get('ghi_chu', '')
+    ids_thanh_vien = request.POST.getlist('thanh_vien_ids')
+    id_chu_ho_moi = request.POST.get('id_chu_ho_moi')
+
+    # Validate dữ liệu
+    if not ids_thanh_vien:
+        messages.error(request, 'Vui lòng chọn ít nhất một thành viên để tách.')
+        return redirect('sua_ho_khau', pk=ho_id)
+
+    if id_chu_ho_moi not in ids_thanh_vien:
+        messages.error(request, 'Chủ hộ mới phải là một trong các thành viên được chọn.')
+        return redirect('sua_ho_khau', pk=ho_id)
+
+    # Tạo hộ mới
+    ho_moi = HoGiaDinh.objects.create(
+        so_can_ho=so_can_ho,
+        dien_tich=dien_tich,
+        ghi_chu=ghi_chu,
+        thoi_gian_bat_dau_o=date.today().isoformat(),
+        trang_thai='Đang ở',
+    )
+
+    # Lấy các đối tượng dân cư được chọn để chuyển sang hộ mới
+    danh_sach_dan_cu = DanCu.objects.filter(id__in=ids_thanh_vien)
+
+    # Cập nhật hộ gia đình cho các dân cư đó
+    for dancu in danh_sach_dan_cu:
+        dancu.ho_gia_dinh = ho_moi
+        dancu.save()
+
+    # Gán chủ hộ mới
+    chu_ho_obj = DanCu.objects.get(id=id_chu_ho_moi)
+    ho_moi.id_chu_ho = chu_ho_obj
+    ho_moi.save()
+
+    messages.success(request, f'Đã tách hộ thành công sang căn hộ {so_can_ho}.')
+    return redirect('sua_ho_khau', pk=ho_id)
 #--------------------------------------Thay đổi mật khẩu---------------------------------------
 
 @login_required
@@ -324,11 +333,11 @@ def edit_profile(request):
             request.user.first_name = ho_ten[-1] if ho_ten else ''
             request.user.email = form.cleaned_data.get('email', '')
             request.user.save()
-            
+
             # Chỉ cập nhật số điện thoại
             nguoi_dung.so_dien_thoai = form.cleaned_data.get('so_dien_thoai', '')
             nguoi_dung.save()
-            
+
             messages.success(request, 'Cập nhật thông tin thành công!')
             return redirect('nhan_khau/edit_profile')
     else:

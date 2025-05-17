@@ -1,7 +1,32 @@
 {% extends 'nhan_khau/nhankhau_base.html' %}
 {% load form_tags %}
+
 {% block content %}
 <div class="container mt-4">
+    {% if messages %}
+    <div class="mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+
+            alerts.forEach(function(alert) {
+                setTimeout(function () {
+                    const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                    bsAlert.close();
+                }, 2000); // tự động đóng sau 2 giây
+            });
+        });
+    </script>
+    {% endif %}
+
     <h3 class="text-primary">Thông tin căn hộ {{ ho.so_can_ho }}</h3>
 
     <form method="POST" class="row g-3">
@@ -33,19 +58,21 @@
         </div>
         {% endif %}
 
-
         <div class="col-12">
             <label class="form-label">Ghi chú</label>
             {{ form.ghi_chu|add_class:"form-control" }}
         </div>
 
-
         <h5>Danh sách nhân khẩu</h5>
         <div class="mb-3 text-end">
-            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#themNhanKhauModal">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#themNhanKhauModal">
                 <i class="fa fa-user-plus"></i> Thêm nhân khẩu
             </button>
+            <button type="button" class="btn btn-outline-warning ms-2" data-bs-toggle="modal" data-bs-target="#tachHoModal">
+                <i class="fa fa-code-branch"></i> Tách hộ
+            </button>
         </div>
+
         <table class="table table-bordered mt-3">
             <thead class="table-light">
             <tr>
@@ -74,12 +101,19 @@
                         <i class="fa fa-edit"></i>
                     </a>
 
+                    {% if ho.id_chu_ho_id != dancu.id %}
                     <form method="POST" action="{% url 'xoa_nhan_khau' dancu.id %}" style="display:inline;" onsubmit="return confirm('Xóa nhân khẩu này?');">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm btn-outline-danger">
                             <i class="fa fa-trash"></i>
                         </button>
                     </form>
+                    {% else %}
+                    <!-- Nếu là chủ hộ, không cho xoá -->
+                    <button type="button" class="btn btn-sm btn-outline-danger" disabled title="Không thể xoá chủ hộ">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    {% endif %}
 
 
                     {% if ho.id_chu_ho_id != dancu.id %}
@@ -91,27 +125,24 @@
                     </form>
                     {% endif %}
                 </td>
-
             </tr>
             {% endfor %}
             </tbody>
         </table>
+
         <hr class="my-4">
         <div class="col-12 mt-3">
             <button type="submit" class="btn btn-success">Lưu thay đổi</button>
             <a href="{% url 'quan_ly_ho_khau' %}" class="btn btn-secondary">Quay lại</a>
         </div>
     </form>
-
-
 </div>
 
 <!-- Modal thêm nhân khẩu -->
 <div class="modal fade" id="themNhanKhauModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="POST" action="{% url 'them_nhan_khau_tu_modal' ho.id %}">
-
+            <form id="form-them-nhan-khau" method="POST" action="{% url 'them_nhan_khau_tu_modal' ho.id %}">
                 {% csrf_token %}
                 <div class="modal-header">
                     <h5 class="modal-title">Thêm nhân khẩu mới</h5>
@@ -152,20 +183,133 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Thời gian chuyển đến</label>
-                            <input type="date" name="thoi_gian_chuyen_den" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Thời gian chuyển đi</label>
-                            <input type="date" name="thoi_gian_chuyen_di" class="form-control">
+                            <input type="date" name="thoi_gian_chuyen_den" class="form-control" value="{{ today }}">
+
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="submit" class="btn btn-primary" id="btn-luu-nhan-khau">Lưu</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- AJAX Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('form-them-nhan-khau');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        form.reset();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('themNhanKhauModal'));
+                        modal.hide();
+
+                        // Hiển thị thông báo đẹp (có thể là toast, alert div...)
+                        showSuccessMessage(data.message);
+
+                        // Reload để cập nhật bảng, nếu muốn
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Đã có lỗi xảy ra.');
+                });
+        });
+
+        function showSuccessMessage(msg) {
+            const container = document.createElement('div');
+            container.className = 'alert alert-success alert-dismissible fade show mt-3';
+            container.role = 'alert';
+            container.innerHTML = `
+            ${msg}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+            document.querySelector('.container').prepend(container);
+        }
+    });
+
+</script>
+
+<!-- Modal Tách hộ -->
+<div class="modal fade" id="tachHoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'tach_ho' ho.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Tách hộ gia đình</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Số căn hộ mới</label>
+                            <input type="number" name="so_can_ho" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Diện tích</label>
+                            <input type="number" name="dien_tich" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="ghi_chu" class="form-control"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Chọn thành viên để chuyển sang hộ mới</label>
+                            {% for dancu in dancu_list %}
+                            {% if ho.id_chu_ho_id != dancu.id %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="thanh_vien_ids" value="{{ dancu.id }}" id="tv{{ dancu.id }}">
+                                <label class="form-check-label" for="tv{{ dancu.id }}">
+                                    {{ dancu.ho_ten }} ({{ dancu.ngay_sinh }})
+                                </label>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <label class="form-label">Chọn chủ hộ mới</label>
+                            <select name="id_chu_ho_moi" class="form-select" required>
+                                <option value="" disabled selected>-- Chọn thành viên --</option>
+                                {% for dancu in dancu_list %}
+                                {% if ho.id_chu_ho_id != dancu.id %}
+                                <option value="{{ dancu.id }}">{{ dancu.ho_ten }} ({{ dancu.ngay_sinh }})</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning">Tách hộ</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 {% endblock %}
