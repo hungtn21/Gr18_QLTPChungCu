@@ -1,0 +1,54 @@
+<!-- templates/tamtru_tamvang_list.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách tạm trú tạm vắng</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>Danh sách tạm trú tạm vắng</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Họ và tên</th>
+                <th>Loại</th>
+                <th>Thời gian bắt đầu</th>
+                <th>Thời gian kết thúc</th>
+                <th>Lý do</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in danh_sach %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.dan_cu.ho_ten }}</td>
+                <td>{{ item.loai_tttv }}</td>
+                <td>{{ item.thoi_gian_bat_dau }}</td>
+                <td>{{ item.thoi_gian_ket_thuc }}</td>
+                <td>{{ item.ly_do }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">Không có dữ liệu</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
