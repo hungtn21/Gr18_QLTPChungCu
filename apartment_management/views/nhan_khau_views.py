@@ -218,7 +218,6 @@ def lichSuThayDoi(request):
     start_date = datetime.strptime(start_date_raw, "%Y-%m-%d").date() if start_date_raw else datetime.min.date()
     end_date = datetime.strptime(end_date_raw, "%Y-%m-%d").date() if end_date_raw else datetime.max.date()
 
-    print(f"Parsed dates - start_date: {start_date}, end_date: {end_date}")
 
     if so_can_ho:
         try:
