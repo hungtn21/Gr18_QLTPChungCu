@@ -62,7 +62,12 @@
             <label class="form-label">Ghi chú</label>
             {{ form.ghi_chu|add_class:"form-control" }}
         </div>
-
+<hr class="my-4">
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+            <a href="{% url 'quan_ly_ho_khau' %}" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
         <h5>Danh sách nhân khẩu</h5>
         <div class="mb-3 text-end">
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#themNhanKhauModal">
@@ -130,12 +135,7 @@
             </tbody>
         </table>
 
-        <hr class="my-4">
-        <div class="col-12 mt-3">
-            <button type="submit" class="btn btn-success">Lưu thay đổi</button>
-            <a href="{% url 'quan_ly_ho_khau' %}" class="btn btn-secondary">Quay lại</a>
-        </div>
-    </form>
+        
 </div>
 
 <!-- Modal thêm nhân khẩu -->
@@ -357,4 +357,3 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 {% endblock %}
-
