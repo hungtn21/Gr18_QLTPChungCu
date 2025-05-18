@@ -1,0 +1,137 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+
+{% block content %}
+<style>
+    form {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 500px;
+        margin: auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    form label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+        color: #333;
+    }
+
+    form input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    form button {
+        background-color: #0055aa;
+        color: white;
+        padding: 10px 20px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+
+    form button:hover {
+        background-color: #004488;
+    }
+
+    h2, h3 {
+        text-align: center;
+        color: #333;
+    }
+
+    table {
+        width: 95%;
+        margin: 30px auto;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        text-align: center;
+        padding: 12px;
+    }
+
+    thead {
+        background-color: #0055aa;
+        color: white;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background-color: #ddd;
+    }
+
+    form input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+</style>
+
+<h2>Lịch sử biến động dân cư theo số căn hộ</h2>
+
+<form method="get" action=".">
+    <label for="so_can_ho">Nhập số căn hộ:</label>
+    <input type="number" id="so_can_ho" name="so_can_ho" value="{{ request.GET.so_can_ho }}">
+
+    <label for="start_date">Từ ngày:</label>
+    <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+
+    <label for="end_date">Đến ngày:</label>
+    <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+
+    <button type="submit">Xem thống kê</button>
+</form>
+
+{% if bien_dong %}
+    <h3>Kết quả biến động cho căn hộ {{ so_can_ho }}</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Họ tên</th>
+                <th>CCCD</th>
+                <th>Giới tính</th>
+                <th>Ngày sinh</th>
+                <th>Tuổi</th>
+                <th>Loại biến động</th>
+                <th>Ngày</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in bien_dong %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.ho_ten }}</td>
+                    <td>{{ item.ma_can_cuoc }}</td>
+                    <td>{{ item.gioi_tinh }}</td>
+                    <td>{{ item.ngay_sinh }}</td>
+                    <td>{{ item.tuoi }}</td>
+                    <td>{{ item.loai_bien_dong }}</td>
+                    <td>{{ item.ngay }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% elif request.GET.so_can_ho %}
+    <p style="text-align: center; color: red;">Không tìm thấy biến động cho căn hộ này.</p>
+{% endif %}
+
+{% endblock %}

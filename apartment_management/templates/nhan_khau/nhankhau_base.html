@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #003366;
+            /* Xanh nước biển đậm */
+            height: 100vh;
+            padding-top: 20px;
+            float: left;
+        }
+
+        .sidebar button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px;
+            background-color: #ffffff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .sidebar button:hover {
+            background-color: #2891fa;
+            color: white;
+        }
+
+        .content {
+            margin-left: 200px;
+            padding: 40px;
+        }
+
+        h2 {
+            color: #003366;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header" style="display: flex; align-items: center; padding: 10px; color: white;">
+        <i class="fas fa-home" style="margin-right: 8px;"></i>
+        <span style="font-weight: bold;">BQL Chung cư</span>
+    </div>
+    <!-- <button>Trang chủ</button> -->
+    <a href="{% url 'BQLCCDashboard' %}">
+        <button>Trang chủ</button>
+    </a>
+    <a >
+        <button>Quản lý nhân khẩu</button>
+    </a>
+    <a>
+        <button>Quản lý hộ khẩu</button>
+    </a>
+    <a href="{% url 'nhan_khau_edit_profile' %}">
+        <button>Sửa thông tin cá nhân</button>
+    </a>
+        <a href="{% url 'nhan_khau_change_password' %}">
+        <button>Đổi mật khẩu</button>
+    </a>
+</div>
+<div class="content">
+    {% block content %}{% endblock %}
+</div>
+</body>
+
+</html>

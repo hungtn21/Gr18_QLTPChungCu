@@ -12,4 +12,13 @@ urlpatterns = [
     path('dashboard/admin/', nguoi_dung_views.admin_dashboard, name='AdminDashboard'),
     path('dashboard/bqlcc/', nguoi_dung_views.bqlcc_dashboard, name='BQLCCDashboard'),
     path('dashboard/ketoan/', nguoi_dung_views.kt_dashboard, name='KTDashboard'),
+    
+    #========================== QLCC routes=========================================================
+    
+    path('thongke_do_tuoi/', nhan_khau_views.thongKeDoTuoi, name='thongKeDoTuoi'),
+    path('thongke_tam_tru/', nhan_khau_views.thongKeTamTru, name='thongKeTamTru'),
+    path('thongke_bien_dong/', nhan_khau_views.thongKeBienDong, name='thongKeBienDong'),
+    path('lichsu_thaydoi/', nhan_khau_views.lichSuThayDoi, name='lichSuThayDoi'),
+    path('bqlcc/change-password/', nhan_khau_views.change_password, name='nhan_khau_change_password'),
+    path('bqlcc/edit-profile/', nhan_khau_views.edit_profile, name='nhan_khau_edit_profile'),
 ]
