@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from ..models import HoGiaDinh, DanCu, TamTruTamVang, NguoiDung
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
 from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
@@ -9,14 +8,6 @@ from functools import wraps
 from ..forms import EditProfileForm
 from datetime import datetime
 from django.db.models import Q
-
-# def parse_date(date_str):
-#     for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%d/%m/%Y"):
-#         try:
-#             return datetime.strptime(date_str, fmt).date()
-#         except ValueError:
-#             continue
-#     return None
 
 
 def role_required(required_role):
@@ -129,26 +120,17 @@ def thongKeTamTru(request):
     from_date_str = request.GET.get('fromDate')
     to_date_str = request.GET.get('toDate')
 
-    print("== DEBUG ==")
-    print("loai_code:", loai_code)
-    print("from_date_str:", from_date_str)
-    print("to_date_str:", to_date_str)
-
     # Map số sang loại
     loai_mapping = {
         '1': 'Tạm trú',
         '2': 'Tạm vắng'
     }
     loai = loai_mapping.get(loai_code)
-    print("Mã loại chuyển thành:", loai)
 
     if loai and from_date_str and to_date_str:
         try:
             from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date()
             to_date = datetime.strptime(to_date_str, '%Y-%m-%d').date()
-
-            print("from_date:", from_date)
-            print("to_date:", to_date)
 
             # Queryset tách riêng để dễ kiểm soát và test
             queryset = TamTruTamVang.objects.filter(
@@ -156,16 +138,10 @@ def thongKeTamTru(request):
                 Q(thoi_gian_bat_dau__lte=to_date) &
                 Q(thoi_gian_ket_thuc__gte=from_date)
             )
-            print(queryset.query)  
-
 
             results = queryset
             total = queryset.count()
             
-            print("=== DEBUG: Tổng số kết quả:", total)
-            print("Chi tiết kết quả:")
-            for obj in results:
-                print(f"ID: {obj.id}, Loại: {obj.loai_tttv}, Bắt đầu: {obj.thoi_gian_bat_dau}, Kết thúc: {obj.thoi_gian_ket_thuc}")
 
         except ValueError as ve:
             print("LỖI PARSE NGÀY:", ve)
@@ -229,57 +205,6 @@ def thongKeBienDong(request):
 
     return render(request, 'nhan_khau/thongke_bien_dong.html', context)
 
-# @login_required
-# @role_required('BQL Chung cư')
-# def lichSuThayDoi(request):
-#     bien_dong = []
-#     so_can_ho = request.GET.get('so_can_ho')
-#     start_date = parse_date(request.GET.get('start_date')) if request.GET.get('start_date') else None
-#     end_date = parse_date(request.GET.get('end_date')) if request.GET.get('end_date') else None
-
-#     if so_can_ho:
-#         try:
-#             ho_gia_dinh = HoGiaDinh.objects.filter(so_can_ho=so_can_ho).first()
-#             danh_sach_dancu = DanCu.objects.filter(ho_gia_dinh=ho_gia_dinh)
-
-#             for dancu in danh_sach_dancu:
-#                 # Chuyển đến
-#                 if start_date and end_date and start_date <= dancu.thoi_gian_chuyen_den <= end_date:
-#                     bien_dong.append({
-#                         'ho_ten': dancu.ho_ten,
-#                         'ma_can_cuoc': dancu.ma_can_cuoc,
-#                         'gioi_tinh': dancu.gioi_tinh,
-#                         'ngay_sinh': dancu.ngay_sinh,
-#                         'tuoi': dancu.tinh_tuoi(),
-#                         'loai_bien_dong': 'Chuyển đến',
-#                         'ngay': dancu.thoi_gian_chuyen_den,
-#                     })
-
-#                 # Chuyển đi / Đã mất
-#                 if dancu.thoi_gian_chuyen_di and start_date and end_date and start_date <= dancu.thoi_gian_chuyen_di <= end_date:
-#                     loai_bd = 'Đã mất' if dancu.trang_thai == 'Đã qua đời' else 'Chuyển đi'
-#                     bien_dong.append({
-#                         'ho_ten': dancu.ho_ten,
-#                         'ma_can_cuoc': dancu.ma_can_cuoc,
-#                         'gioi_tinh': dancu.gioi_tinh,
-#                         'ngay_sinh': dancu.ngay_sinh,
-#                         'tuoi': dancu.tinh_tuoi(),
-#                         'loai_bien_dong': loai_bd,
-#                         'ngay': dancu.thoi_gian_chuyen_di,
-#                     })
-
-#             # Sắp xếp theo ngày gần nhất
-#             bien_dong.sort(key=lambda x: x['ngay'], reverse=True)
-
-#         except HoGiaDinh.DoesNotExist:
-#             bien_dong = []
-
-#     context = {
-#         'bien_dong': bien_dong,
-#         'so_can_ho': so_can_ho,
-#     }
-#     return render(request, 'nhan_khau/lichsu_thaydoi.html', context)
-
 @login_required
 @role_required('BQL Chung cư')
 def lichSuThayDoi(request):
@@ -298,13 +223,10 @@ def lichSuThayDoi(request):
     if so_can_ho:
         try:
             ho_gia_dinh = HoGiaDinh.objects.filter(so_can_ho=so_can_ho).first()
-            print(f"HoGiaDinh found: {ho_gia_dinh}")
 
             if not ho_gia_dinh:
-                print("Không tìm thấy hộ gia đình với số căn hộ:", so_can_ho)
                 messages.error(request, "Không tìm thấy hộ gia đình với số căn hộ này.")
                 return render(request, 'nhan_khau/lichsu_thaydoi.html', {'bien_dong': [], 'so_can_ho': so_can_ho})
-
             danh_sach_dancu = DanCu.objects.filter(ho_gia_dinh=ho_gia_dinh)
 
             for dancu in danh_sach_dancu:
@@ -337,7 +259,6 @@ def lichSuThayDoi(request):
             bien_dong.sort(key=lambda x: x['ngay'], reverse=True)
 
         except Exception as e:
-            print(f"Lỗi trong quá trình truy vấn lịch sử thay đổi: {e}")
             messages.error(request, "Đã xảy ra lỗi khi truy xuất dữ liệu.")
 
     context = {
