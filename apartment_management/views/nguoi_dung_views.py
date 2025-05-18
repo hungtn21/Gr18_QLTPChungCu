@@ -222,11 +222,12 @@ def user_management(request):
     
     # Chuẩn bị dữ liệu cho template
     user_list = []
-    for index, user in enumerate(users, start=1):
+    stt = 1  # Bắt đầu từ 1
+    for user in users:
         try:
             nguoi_dung = user.nguoidung
             user_list.append({
-                'stt': index,
+                'stt': stt,
                 'id': user.id,
                 'username': user.username,
                 'ho_ten': f"{user.last_name} {user.first_name}".strip(),
@@ -235,8 +236,10 @@ def user_management(request):
                 'trang_thai': nguoi_dung.trang_thai,
                 'vai_tro': nguoi_dung.vai_tro,
             })
+            stt += 1  # Chỉ tăng khi đã append
         except NguoiDung.DoesNotExist:
             continue
+            
     
     context = {
         'users': user_list
