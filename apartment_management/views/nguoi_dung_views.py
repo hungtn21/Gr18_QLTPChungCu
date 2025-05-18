@@ -15,6 +15,8 @@ import ssl
 import smtplib
 from ..forms import EditProfileForm
 from django.http import JsonResponse
+import re
+
 
 
 def role_required(required_role):
@@ -111,8 +113,17 @@ def create_new_user(request):
             vai_tro = request.POST.get('vai_tro')
             
             # Kiểm tra username/email tồn tại
+            
+            if not all([ho_ten, email, ten_dang_nhap, so_dien_thoai, vai_tro]):
+                messages.error(request, 'Vui lòng điền đầy đủ thông tin')
+                return redirect('create_new_user')
+                
             if User.objects.filter(username=ten_dang_nhap).exists():
                 messages.error(request, 'Tên đăng nhập đã tồn tại!')
+                return redirect('create_new_user')
+            
+            if not re.match(r'^[0-9]{10,15}$', so_dien_thoai):
+                messages.error(request, 'Số điện thoại không hợp lệ')
                 return redirect('create_new_user')
                 
             if User.objects.filter(email=email).exists():
@@ -141,7 +152,7 @@ def create_new_user(request):
             )
             send_password_through_email(email,password)
             messages.success(request, 'Tạo tài khoản thành công!')
-            return redirect('admin_user_management')
+            return redirect('create_new_user')
             
         except Exception as e:
             messages.error(request, f'Có lỗi xảy ra: {str(e)}')

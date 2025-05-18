@@ -126,23 +126,33 @@
     <script>
     // Hiển thị toast khi có thông báo
     document.addEventListener('DOMContentLoaded', function() {
-        const toastEl = document.getElementById('successToast');
-        const toastMessage = document.getElementById('toastMessage');
+    const toastContainer = document.createElement('div');
+    toastContainer.className = 'position-fixed top-0 end-0 p-3';
+    toastContainer.style.zIndex = '9999';
+    document.body.appendChild(toastContainer);
+    
+    {% for message in messages %}
+        const toastEl = document.createElement('div');
+        toastEl.className = `toast align-items-center text-white {% if message.tags == 'error' %}bg-danger{% else %}bg-success{% endif %} border-0`;
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
         
-        // Lấy messages từ Django
-        {% for message in messages %}
-            {% if message.tags == 'success' %}
-                toastMessage.textContent = "{{ message|escapejs }}";
-                const toast = new bootstrap.Toast(toastEl);
-                toast.show();
-                
-                // Tự động ẩn sau 5 giây
-                setTimeout(() => {
-                    toast.hide();
-                }, 5000);
-            {% endif %}
-        {% endfor %}
-    });
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} me-2"></i>
+                    {{ message|escapejs }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        toastContainer.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+        toast.show();
+    {% endfor %}
+});
     </script>
     {% endblock %}
 </body>
