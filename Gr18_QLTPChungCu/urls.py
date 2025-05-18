@@ -38,6 +38,8 @@ urlpatterns = [
     path('ketoan/view-list-khoannop', thu_phi_views.view_list_khoannop, name='view_list_khoannop'),
     path('ketoan/khoannop-details/<int:pk>', thu_phi_views.khoannop_details, name='khoannop_details'),
     
+    path('ketoan/change-password/', nguoi_dung_views.change_password, name='ketoan_change_password'),
+    path('ketoan/edit-profile/', nguoi_dung_views.edit_profile, name='ketoan_edit_profile'),
 
     
 ]

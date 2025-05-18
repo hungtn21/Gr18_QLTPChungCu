@@ -91,42 +91,6 @@ def delete_khoanthu(request, pk):
 
 
 
-# @login_required
-# @role_required('Kế toán')
-# def view_list_khoannop(request):
-#     query = request.GET.get('q')
-#     khoan_nop_info = []
-#     if query:
-#         dot_thu_list = DotThu.objects.filter(
-#             Q(khoan_thu__ten_khoan_thu__icontains=query) |
-#             Q(ten_dot_thu__icontains=query)
-#         )
-#     else:
-#         dot_thu_list = DotThu.objects.filter(trang_thai="Đang tiến hành")
-
-#     for dot_thu in dot_thu_list:
-#         ho_dang_sinh_song_ids = DanCu.objects.filter(trang_thai='Đang sinh sống')\
-#                                              .values_list('ho_gia_dinh_id', flat=True)\
-#                                              .distinct()
-#         total_ho_gia_dinh = ho_dang_sinh_song_ids.count()
-
-#         ho_da_nop_ids = ChiTietThu.objects.filter(dot_thu=dot_thu, trang_thai_nop='Đã nộp')\
-#                                           .values_list('ho_gia_dinh_id', flat=True)\
-#                                           .distinct()
-      
-#         ho_gia_dinh_da_nop = len(set(ho_da_nop_ids).intersection(set(ho_dang_sinh_song_ids)))
-
-#         khoan_nop_info.append({
-#             'dot_thu': dot_thu,
-#             'ten_khoan_thu': dot_thu.khoan_thu.ten_khoan_thu,
-#             'so_luong_nop': f"{ho_gia_dinh_da_nop}/{total_ho_gia_dinh}",
-#             'thoi_gian': f"{dot_thu.thoi_gian_bat_dau} - {dot_thu.thoi_gian_ket_thuc}",
-#         })
-
-#     return render(request, 'thu_phi/view_list_khoannop.html', {
-#         'khoan_nop_info': khoan_nop_info,
-#         'query': query or ''
-#     })
 from datetime import datetime
 
 @login_required
