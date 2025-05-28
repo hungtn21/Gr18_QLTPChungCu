@@ -1,0 +1,359 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+{% load form_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if messages %}
+    <div class="mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+
+            alerts.forEach(function(alert) {
+                setTimeout(function () {
+                    const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                    bsAlert.close();
+                }, 2000); // tự động đóng sau 2 giây
+            });
+        });
+    </script>
+    {% endif %}
+
+    <h3 class="text-primary">Thông tin căn hộ {{ ho.so_can_ho }}</h3>
+
+    <form method="POST" class="row g-3">
+        {% csrf_token %}
+        <div class="col-md-6">
+            <label class="form-label">Số căn hộ</label>
+            {{ form.so_can_ho|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Diện tích</label>
+            {{ form.dien_tich|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Trạng thái</label>
+            {{ form.trang_thai|add_class:"form-select" }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Thời gian bắt đầu ở</label>
+            {{ form.thoi_gian_bat_dau_o|add_class:"form-control" }}
+        </div>
+
+        {% if form.initial.thoi_gian_ket_thuc_o %}
+        <div class="col-md-6">
+            <label class="form-label">Thời gian kết thúc ở</label>
+            {{ form.thoi_gian_ket_thuc_o|add_class:"form-control" }}
+        </div>
+        {% endif %}
+
+        <div class="col-12">
+            <label class="form-label">Ghi chú</label>
+            {{ form.ghi_chu|add_class:"form-control" }}
+        </div>
+<hr class="my-4">
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+            <a href="{% url 'quan_ly_ho_khau' %}" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+        <h5>Danh sách nhân khẩu</h5>
+        <div class="mb-3 text-end">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#themNhanKhauModal">
+                <i class="fa fa-user-plus"></i> Thêm nhân khẩu
+            </button>
+            <button type="button" class="btn btn-outline-warning ms-2" data-bs-toggle="modal" data-bs-target="#tachHoModal">
+                <i class="fa fa-code-branch"></i> Tách hộ
+            </button>
+        </div>
+
+        <table class="table table-bordered mt-3">
+            <thead class="table-light">
+            <tr>
+                <th>Họ tên</th>
+                <th>Ngày sinh</th>
+                <th>Trạng thái</th>
+                <th>Vai trò</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for dancu in dancu_list %}
+            <tr>
+                <td>{{ dancu.ho_ten }}</td>
+                <td>{{ dancu.ngay_sinh|date:"d/m/Y" }}</td>
+                <td>{{ dancu.trang_thai }}</td>
+                <td>
+                    {% if ho.id_chu_ho_id == dancu.id %}
+                    <span class="badge bg-primary">Chủ hộ</span>
+                    {% else %}
+                    Thành viên
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'sua_nhan_khau' dancu.id %}" title="Sửa" class="btn btn-sm btn-outline-primary">
+                        <i class="fa fa-edit"></i>
+                    </a>
+
+                    {% if ho.id_chu_ho_id != dancu.id %}
+                    <form method="POST" action="{% url 'xoa_nhan_khau' dancu.id %}" style="display:inline;" onsubmit="return confirm('Xóa nhân khẩu này?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </form>
+                    {% else %}
+                    <!-- Nếu là chủ hộ, không cho xoá -->
+                    <button type="button" class="btn btn-sm btn-outline-danger" disabled title="Không thể xoá chủ hộ">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    {% endif %}
+
+
+                    {% if ho.id_chu_ho_id != dancu.id %}
+                    <form method="POST" action="{% url 'doi_chu_ho' ho.id dancu.id %}?next=edit" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-success" title="Chọn làm chủ hộ">
+                            <i class="fa fa-crown"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        
+</div>
+
+<!-- Modal thêm nhân khẩu -->
+<div class="modal fade" id="themNhanKhauModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="form-them-nhan-khau" method="POST" action="{% url 'them_nhan_khau_tu_modal' ho.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm nhân khẩu mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Họ tên</label>
+                            <input name="ho_ten" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày sinh</label>
+                            <input type="date" name="ngay_sinh" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Giới tính</label>
+                            <select name="gioi_tinh" class="form-select">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Mã căn cước</label>
+                            <input name="ma_can_cuoc" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input name="so_dien_thoai" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Trạng thái</label>
+                            <select name="trang_thai" class="form-select">
+                                <option value="Đang sinh sống">Đang sinh sống</option>
+                                <option value="Đã chuyển đi">Đã chuyển đi</option>
+                                <option value="Đã qua đời">Đã qua đời</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Thời gian chuyển đến</label>
+                            <input type="date" name="thoi_gian_chuyen_den" class="form-control" value="{{ today }}">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="btn-luu-nhan-khau">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- AJAX Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('form-them-nhan-khau');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        form.reset();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('themNhanKhauModal'));
+                        modal.hide();
+
+                        // Hiển thị thông báo đẹp (có thể là toast, alert div...)
+                        showSuccessMessage(data.message);
+
+                        // Reload để cập nhật bảng, nếu muốn
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Đã có lỗi xảy ra.');
+                });
+        });
+
+        function showSuccessMessage(msg) {
+            const container = document.createElement('div');
+            container.className = 'alert alert-success alert-dismissible fade show mt-3';
+            container.role = 'alert';
+            container.innerHTML = `
+            ${msg}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+            document.querySelector('.container').prepend(container);
+        }
+    });
+
+</script>
+
+<!-- Modal Tách hộ -->
+<div class="modal fade" id="tachHoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'tach_ho' ho.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Tách hộ gia đình</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Số căn hộ mới</label>
+                            <input type="number" name="so_can_ho" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Diện tích</label>
+                            <input type="number" name="dien_tich" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="ghi_chu" class="form-control"></textarea>
+                        </div>
+
+                        <!-- Danh sách thành viên được chọn -->
+                        <div class="col-12">
+                            <label class="form-label">Chọn thành viên để chuyển sang hộ mới</label>
+                            {% for dancu in dancu_list %}
+                            {% if ho.id_chu_ho_id != dancu.id %}
+                            <div class="form-check">
+                                <input class="form-check-input thanh-vien-checkbox"
+                                       type="checkbox"
+                                       name="thanh_vien_ids"
+                                       value="{{ dancu.id }}"
+                                       id="tv{{ dancu.id }}"
+                                       data-label="{{ dancu.ho_ten }} ({{ dancu.ngay_sinh|date:'d/m/Y' }})">
+                                <label class="form-check-label" for="tv{{ dancu.id }}">
+                                    {{ dancu.ho_ten }} ({{ dancu.ngay_sinh|date:"d/m/Y" }})
+                                </label>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <!-- Dropdown chọn chủ hộ mới -->
+                        <div class="col-12 mt-3">
+                            <label class="form-label">Chọn chủ hộ mới</label>
+                            <select name="id_chu_ho_moi" id="chu_ho_dropdown" class="form-select" required>
+                                <option value="" disabled selected>-- Chọn thành viên --</option>
+                                <!-- Option sẽ được tạo động -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning">Tách hộ</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Script cập nhật dropdown chủ hộ -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const checkboxes = document.querySelectorAll(".thanh-vien-checkbox");
+    const chuHoDropdown = document.getElementById("chu_ho_dropdown");
+
+    function updateChuHoOptions() {
+        // Lưu option mặc định
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "-- Chọn thành viên --";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+
+        // Reset dropdown
+        chuHoDropdown.innerHTML = "";
+        chuHoDropdown.appendChild(defaultOption);
+
+        // Thêm các option tương ứng với checkbox được tick
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                const option = document.createElement("option");
+                option.value = cb.value;
+                option.textContent = cb.dataset.label;
+                chuHoDropdown.appendChild(option);
+            }
+        });
+
+        // Vô hiệu hóa dropdown nếu không ai được chọn
+        chuHoDropdown.disabled = chuHoDropdown.options.length <= 1;
+    }
+
+    // Gán sự kiện cho mỗi checkbox
+    checkboxes.forEach(cb => {
+        cb.addEventListener("change", updateChuHoOptions);
+    });
+
+    // Gọi ban đầu
+    updateChuHoOptions();
+});
+</script>
+{% endblock %}

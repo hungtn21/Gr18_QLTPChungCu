@@ -1,11 +1,10 @@
 {% extends 'nguoi_dung/kt_base.html' %}
 
-{% block title %}Danh sách khoản thu{% endblock %}
+{% block title %}Danh sách khoản nộp{% endblock %}
 
 {% block content %}
 <!-- FontAwesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <!-- Toast Message -->
 {% if messages %}
@@ -16,9 +15,9 @@
 </div>
 {% endif %}
 
-<h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Danh sách khoản thu</h2>
+<h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Danh sách khoản nộp</h2>
 
-<!-- Search + Add -->
+<!-- Search -->
 <form method="get" style="display: flex; justify-content: space-between; margin: 10px 0; align-items: center;">
     <div style="position: relative; width: 250px;">
         <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm"
@@ -26,61 +25,63 @@
         <i class="fa fa-search"
             style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); color: gray;"></i>
     </div>
-
-    <a href="{% url 'create_khoanthu' %}" class="btn-add">
-        <i class="fa fa-plus"></i> Thêm khoản thu mới
-    </a>
 </form>
 
 <br>
 
 <!-- Table -->
-<!-- Table -->
-<!-- Thêm cột Số tiền vào bảng -->
 <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
     <thead style="background-color: #f0f0f0;">
         <tr>
-            <th style="padding: 10px; text-align: center; width: 5%;">ID</th>
-            <th style="padding: 10px; text-align: center; width: 25%;">Tên khoản thu</th>
-            <th style="padding: 10px; text-align: center; width: 15%;">Loại</th>
-            <th style="padding: 10px; text-align: center; width: 15%;">Số tiền</th>
-            <th style="padding: 10px; text-align: left; width: 30%;">Ghi chú</th>
-            <th style="padding: 10px; text-align: center; width: 10%;">Thao tác</th>
+            <th style="padding: 10px; text-align: left; width: 22%;">Tên đợt thu</th>
+            <th style="padding: 10px; text-align: left; width: 22%;">Tên khoản thu</th>
+            <th style="padding: 10px; text-align: center; width: 18%;">Số lượng hộ đã nộp</th>
+            <th style="padding: 10px; text-align: center; width: 23%;">Thời gian</th>
+            <th style="padding: 10px; text-align: center; width: 15%;">Thao tác</th>
         </tr>
     </thead>
     <tbody>
-        {% if khoan_thu_list %}
-        {% for kt in khoan_thu_list %}
-        <tr style="border-bottom: 1px solid #ccc; text-align: center;">
-            <td style="padding: 10px;">{{ kt.id }}</td>
-            <td style="padding: 10px;">{{ kt.ten_khoan_thu }}</td>
-            <td style="padding: 10px;">{{ kt.loai_khoan_thu }}</td>
-            <td style="padding: 10px;">{{ kt.so_tien|floatformat:0 }} Đ</td>
-            <td style="padding: 10px; text-align: left;">{{ kt.ghi_chu|default:"-" }}</td>
-            <td style="padding: 10px;">
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <a href="{% url 'update_khoanthu' pk=kt.id %}" title="Sửa">
-                        <i class="fa fa-edit" style="color: #007bff; cursor: pointer;"></i>
-                    </a>
-                    <a href="{% url 'delete_khoanthu' pk=kt.id %}" title="Xóa">
-                        <i class="fa fa-trash" style="color: #dc3545; cursor: pointer;"></i>
-                    </a>
-                </div>
+        {% if khoan_nop_info %}
+        {% for item in khoan_nop_info %}
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 10px; text-align: left;">{{ item.dot_thu.ten_dot_thu }}</td>
+            <td style="padding: 10px; text-align: left;">{{ item.ten_khoan_thu }}</td>
+            <td style="padding: 10px; text-align: center;">{{ item.so_luong_nop }}</td>
+            <td style="padding: 10px; text-align: center;">
+                {{ item.dot_thu.thoi_gian_bat_dau|date:"d/m/Y" }} - {{ item.dot_thu.thoi_gian_ket_thuc|date:"d/m/Y" }}
             </td>
+            <td style="padding: 10px; text-align: center;">
+                <a href="{% url 'khoannop_details' pk=item.dot_thu.id %}" style="color: #218838;">
+                    <i class="fa fa-eye"></i> 
+                </a>
+            </td>
+        
         </tr>
         {% endfor %}
         {% else %}
         <tr>
-            <td colspan="6" style="text-align: center; padding: 20px;">Hiện không có khoản thu nào</td>
+            <td colspan="5" style="text-align: center; padding: 20px;">Hiện không có khoản nộp nào</td>
         </tr>
         {% endif %}
     </tbody>
 </table>
 
-
-
 <!-- Styles -->
 <style>
+    .btn-detail {
+        background-color: #28a745;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-detail:hover {
+        background-color: #218838;
+    }
+
     .btn-add {
         background-color: #007BFF;
         color: white;

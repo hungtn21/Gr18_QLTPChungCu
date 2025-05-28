@@ -1,0 +1,259 @@
+{% extends 'nguoi_dung/kt_base.html' %}
+
+{% block content %}
+<style>
+    .section-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 24px;
+        margin: 30px 0 20px;
+        color: #003366;
+    }
+
+    .info-box {
+        background-color: #eee;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+
+    .row-info {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .info-col {
+        flex: 1;
+        min-width: 250px;
+        padding: 10px 20px;
+    }
+
+    .info-col p {
+        margin-bottom: 12px;
+    }
+
+    .info-col strong {
+        display: inline-block;
+        width: 130px;
+    }
+
+    .danh-sach-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 30px 0 10px;
+    }
+
+    .btn-them-ho {
+        background-color: #f8f9fa;
+        border: 1px solid #ccc;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-them-ho:hover {
+        background-color: #e0e0e0;
+    }
+
+    .table th,
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 8px 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+
+    .text-success {
+        color: green;
+        font-weight: bold;
+    }
+
+    .text-danger {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+</style>
+
+<h2 class="section-title" style="margin-top: 0;">Chi tiết khoản nộp</h2>
+
+<div class="info-box">
+    <div class="row-info">
+        <!-- Cột trái -->
+        <div class="info-col">
+            <p><strong>Tên đợt thu:</strong> {{ dot_thu.ten_dot_thu }}</p>
+            <p><strong>Nội dung:</strong> {{ dot_thu.noi_dung }}</p>
+            <p><strong>Thời gian:</strong>
+                {{ dot_thu.thoi_gian_bat_dau|date:"d-m-Y" }} - {{ dot_thu.thoi_gian_ket_thuc|date:"d-m-Y" }}
+            </p>
+        </div>
+
+        <!-- Cột phải -->
+        <div class="info-col">
+            <p><strong>Tên khoản thu:</strong> {{ khoan_thu.ten_khoan_thu }}</p>
+            <p><strong>Loại khoản thu:</strong> {{ khoan_thu.loai_khoan_thu }}</p>
+            <p><strong>Ghi chú:</strong> {{ khoan_thu.ghi_chu }}</p>
+            <p><strong>Số tiền:</strong> {{ khoan_thu.so_tien}} đ</p>
+        </div>
+    </div>
+</div>
+
+
+<h2 class="section-title">Danh sách hộ gia đình</h2>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Chủ hộ</th>
+            <th>Số căn hộ</th>
+            <th>Diện tích (m²)</th>
+            <th>Số người</th>
+            <th>Số tiền cần nộp</th>
+            <th>Ngày nộp</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ho in danh_sach_ho %}
+        <tr>
+            <td>{{ ho.ten_chu_ho }}</td>
+            <td>{{ ho.so_can_ho }}</td>
+            <td>{{ ho.dien_tich }}</td>
+            <td>{{ ho.so_nguoi }}</td>
+            <td>
+                <span class="so-tien-hien">{{ ho.so_tien|floatformat:0 }} đ</span>
+                <input type="number" class="input-so-tien" value="{{ ho.so_tien }}" data-ho-id="{{ ho.ho_id }}"
+                    style="display:none; width: 90px;">
+                <i class="fa fa-pencil edit-icon-tien" style="cursor:pointer; margin-left: 8px;"></i>
+            </td>
+            <td>
+                <span class="ngay-nop-hien">
+                    {% if ho.ngay_nop %}
+                    {{ ho.ngay_nop|date:"d-m-Y" }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </span>
+                <input type="date" class="input-ngay-nop" value="{{ ho.ngay_nop|date:'Y-m-d' }}"
+                    data-ho-id="{{ ho.ho_id }}" style="display:none;">
+                <i class="fa fa-pencil edit-icon" style="cursor:pointer; margin-left: 8px;"></i>
+            </td>
+            <td class="trang-thai">
+                {% if ho.ngay_nop %}
+                <span class="text-success">Đã nộp</span>
+                {% else %}
+                <span class="text-danger">Chưa nộp</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.edit-icon-tien').click(function () {
+            var td = $(this).closest('td');
+            td.find('.so-tien-hien').hide();
+            $(this).hide();
+            td.find('.input-so-tien').show().focus();
+        });
+
+        $('.input-so-tien').on('blur keypress', function (e) {
+            if (e.type === 'blur' || (e.type === 'keypress' && e.which === 13)) {
+                var input = $(this);
+                var newTien = input.val();
+                var hoId = input.data('ho-id');
+
+                $.ajax({
+                    url: "",
+                    method: "POST",
+                    headers: { "X-Requested-With": "XMLHttpRequest" },
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'ho_id': hoId,
+                        'so_tien_can_nop': newTien
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            input.hide();
+                            var hienThi = input.siblings('.so-tien-hien');
+                            hienThi.text(parseInt(newTien).toLocaleString() + ' đ');
+                            hienThi.show();
+                            input.siblings('.edit-icon-tien').show();
+                        } else if (response.error) {
+                            alert(response.error);
+                        }
+                    }
+                });
+            }
+        });
+        $('.edit-icon').click(function () {
+            var td = $(this).closest('td');
+            td.find('.ngay-nop-hien').hide();
+            $(this).hide();
+            td.find('.input-ngay-nop').show().focus();
+        });
+
+        $('.input-ngay-nop').change(function () {
+            var input = $(this);
+            var newDate = input.val();  // có thể là "" (rỗng)
+            var hoId = input.data('ho-id');
+
+            $.ajax({
+                url: "",
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'ho_id': hoId,
+                    'ngay_nop': newDate
+                },
+                success: function (response) {
+                    if (response.success) {
+                        input.hide();
+                        let hienThi = input.siblings('.ngay-nop-hien');
+                        if (newDate) {
+                            hienThi.text(formatDate(newDate));
+                        } else {
+                            hienThi.text('-');
+                        }
+                        hienThi.show();
+                        input.siblings('.edit-icon').show();
+
+                        var tdTrangThai = input.closest('tr').find('.trang-thai');
+                        if (newDate) {
+                            tdTrangThai.html('<span class="text-success">Đã nộp</span>');
+                        } else {
+                            tdTrangThai.html('<span class="text-danger">Chưa nộp</span>');
+                        }
+                    }
+                }
+            });
+        });
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "-";
+            const d = new Date(dateStr);
+            if (isNaN(d)) return "-";
+            return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+        }
+    });
+</script>
+{% endblock %}

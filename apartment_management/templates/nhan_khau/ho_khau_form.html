@@ -1,0 +1,56 @@
+{% comment %} ho_khau_form.html {% endcomment %}
+
+<form id="hoKhauForm" method="post">
+  {% csrf_token %}
+
+  <h5>Thông tin chủ hộ</h5>
+  <div class="form-group">
+    <label for="ho_ten">Họ và tên:</label>
+    <input type="text" name="ho_ten" id="ho_ten" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="ma_can_cuoc">Số CCCD:</label>
+    <input type="text" name="ma_can_cuoc" id="ma_can_cuoc" class="form-control" required pattern="\d{12}">
+  </div>
+  <div class="form-group">
+    <label for="ngay_sinh">Ngày sinh:</label>
+    <input type="date" name="ngay_sinh" id="ngay_sinh" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="gioi_tinh">Giới tính:</label>
+    <select name="gioi_tinh" id="gioi_tinh" class="form-control">
+      <option value="Nam">Nam</option>
+      <option value="Nữ">Nữ</option>
+      <option value="Khác">Khác</option>
+    </select>
+  </div>
+    <hr>
+
+  <h5>Thông tin hộ khẩu</h5>
+  <div class="form-group">
+    <label for="so_can_ho">Số căn hộ :</label>
+    <input type="text" name="so_can_ho" id="so_can_ho" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="dien_tich">Diện tích (m²):</label>
+    <input type="number" name="dien_tich" id="dien_tich" class="form-control">
+  </div>
+  <div class="form-group">
+    <label for="thoi_gian_bat_dau_o">Ngày bắt đầu ở:</label>
+    <input type="date" name="thoi_gian_bat_dau_o" id="thoi_gian_bat_dau_o" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="trang_thai">Trạng thái hộ khẩu:</label>
+    <select name="trang_thai" id="trang_thai" class="form-control">
+      <option value="Còn hiệu lực">Còn hiệu lực</option>
+      <option value="Tạm vắng">Tạm vắng</option>
+      <option value="Đã hủy">Đã hủy</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="ghi_chu">Ghi chú:</label>
+    <textarea name="ghi_chu" id="ghi_chu" class="form-control"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Lưu hộ khẩu</button>
+</form>
