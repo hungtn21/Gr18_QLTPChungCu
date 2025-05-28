@@ -71,6 +71,13 @@ def them_nhan_khau_cho_ho(request, ho_gia_dinh_id):
             dan_cu = form.save(commit=False)
             dan_cu.trang_thai = 'Đang sinh sống'
             dan_cu.ho_gia_dinh = ho
+
+            # Kiểm tra thời gian chuyển đến >= thời gian bắt đầu ở của hộ
+            if dan_cu.thoi_gian_chuyen_den and ho.thoi_gian_bat_dau_o:
+                if dan_cu.thoi_gian_chuyen_den < ho.thoi_gian_bat_dau_o:
+                    messages.error(request, 'Thời gian chuyển đến không được trước thời gian bắt đầu ở của hộ.')
+                    return redirect('them_nhan_khau_cho_ho', ho_gia_dinh_id=ho.id)
+
             dan_cu.save()
 
             # Gán chủ hộ nếu chưa có
@@ -82,16 +89,16 @@ def them_nhan_khau_cho_ho(request, ho_gia_dinh_id):
             return redirect('them_nhan_khau_cho_ho', ho_gia_dinh_id=ho.id)
     else:
         form = DanCuForm(initial={
-    'thoi_gian_chuyen_den': ho.thoi_gian_bat_dau_o,
-    'trang_thai': 'Đang sinh sống',  # gán mặc định tại đây
-})
-
+            'thoi_gian_chuyen_den': ho.thoi_gian_bat_dau_o,
+            'trang_thai': 'Đang sinh sống',
+        })
 
     return render(request, 'nhan_khau/them_nhan_khau.html', {
         'form': form,
         'ho': ho,
         'dancu_list': dancu_list
     })
+
 
 @login_required
 @role_required('BQL Chung cư')
@@ -247,18 +254,33 @@ def them_nhan_khau_tu_modal(request, ho_id):
     trang_thai = request.POST.get('trang_thai') or 'Đang sinh sống'
     thoi_gian_chuyen_den = request.POST.get('thoi_gian_chuyen_den')
     thoi_gian_chuyen_di = request.POST.get('thoi_gian_chuyen_di') or None
-    #Kiểm tra CCCD đã tồn tại chưa
+
+    # Kiểm tra CCCD đã tồn tại chưa
     if DanCu.objects.filter(ma_can_cuoc=ma_can_cuoc).exists():
         return JsonResponse({'success': False, 'message': 'CCCD đã tồn tại.'}, status=400)
 
+    # Kiểm tra số điện thoại
     if not so_dien_thoai.isdigit() or len(so_dien_thoai) != 10:
         return JsonResponse({'success': False, 'message': 'Số điện thoại phải có đúng 10 chữ số.'}, status=400)
 
+    # Kiểm tra mã CCCD
     if not ma_can_cuoc.isdigit() or len(ma_can_cuoc) != 12:
         return JsonResponse({'success': False, 'message': 'CCCD phải có đúng 12 chữ số.'}, status=400)
 
+    # Kiểm tra ngày sinh
     if ngay_sinh and ngay_sinh > date.today().isoformat():
         return JsonResponse({'success': False, 'message': 'Ngày sinh không được lớn hơn ngày hiện tại.'}, status=400)
+
+    # Kiểm tra logic thời gian chuyển đến không trước thời gian bắt đầu ở của hộ
+    if thoi_gian_chuyen_den and ho.thoi_gian_bat_dau_o:
+        try:
+            d_date = datetime.strptime(thoi_gian_chuyen_den, '%Y-%m-%d').date()
+            if d_date < ho.thoi_gian_bat_dau_o:
+                return JsonResponse({'success': False, 'message': 'Thời gian chuyển đến không được trước thời gian bắt đầu ở của hộ.'}, status=400)
+        except ValueError:
+            return JsonResponse({'success': False, 'message': 'Định dạng ngày không hợp lệ.'}, status=400)
+
+    # Tạo nhân khẩu
     try:
         dan_cu = DanCu.objects.create(
             ho_gia_dinh=ho,
@@ -272,13 +294,16 @@ def them_nhan_khau_tu_modal(request, ho_id):
             thoi_gian_chuyen_di=thoi_gian_chuyen_di
         )
 
+        # Nếu chưa có chủ hộ thì gán người này
         if ho.id_chu_ho is None:
             ho.id_chu_ho = dan_cu
             ho.save()
 
         return JsonResponse({'success': True, 'message': 'Đã thêm thông tin nhân khẩu thành công.'})
+
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Lỗi: {str(e)}'}, status=400)
+
 
 
 @login_required
@@ -290,8 +315,8 @@ def quan_ly_nhan_khau(request):
             Q(ho_ten__icontains=query) |
             Q(ma_can_cuoc__icontains=query) |
             Q(so_dien_thoai__icontains=query) |
-            Q(ho_gia_dinh__so_can_ho__icontains=query) |
-            Q(ho_gia_dinh__id_chu_ho__ho_ten__icontains=query)
+            Q(ho_gia_dinh__so_can_ho__icontains=query) 
+            
     )
     else:
         nhan_khau_list = DanCu.objects.all()
@@ -407,24 +432,6 @@ def role_required(required_role):
             return redirect('login')  
         return _wrapped_view
     return decorator
-
-#--------------------------------------Thay đổi mật khẩu---------------------------------------
-
-@login_required
-def change_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)  # Cập nhật session để không bị đăng xuất
-            messages.success(request, 'Mật khẩu đã được thay đổi thành công.')
-            return redirect('admin_change_password')
-        else:
-            messages.error(request, 'Vui lòng kiểm tra lại thông tin.')
-    else:
-        form = PasswordChangeForm(request.user)
-
-    return render(request, 'nhan_khau/change_password.html', {'form': form})
 
 #---------------------------------Chỉnh sửa thông tin cá nhân----------------------------------------
 @login_required
