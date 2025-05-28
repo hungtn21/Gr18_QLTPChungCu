@@ -63,6 +63,8 @@ def login_view(request):
 def bqlcc_dashboard(request):
     return render(request, 'nhan_khau/BQLCCDashboard.html')
 
+
+
 @login_required
 @role_required('Kế toán')
 def kt_dashboard(request):

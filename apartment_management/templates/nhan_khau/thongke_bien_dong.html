@@ -1,0 +1,200 @@
+{% extends 'nhan_khau/nhankhau_base.html' %} 
+
+{% block content %}
+<style>
+    form {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    form label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+        color: #333;
+    }
+
+    form input[type="date"] {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    form button {
+        background-color: #0055aa;
+        color: white;
+        padding: 10px 20px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+
+    form button:hover {
+        background-color: #004488;
+    }
+
+    h2, h3 {
+        text-align: center;
+        color: #333;
+    }
+
+    .stat-summary {
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-summary ul {
+        padding-left: 20px;
+    }
+
+    table {
+        width: 90%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        text-align: center;
+        padding: 12px;
+    }
+
+    thead {
+        background-color: #0055aa;
+        color: white;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background-color: #ddd;
+    }
+</style>
+
+<h2>Thống kê biến động dân cư</h2>
+
+<form method="get" action=".">
+    <label for="date_from">Từ ngày:</label>
+    <input type="date" id="date_from" name="date_from" value="{{ request.GET.date_from }}">
+
+    <label for="date_to">Đến ngày:</label>
+    <input type="date" id="date_to" name="date_to" value="{{ request.GET.date_to }}">
+
+    <button type="submit">Thống kê</button>
+</form>
+
+{% if tong_bien_dong is not None %}
+    <div class="stat-summary">
+        <h3>Kết quả thống kê:</h3>
+        <p><strong>Tổng biến động:</strong> {{ tong_bien_dong }}</p>
+        <ul>
+            <li>{{ chuyen_den }} người chuyển đến</li>
+            <li>{{ chuyen_di }} người chuyển đi</li>
+            <li>{{ qua_doi }} người qua đời</li>
+        </ul>
+    </div>
+
+ {% if danh_sach_chuyen_den %}
+        <h3>Danh sách chuyển đến</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Mã căn hộ</th>
+                    <th>Giới tính</th>
+                    <th>Trạng thái</th>
+                    <th>Thời gian chuyển đến</th>
+                    <th>Thời gian chuyển đi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nk in danh_sach_chuyen_den %}
+                    <tr>
+                        <td>{{ nk.ho_ten }}</td>
+                        <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
+                        <td>{{ nk.gioi_tinh }}</td>
+                        <td>{{ nk.trang_thai }}</td>
+                        <td>{{ nk.thoi_gian_chuyen_den|date:"d/m/Y" }}</td>
+                        <td>{% if nk.thoi_gian_chuyen_di %}{{ nk.thoi_gian_chuyen_di|date:"d/m/Y" }}{% else %}-{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if danh_sach_chuyen_di %}
+        <h3>Danh sách chuyển đi</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Mã căn hộ</th>
+                    <th>Giới tính</th>
+                    <th>Trạng thái</th>
+                    <th>Thời gian chuyển đến</th>
+                    <th>Thời gian chuyển đi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nk in danh_sach_chuyen_di %}
+                    <tr>
+                        <td>{{ nk.ho_ten }}</td>
+                        <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
+                        <td>{{ nk.gioi_tinh }}</td>
+                        <td>{{ nk.trang_thai }}</td>
+                        <td>{{ nk.thoi_gian_chuyen_den|date:"d/m/Y" }}</td>
+                        <td>{% if nk.thoi_gian_chuyen_di %}{{ nk.thoi_gian_chuyen_di|date:"d/m/Y" }}{% else %}-{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if danh_sach_qua_doi %}
+        <h3>Danh sách qua đời</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Mã căn hộ</th>
+                    <th>Giới tính</th>
+                    <th>Trạng thái</th>
+                    <th>Thời gian chuyển đến</th>
+                    <th>Thời gian chuyển đi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nk in danh_sach_qua_doi %}
+                    <tr>
+                        <td>{{ nk.ho_ten }}</td>
+                        <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
+                        <td>{{ nk.gioi_tinh }}</td>
+                        <td>{{ nk.trang_thai }}</td>
+                        <td>{{ nk.thoi_gian_chuyen_den|date:"d/m/Y" }}</td>
+                        <td>{{ nk.thoi_gian_chuyen_di|date:"d/m/Y" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endif %}
+
+{% endblock %}
