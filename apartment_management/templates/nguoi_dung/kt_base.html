@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+      }
+
+      /* Sidebar cố định */
+      .sidebar {
+        width: 200px;
+        background-color: #003366;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100vh;
+        overflow-y: auto;
+        padding-top: 20px;
+        z-index: 1000;
+      }
+
+      .sidebar button {
+        width: 90%;
+        padding: 10px;
+        margin: 10px;
+        background-color: #ffffff;
+        color: #000;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .sidebar button:hover {
+        background-color: #2891fa;
+        color: white;
+      }
+
+      /* Content căn lề phải */
+      .content {
+        margin-left: 200px;
+        padding: 40px;
+        min-height: 100vh;
+      }
+
+      h2 {
+        color: #003366;
+      }
+    </style>
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <div
+        class="sidebar-header"
+        style="display: flex; align-items: center; padding: 10px; color: white"
+      >
+        <i class="fas fa-home" style="margin-right: 8px"></i>
+        <span style="font-weight: bold">Kế toán</span>
+      </div>
+      <a href="{% url 'KTDashboard' %}">
+        <button>Trang chủ</button>
+      </a>
+      <a href="{% url 'list_dot_thu' %}">
+        <button>Danh sách đợt thu</button>
+      </a>
+      <a href="{% url 'edit_profile' %}">
+        <button>Sửa thông tin cá nhân</button>
+      </a>
+      <a href="{% url 'change_password' %}">
+        <button>Đổi mật khẩu</button>
+      </a>
+
+      <!-- Thêm các menu item khác nếu có -->
+    </div>
+
+    <div class="content">{% block content %}{% endblock %}</div>
+
+    {% block extra_js %} {% endblock %}
+  </body>
+</html>
