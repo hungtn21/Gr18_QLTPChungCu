@@ -53,7 +53,6 @@ urlpatterns = [
     path('bqlChungCu/edit-profile/',nhan_khau_views.edit_profile, name='edit_profile'),
     path('bqlChungCu/change-password/', nhan_khau_views.change_password, name='change_password'),
     path('bqlChungCu/quan_ly_ho_khau/create/', nhan_khau_views.create_ho_khau, name='create_ho_khau'),
-    path('bqlChungCu/them-nhan-khau/<int:ho_gia_dinh_id>/',nhan_khau_views.them_nhan_khau_cho_ho,name='them_nhan_khau_cho_ho'),
     path('bqlChungCu/doi-chu-ho/<int:ho_id>/<int:dan_cu_id>/',nhan_khau_views.doi_chu_ho,name='doi_chu_ho'),
     path('bqlChungCu/xoa-ho-khau/<int:pk>/', nhan_khau_views.xoa_ho_khau, name='xoa_ho_khau'),
     path('bqlChungCu/sua-ho-khau/<int:pk>/', nhan_khau_views.sua_ho_khau, name='sua_ho_khau'),

@@ -61,47 +61,6 @@ def create_ho_khau(request):
 
 @login_required
 @role_required('BQL Chung cư')
-def them_nhan_khau_cho_ho(request, ho_gia_dinh_id):
-    ho = get_object_or_404(HoGiaDinh, id=ho_gia_dinh_id)
-    dancu_list = DanCu.objects.filter(ho_gia_dinh=ho)
-
-    if request.method == 'POST':
-        form = DanCuForm(request.POST or None, hide_trang_thai=True)
-        if form.is_valid():
-            dan_cu = form.save(commit=False)
-            dan_cu.trang_thai = 'Đang sinh sống'
-            dan_cu.ho_gia_dinh = ho
-
-            # Kiểm tra thời gian chuyển đến >= thời gian bắt đầu ở của hộ
-            if dan_cu.thoi_gian_chuyen_den and ho.thoi_gian_bat_dau_o:
-                if dan_cu.thoi_gian_chuyen_den < ho.thoi_gian_bat_dau_o:
-                    messages.error(request, 'Thời gian chuyển đến không được trước thời gian bắt đầu ở của hộ.')
-                    return redirect('them_nhan_khau_cho_ho', ho_gia_dinh_id=ho.id)
-
-            dan_cu.save()
-
-            # Gán chủ hộ nếu chưa có
-            if not ho.id_chu_ho:
-                ho.id_chu_ho = dan_cu
-                ho.save()
-
-            messages.success(request, 'Đã thêm nhân khẩu.')
-            return redirect('them_nhan_khau_cho_ho', ho_gia_dinh_id=ho.id)
-    else:
-        form = DanCuForm(initial={
-            'thoi_gian_chuyen_den': ho.thoi_gian_bat_dau_o,
-            'trang_thai': 'Đang sinh sống',
-        })
-
-    return render(request, 'nhan_khau/them_nhan_khau.html', {
-        'form': form,
-        'ho': ho,
-        'dancu_list': dancu_list
-    })
-
-
-@login_required
-@role_required('BQL Chung cư')
 @require_http_methods(["POST"])
 def doi_chu_ho(request, ho_id, dan_cu_id):
     ho = get_object_or_404(HoGiaDinh, id=ho_id)
@@ -338,12 +297,7 @@ def tach_ho(request, ho_id):
     ids_thanh_vien = request.POST.getlist('thanh_vien_ids')
     id_chu_ho_moi = request.POST.get('id_chu_ho_moi')
 
-    #Kiểm tra trùng số căn hộ
-    if HoGiaDinh.objects.filter(so_can_ho=so_can_ho).exists():
-        messages.error(request, f'Căn hộ số {so_can_ho} đã tồn tại.')
-        return redirect('sua_ho_khau', pk=ho_id)
-
-    # Validate còn lại
+    # Kiểm tra dữ liệu bắt buộc
     if not ids_thanh_vien:
         messages.error(request, 'Vui lòng chọn ít nhất một thành viên để tách.')
         return redirect('sua_ho_khau', pk=ho_id)
@@ -352,27 +306,38 @@ def tach_ho(request, ho_id):
         messages.error(request, 'Chủ hộ mới phải là một trong các thành viên được chọn.')
         return redirect('sua_ho_khau', pk=ho_id)
 
-    # Tạo hộ mới
-    ho_moi = HoGiaDinh.objects.create(
-        so_can_ho=so_can_ho,
-        dien_tich=dien_tich,
-        ghi_chu=ghi_chu,
-        thoi_gian_bat_dau_o=date.today().isoformat(),
-        trang_thai='Đang ở',
-    )
+    # Xử lý trường hợp hộ đã tồn tại
+    ho_da_ton_tai = HoGiaDinh.objects.filter(so_can_ho=so_can_ho).first()
 
+    if ho_da_ton_tai:
+        # Nếu đã tồn tại và còn người đang sinh sống thì không cho tách
+        if DanCu.objects.filter(ho_gia_dinh=ho_da_ton_tai, trang_thai='Đang sinh sống').exists():
+            messages.error(request, f'Căn hộ số {so_can_ho} đã tồn tại và vẫn còn người đang sinh sống.')
+            return redirect('sua_ho_khau', pk=ho_id)
+        ho_moi = ho_da_ton_tai
+    else:
+        # Tạo hộ mới nếu chưa có
+        ho_moi = HoGiaDinh.objects.create(
+            so_can_ho=so_can_ho,
+            dien_tich=dien_tich,
+            ghi_chu=ghi_chu,
+            thoi_gian_bat_dau_o=date.today().isoformat(),
+            trang_thai='Đang ở',
+        )
+
+    # Cập nhật các thành viên
     danh_sach_dan_cu = DanCu.objects.filter(id__in=ids_thanh_vien)
     for dancu in danh_sach_dan_cu:
         dancu.ho_gia_dinh = ho_moi
         dancu.save()
 
+    # Cập nhật chủ hộ
     chu_ho_obj = DanCu.objects.get(id=id_chu_ho_moi)
     ho_moi.id_chu_ho = chu_ho_obj
     ho_moi.save()
 
     messages.success(request, f'Đã tách hộ thành công sang căn hộ {so_can_ho}.')
     return redirect('sua_ho_khau', pk=ho_id)
-
 #--------------------------------------Thay đổi mật khẩu---------------------------------------
 
 @login_required
