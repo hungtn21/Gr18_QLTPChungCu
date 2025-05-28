@@ -81,7 +81,7 @@
     }
 
     #resultTable {
-        max-width: 800px;
+        max-width: 1200px;
         margin: 30px auto;
     }
 
@@ -174,7 +174,7 @@
         <thead>
             <tr>
                 <th>Họ tên</th>
-                <th>Phòng</th>
+                <th>Mã căn hộ</th>
                 <th>Loại</th>
                 <th>Thời gian bắt đầu</th>
                 <th>Thời gian kết thúc</th>
@@ -187,8 +187,8 @@
                 <td>{{ result.dan_cu.ho_ten }}</td>
                 <td>{{ result.dan_cu.ho_gia_dinh.so_can_ho}}</td>
                 <td>{{ result.loai_tttv }}</td>
-                <td>{{ result.thoi_gian_bat_dau }}</td>
-                <td>{{ result.thoi_gian_ket_thuc }}</td>
+                <td>{{ result.thoi_gian_bat_dau|date:"d/m/Y" }}</td>
+                <td>{{ result.thoi_gian_ket_thuc|date:"d/m/Y" }}</td>
                 <td>{{ result.ly_do }}</td>
             </tr>
             {% endfor %}

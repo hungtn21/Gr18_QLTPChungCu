@@ -6,7 +6,7 @@
         background-color: #f9f9f9;
         padding: 20px;
         border-radius: 10px;
-        max-width: 600px;
+        max-width: 1200px;
         margin: auto;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
@@ -50,7 +50,7 @@
     }
 
     #resultTable {
-        max-width: 800px;
+        max-width: 1200px;
         margin: 30px auto;
     }
 
@@ -80,13 +80,24 @@
     tbody tr:hover {
         background-color: #ddd;
     }
+    .form-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .date-label {
+        font-weight: 500;
+    }
+
 </style>
 
 <h2>Thống kê theo độ tuổi/giới tính/thời gian</h2>
 
 <form method="get" action="." onsubmit="return validateForm()">
+    <div class="form-inline">
     <label for="gender">Giới tính:</label>
-    <select id="gender" name="gender">
+    <select id="gender" name="gender" class="form-control">
         <option value="">--Chọn--</option>
         <option value="Nam" {% if request.GET.gender == "Nam" %}selected{% endif %}>Nam</option>
         <option value="Nữ" {% if request.GET.gender == "Nữ" %}selected{% endif %}>Nữ</option>
@@ -94,16 +105,17 @@
     <br><br>
 
     <label>Độ tuổi:</label>
-    <input type="number" id="ageFrom" name="ageFrom" placeholder="Từ tuổi" min="0" max="120" value="{{ request.GET.ageFrom }}">
-    <input type="number" id="ageTo" name="ageTo" placeholder="Đến tuổi" min="0" max="120" value="{{ request.GET.ageTo }}">
+    <input type="number" id="ageFrom" name="ageFrom" placeholder="Từ tuổi" min="0" max="120" class="form-control short-input" value="{{ request.GET.ageFrom }}">
+    <input type="number" id="ageTo" name="ageTo" placeholder="Đến tuổi" min="0" max="120" class="form-control short-input" value="{{ request.GET.ageTo }}">
     <br><br>
 
     <label>Thời gian:</label>
-    <input type="date" id="fromDate" name="fromDate" value="{{ request.GET.fromDate }}">
-    <input type="date" id="toDate" name="toDate" value="{{ request.GET.toDate }}">
+    <input type="date" id="fromDate" name="fromDate" class="form-control short-input" value="{{ request.GET.fromDate }}">
+    <input type="date" id="toDate" name="toDate" class="form-control short-input" value="{{ request.GET.toDate }}">
     <br><br>
 
     <button type="submit" name="submit" value="1">Gửi</button>
+</div>
 </form>
 
 <br>
@@ -116,6 +128,7 @@
         <thead>
             <tr>
                 <th>Họ tên</th>
+                <th>Mã căn hộ</th>
                 <th>Giới tính</th>
                 <th>Tuổi</th>
                 <th>Trạng thái cư trú</th>
@@ -129,15 +142,16 @@
             {% for nk in results %}
             <tr>
                 <td>{{ nk.ho_ten }}</td>
+                <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
                 <td>{{ nk.gioi_tinh }}</td>
                 <td>{{ nk.tinh_tuoi }}</td>
                 <td>{{ nk.trang_thai }}</td>
                 <td>{{ nk.so_dien_thoai }}</td>
                 <td>{{ nk.ma_can_cuoc }}</td>
-                <td>{{ nk.thoi_gian_chuyen_den }}</td>
+                <td>{{ nk.thoi_gian_chuyen_den|date:"d/m/Y" }}</td>
                 <td>
                     {% if nk.thoi_gian_chuyen_di %}
-                        {{ nk.thoi_gian_chuyen_di }}
+                        {{ nk.thoi_gian_chuyen_di|date:"d/m/Y" }}
                     {% else %}
                         -
                     {% endif %}
@@ -147,6 +161,10 @@
             </tbody>
         </table>
     </div>
+    {% else %}
+        <div class="no-results">
+            <p style="text-align:center; color: #666;">Không tìm thấy bản ghi nào phù hợp.</p>
+        </div>
 {% endif %}
 
 <script>

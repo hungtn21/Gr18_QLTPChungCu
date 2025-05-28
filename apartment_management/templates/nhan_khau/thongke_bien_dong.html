@@ -132,8 +132,8 @@
                         <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
                         <td>{{ nk.gioi_tinh }}</td>
                         <td>{{ nk.trang_thai }}</td>
-                        <td>{{ nk.thoi_gian_chuyen_den }}</td>
-                        <td>{% if nk.thoi_gian_chuyen_di %}{{ nk.thoi_gian_chuyen_di }}{% else %}-{% endif %}</td>
+                        <td>{{ nk.thoi_gian_chuyen_den|date:"d/m/Y" }}</td>
+                        <td>{% if nk.thoi_gian_chuyen_di %}{{ nk.thoi_gian_chuyen_di|date:"d/m/Y" }}{% else %}-{% endif %}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -160,8 +160,8 @@
                         <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
                         <td>{{ nk.gioi_tinh }}</td>
                         <td>{{ nk.trang_thai }}</td>
-                        <td>{{ nk.thoi_gian_chuyen_den }}</td>
-                        <td>{% if nk.thoi_gian_chuyen_di %}{{ nk.thoi_gian_chuyen_di }}{% else %}-{% endif %}</td>
+                        <td>{{ nk.thoi_gian_chuyen_den|date:"d/m/Y" }}</td>
+                        <td>{% if nk.thoi_gian_chuyen_di %}{{ nk.thoi_gian_chuyen_di|date:"d/m/Y" }}{% else %}-{% endif %}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -188,8 +188,8 @@
                         <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
                         <td>{{ nk.gioi_tinh }}</td>
                         <td>{{ nk.trang_thai }}</td>
-                        <td>{{ nk.thoi_gian_chuyen_den }}</td>
-                        <td>{{ nk.thoi_gian_chuyen_di }}</td>
+                        <td>{{ nk.thoi_gian_chuyen_den|date:"d/m/Y" }}</td>
+                        <td>{{ nk.thoi_gian_chuyen_di|date:"d/m/Y" }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

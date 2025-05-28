@@ -11,19 +11,6 @@ django.setup()
 con = sqlite3.connect('db.sqlite3')
 cur = con.cursor()
 
-# Xóa dữ liệu cũ để tránh bị trùng khi chèn mới
-cur.execute('DELETE FROM apartment_management_tamtrutamvang')
-cur.execute('DELETE FROM apartment_management_dancu')
-cur.execute('DELETE FROM apartment_management_hogiadinh')
-cur.execute('DELETE FROM apartment_management_chitietthu')
-cur.execute('DELETE FROM apartment_management_dotthu')
-cur.execute('DELETE FROM apartment_management_khoanthu')
-cur.execute('DELETE FROM apartment_management_phuongtien')
-# Nếu có bảng khác liên quan, cũng xóa luôn
-
-con.commit()  # Lưu thay đổi trước khi chèn dữ liệu mới
-
-
 # # Chèn dữ liệu vào bảng User (mã hóa mật khẩu)
 # password1 = make_password('ABC123')  # Mã hóa mật khẩu
 # password2 = make_password('XYZ123')  # Mã hóa mật khẩu
@@ -65,7 +52,7 @@ for i in range(1, 4):
         INSERT INTO apartment_management_dancu (ho_gia_dinh_id, ho_ten, ngay_sinh, gioi_tinh, ma_can_cuoc, so_dien_thoai, trang_thai, thoi_gian_chuyen_den, thoi_gian_chuyen_di) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (i, f'Nguyen Thi Lan {i}', '1990-05-05', 'Nữ', f'12345678{i}', f'0123456789{i}', 'Đang sinh sống', '2025-01-01', '2025-12-31'))
-    
+
 # Chèn dữ liệu vào bảng KhoanThu
 for i in range(1, 4):
     cur.execute('''
