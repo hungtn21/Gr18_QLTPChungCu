@@ -63,7 +63,10 @@ class DanCu(models.Model):
     def __str__(self):
         return self.ho_ten
 
-
+    def tinh_tuoi(self):
+        from datetime import date
+        return date.today().year - self.ngay_sinh.year
+    
 class KhoanThu(models.Model):
     LOAI_CHOICES = [
         ('Bắt buộc', 'Bắt buộc'),
@@ -117,8 +120,8 @@ class TamTruTamVang(models.Model):
     ]
     dan_cu = models.ForeignKey(DanCu, on_delete=models.CASCADE)
     loai_tttv = models.CharField(max_length=20, choices=LOAI_CHOICES)
-    thoi_gian_bat_dau = models.TimeField()
-    thoi_gian_ket_thuc = models.TimeField()
+    thoi_gian_bat_dau = models.DateField()
+    thoi_gian_ket_thuc = models.DateField()
     ly_do = models.CharField(max_length=255)
 
     def __str__(self):
