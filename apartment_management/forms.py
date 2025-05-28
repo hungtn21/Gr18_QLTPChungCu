@@ -1,6 +1,6 @@
 from django import forms
 from datetime import date
-from .models import ChiTietThu, DanCu, HoGiaDinh, KhoanThu
+from .models import ChiTietThu, DanCu, HoGiaDinh, KhoanThu, TamTruTamVang
 from .models import KhoanThu
 from .models import NguoiDung
 from django.core.validators import RegexValidator
@@ -169,3 +169,12 @@ class HoGiaDinhForm(forms.ModelForm):
             if HoGiaDinh.objects.filter(so_can_ho=so_can_ho).exists():
                 raise ValidationError("Số căn hộ này đã tồn tại.")
         return so_can_ho
+    
+class TamTruTamVangForm(forms.ModelForm):
+    class Meta:
+        model = TamTruTamVang
+        fields = ['loai_tttv', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'ly_do']
+        widgets = {
+            'thoi_gian_bat_dau': forms.DateInput(attrs={'type': 'date'}),
+            'thoi_gian_ket_thuc': forms.DateInput(attrs={'type': 'date'}),
+        }

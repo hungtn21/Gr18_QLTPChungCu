@@ -1,0 +1,32 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+{% load form_tags %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="text-primary">Cập nhật Tạm trú/Tạm vắng: {{ dan_cu.ho_ten }}</h4>
+
+    <form method="POST" class="row g-3">
+        {% csrf_token %}
+        <div class="col-md-6">
+            <label class="form-label">Loại</label>
+            {{ form.loai_tttv|add_class:"form-select" }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Lý do</label>
+            {{ form.ly_do|add_class:"form-control" }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Thời gian bắt đầu</label>
+            {{ form.thoi_gian_bat_dau|add_class:"form-control" }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Thời gian kết thúc</label>
+            {{ form.thoi_gian_ket_thuc|add_class:"form-control" }}
+        </div>
+
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a href="{% url 'sua_nhan_khau' dan_cu.id %}" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

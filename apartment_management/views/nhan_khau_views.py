@@ -15,7 +15,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from apartment_management.models import DanCu, ChiTietThu, DotThu, HoGiaDinh, KhoanThu, TamTruTamVang, NguoiDung
 from apartment_management.forms import (
-    DanCuForm, HoGiaDinhForm, EditProfileForm,
+    DanCuForm, HoGiaDinhForm, EditProfileForm, TamTruTamVangForm,
     KhoanThuCreateForm, KhoanThuForm, KhoanNopCreateForm
 )
 from .nguoi_dung_views import role_required
@@ -197,17 +197,40 @@ def sua_nhan_khau(request, pk):
     else:
         form = DanCuForm(instance=dancu)
 
+    tam_tru_vang = TamTruTamVang.objects.filter(dan_cu=dancu).order_by('-thoi_gian_bat_dau').first()
+    if tam_tru_vang:
+        trang_thai_tttv = f"{tam_tru_vang.loai_tttv} ({tam_tru_vang.thoi_gian_bat_dau} - {tam_tru_vang.thoi_gian_ket_thuc or 'hiện tại'})"
+    else:
+        trang_thai_tttv = "Không có"
+
     default_url = reverse('sua_ho_khau', args=[dancu.ho_gia_dinh.id])
     return render(request, 'nhan_khau/sua_nhan_khau.html', {
     'form': form,
     'dan_cu': dancu,
     'next': next_url,
     'default_url': default_url,
+    'trang_thai_tttv': trang_thai_tttv,
 })
 
+@login_required
+@role_required('BQL Chung cư')
+def tam_tru_tam_vang(request, pk):
+    dan_cu = get_object_or_404(DanCu, pk=pk)
 
+    if request.method == 'POST':
+        form = TamTruTamVangForm(request.POST)
+        if form.is_valid():
+            tamtru = form.save(commit=False)
+            tamtru.dan_cu = dan_cu
+            tamtru.save()
+            return redirect('sua_nhan_khau', pk=dan_cu.pk)  # Đổi lại tên URL nếu khác
+    else:
+        form = TamTruTamVangForm()
 
-
+    return render(request, 'nhan_khau/tamtrutamvang.html', {
+        'form': form,
+        'dan_cu': dan_cu
+    })
 
 @login_required
 @role_required('BQL Chung cư')
