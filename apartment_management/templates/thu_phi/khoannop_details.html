@@ -102,7 +102,7 @@
             <p><strong>Tên đợt thu:</strong> {{ dot_thu.ten_dot_thu }}</p>
             <p><strong>Nội dung:</strong> {{ dot_thu.noi_dung }}</p>
             <p><strong>Thời gian:</strong>
-                {{ dot_thu.thoi_gian_bat_dau|date:"d-m-Y" }} - {{ dot_thu.thoi_gian_ket_thuc|date:"d-m-Y" }}
+                {{ dot_thu.thoi_gian_bat_dau|date:"d/m/Y" }} - {{ dot_thu.thoi_gian_ket_thuc|date:"d/m/Y" }}
             </p>
         </div>
 
@@ -111,13 +111,15 @@
             <p><strong>Tên khoản thu:</strong> {{ khoan_thu.ten_khoan_thu }}</p>
             <p><strong>Loại khoản thu:</strong> {{ khoan_thu.loai_khoan_thu }}</p>
             <p><strong>Ghi chú:</strong> {{ khoan_thu.ghi_chu }}</p>
-            <p><strong>Số tiền:</strong> {{ khoan_thu.so_tien}} đ</p>
+            {% if khoan_thu.so_tien != 0 %}
+                <p><strong>Đơn giá:</strong> {{ khoan_thu.so_tien }} đ</p>
+            {% endif %}
         </div>
     </div>
 </div>
 
 
-<h2 class="section-title">Danh sách hộ gia đình</h2>
+<h2 class="section-title">Tình trạng nộp của các hộ gia đình</h2>
 <table class="table table-bordered table-striped">
     <thead>
         <tr>

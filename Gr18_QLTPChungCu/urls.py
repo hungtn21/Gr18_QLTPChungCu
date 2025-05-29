@@ -23,6 +23,7 @@ urlpatterns = [
     path('login/', nguoi_dung_views.login_view, name='login'),
     path('', lambda request: redirect('login')),
     path('admin/user-management/', nguoi_dung_views.login_view, name='admin-user-management'),
+    path('logout/', nguoi_dung_views.logout_view, name='admin_logout'),
     # path('users/', nguoi_dung_views.list_users, name='list_users'),
     path('dashboard/admin/', nguoi_dung_views.admin_dashboard, name='AdminDashboard'),
     path('dashboard/bqlcc/', nguoi_dung_views.bqlcc_dashboard, name='BQLCCDashboard'),

@@ -45,6 +45,35 @@
         h2 {
             color: #003366;
         }
+        .msg-error { color: red; }
+        .msg-success { color: green; }
+        
+        /* Thêm style cho toast */
+        .toast {
+            min-width: 350px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .toggle-status-btn {
+            transition: all 0.3s ease;
+        }
+        .toggle-status-btn:hover {
+            transform: scale(1.05);
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #a2d0ff;
+            border-color: #003366;
+        }
+        .pagination .page-link {
+            color: #003366;
+        }
+        .pagination .page-link:hover {
+            color: #003366;
+            background-color: #e9ecef;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -73,6 +102,10 @@
         <a href="{% url 'ketoan_change_password' %}">
             <button>Đổi mật khẩu</button>
         </a>
+        <a href="{% url 'admin_logout' %}">
+            <button>Đăng xuất</button>
+        </a>
+        
     </div>
     <div class="content">
         {% block content %}{% endblock %}

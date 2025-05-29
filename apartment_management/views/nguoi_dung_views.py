@@ -1,13 +1,3 @@
-# from django.shortcuts import render, redirect
-# from django.contrib.auth import authenticate, login
-# from django.contrib import messages
-# from ..models import NguoiDung
-# from django.contrib.auth.decorators import login_required
-# from django.http import HttpResponse
-# from django.shortcuts import redirect
-# from functools import wraps
-# from ..forms import EditProfileForm
-# from django.contrib.auth.forms import PasswordChangeForm
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, update_session_auth_hash, logout
@@ -132,3 +122,9 @@ def edit_profile(request):
         form = EditProfileForm(instance=nguoi_dung)
 
     return render(request, 'thu_phi/edit_profile.html', {'form': form})
+
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('login')
