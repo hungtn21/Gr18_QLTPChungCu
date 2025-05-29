@@ -1,115 +1,131 @@
-{% extends 'nguoi_dung/kt_base.html' %}
-
-{% block content %}
+{% extends 'nguoi_dung/admin_base.html' %} {% block content %}
 <div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i>Chỉnh sửa thông tin cá nhân</h4>
-                </div>
-                
-                <div class="card-body">
-                    <form method="post" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="id_ho_ten" class="form-label">Họ và tên</label>
-                                <input type="text" class="form-control" id="id_ho_ten" 
-                                    name="ho_ten" value="{{ form.ho_ten.value }}" required>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="id_email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="id_email" 
-                                    name="email" value="{{ form.email.value }}" required>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="id_so_dien_thoai" class="form-label">Số điện thoại</label>
-                                    <input type="text" class="form-control {% if form.so_dien_thoai.errors %}is-invalid{% endif %}" 
-                                        id="id_so_dien_thoai" name="so_dien_thoai" 
-                                        value="{{ form.so_dien_thoai.value|default_if_none:'' }}" 
-                                        pattern="[0-9]*" 
-                                        title="Chỉ được nhập số" 
-                                        required>
-                                    {% if form.so_dien_thoai.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.so_dien_thoai.errors.0 }}
-                                        </div>
-                                    {% endif %}
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            
-                        </div>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="fas fa-save me-2"></i>Cập nhật
-                            </button>
-                            <!-- url 'admin_user_management' -->
-                            <a href="#" class="btn btn-outline-secondary px-4">
-                                <i class="fas fa-times me-2"></i>Hủy bỏ
-                            </a>
-                        </div>
-                    </form>
-</div>
-            </div>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-user-edit me-2"></i>Chỉnh sửa thông tin cá nhân
+          </h4>
         </div>
-    </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    document.getElementById('id_so_dien_thoai').addEventListener('input', function(e) {
-    // Chỉ cho phép nhập số
-    this.value = this.value.replace(/[^0-9]/g, '');
-});
-// Xử lý hiển thị toast thông báo
-document.addEventListener('DOMContentLoaded', function() {
-    const toastContainer = document.createElement('div');
-    toastContainer.className = 'position-fixed top-0 end-0 p-3';
-    toastContainer.style.zIndex = '9999';
-    document.body.appendChild(toastContainer);
-    
-    {% for message in messages %}
-        const toastEl = document.createElement('div');
-        toastEl.className = 'toast align-items-center text-white {% if message.tags == 'error' %}bg-danger{% else %}bg-success{% endif %} border-0';
-        toastEl.setAttribute('role', 'alert');
-        toastEl.setAttribute('aria-live', 'assertive');
-        toastEl.setAttribute('aria-atomic', 'true');
-        
-        toastEl.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} me-2"></i>
-                    {{ message|escapejs }}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        <div class="card-body">
+          <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="id_ho_ten" class="form-label">Họ và tên</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="id_ho_ten"
+                  name="ho_ten"
+                  value="{{ form.ho_ten.value }}"
+                  required
+                />
+              </div>
             </div>
-        `;
-        
-        toastContainer.appendChild(toastEl);
-        const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
-        toast.show();
-    {% endfor %}
-    
-    // Xử lý validation form
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
-});
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="id_email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="id_email"
+                  name="email"
+                  value="{{ form.email.value }}"
+                  required
+                />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="id_so_dien_thoai" class="form-label"
+                  >Số điện thoại</label
+                >
+                <input
+                  type="text"
+                  class="form-control {% if form.so_dien_thoai.errors %}is-invalid{% endif %}"
+                  id="id_so_dien_thoai"
+                  name="so_dien_thoai"
+                  value="{{ form.so_dien_thoai.value|default_if_none:'' }}"
+                  pattern="[0-9]*"
+                  title="Chỉ được nhập số"
+                  required
+                />
+                {% if form.so_dien_thoai.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.so_dien_thoai.errors.0 }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="mb-3"></div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i>Cập nhật
+              </button>
+              <a
+                href="{% url 'edit_profile' %}"
+                class="btn btn-outline-secondary px-4"
+              >
+                <i class="fas fa-times me-2"></i>Hủy bỏ
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+      document.getElementById('id_so_dien_thoai').addEventListener('input', function(e) {
+      // Chỉ cho phép nhập số
+      this.value = this.value.replace(/[^0-9]/g, '');
+  });
+  // Xử lý hiển thị toast thông báo
+  document.addEventListener('DOMContentLoaded', function() {
+      const toastContainer = document.createElement('div');
+      toastContainer.className = 'position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '9999';
+      document.body.appendChild(toastContainer);
+
+      {% for message in messages %}
+          const toastEl = document.createElement('div');
+          toastEl.className = 'toast align-items-center text-white {% if message.tags == 'error' %}bg-danger{% else %}bg-success{% endif %} border-0';
+          toastEl.setAttribute('role', 'alert');
+          toastEl.setAttribute('aria-live', 'assertive');
+          toastEl.setAttribute('aria-atomic', 'true');
+
+          toastEl.innerHTML = `
+              <div class="d-flex">
+                  <div class="toast-body">
+                      <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} me-2"></i>
+                      {{ message|escapejs }}
+                  </div>
+                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+          `;
+
+          toastContainer.appendChild(toastEl);
+          const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+          toast.show();
+      {% endfor %}
+
+      // Xử lý validation form
+      const forms = document.querySelectorAll('.needs-validation');
+      Array.from(forms).forEach(form => {
+          form.addEventListener('submit', event => {
+              if (!form.checkValidity()) {
+                  event.preventDefault();
+                  event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+          }, false);
+      });
+  });
 </script>
 {% endblock %}

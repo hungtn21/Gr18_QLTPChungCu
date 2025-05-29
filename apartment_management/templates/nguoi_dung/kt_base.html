@@ -1,115 +1,134 @@
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-        }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+      }
 
-        .sidebar {
-            width: 200px;
-            background-color: #003366;
-            /* Xanh nước biển đậm */
-            height: 100vh;
-            padding-top: 20px;
-            float: left;
-        }
+      /* Sidebar cố định */
+      .sidebar {
+        width: 200px;
+        background-color: #003366;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100vh;
+        overflow-y: auto;
+        padding-top: 20px;
+        z-index: 1000;
+      }
 
-        .sidebar button {
-            width: 90%;
-            padding: 10px;
-            margin: 10px;
-            background-color: #ffffff;
-            color: #000;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
+      .sidebar button {
+        width: 90%;
+        padding: 10px;
+        margin: 10px;
+        background-color: #ffffff;
+        color: #000;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
 
-        .sidebar button:hover {
-            background-color: #2891fa;
-            color: white;
-        }
+      .sidebar button:hover {
+        background-color: #2891fa;
+        color: white;
+        transform: scale(1.05);
+      }
 
-        .content {
-            margin-left: 200px;
-            padding: 40px;
-        }
+      .content {
+        margin-left: 200px;
+        padding: 40px;
+        min-height: 100vh;
+      }
 
-        h2 {
-            color: #003366;
-        }
-        .msg-error { color: red; }
-        .msg-success { color: green; }
-        
-        /* Thêm style cho toast */
-        .toast {
-            min-width: 350px;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .toast.show {
-            opacity: 1;
-        }
-        .toggle-status-btn {
-            transition: all 0.3s ease;
-        }
-        .toggle-status-btn:hover {
-            transform: scale(1.05);
-        }
-        .pagination .page-item.active .page-link {
-            background-color: #a2d0ff;
-            border-color: #003366;
-        }
-        .pagination .page-link {
-            color: #003366;
-        }
-        .pagination .page-link:hover {
-            color: #003366;
-            background-color: #e9ecef;
-        }
+      h2 {
+        color: #003366;
+      }
+
+      .msg-error {
+        color: red;
+      }
+
+      .msg-success {
+        color: green;
+      }
+
+      .toast {
+        min-width: 350px;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      .toast.show {
+        opacity: 1;
+      }
+
+      .pagination .page-item.active .page-link {
+        background-color: #a2d0ff;
+        border-color: #003366;
+      }
+
+      .pagination .page-link {
+        color: #003366;
+      }
+
+      .pagination .page-link:hover {
+        color: #003366;
+        background-color: #e9ecef;
+      }
     </style>
     {% block extra_head %}{% endblock %}
-</head>
+  </head>
 
-<body>
-
+  <body>
     <div class="sidebar">
-        <div class="sidebar-header" style="display: flex; align-items: center; padding: 10px; color: white;">
-            <i class="fas fa-home" style="margin-right: 8px;"></i>
-            <span style="font-weight: bold;">Kế toán</span>
-        </div>
-        <!-- <button>Trang chủ</button> -->
-        <a href="{% url 'KTDashboard' %}">
-            <button>Trang chủ</button>
-        </a>
-        <button>Danh sách đợt thu</button>
-        <a href="{% url 'view_list_khoanthu' %}">
-            <button>Danh sách khoản thu</button>
-        </a>
-        <a href="{% url 'view_list_khoannop' %}">
-            <button>Quản lý khoản nộp</button>
-        </a>
-        <a href="{% url 'ketoan_edit_profile' %}">
-            <button>Chỉnh sửa hồ sơ</button>
-        </a>
-        <a href="{% url 'ketoan_change_password' %}">
-            <button>Đổi mật khẩu</button>
-        </a>
-        <a href="{% url 'admin_logout' %}">
-            <button>Đăng xuất</button>
-        </a>
-        
-    </div>
-    <div class="content">
-        {% block content %}{% endblock %}
-    </div>
-</body>
+      <div
+        class="sidebar-header"
+        style="display: flex; align-items: center; padding: 10px; color: white"
+      >
+        <i class="fas fa-home" style="margin-right: 8px"></i>
+        <span style="font-weight: bold">Kế toán</span>
+      </div>
 
+      <a href="{% url 'KTDashboard' %}">
+        <button>Trang chủ</button>
+      </a>
+      <a href="{% url 'list_dot_thu' %}">
+        <button>Danh sách đợt thu</button>
+      </a>
+      <a href="{% url 'view_list_khoanthu' %}">
+        <button>Danh sách khoản thu</button>
+      </a>
+      <a href="{% url 'view_list_khoannop' %}">
+        <button>Quản lý khoản nộp</button>
+      </a>
+      <a href="{% url 'ketoan_edit_profile' %}">
+        <button>Chỉnh sửa hồ sơ</button>
+      </a>
+      <a href="{% url 'ketoan_change_password' %}">
+        <button>Đổi mật khẩu</button>
+      </a>
+      <a href="{% url 'admin_logout' %}">
+        <button>Đăng xuất</button>
+      </a>
+    </div>
+
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+  </body>
 </html>
