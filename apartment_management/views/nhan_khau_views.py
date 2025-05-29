@@ -484,7 +484,8 @@ def thongKeTamTru(request):
         '2': 'Tạm vắng'
     }
     loai = loai_mapping.get(loai_code)
-
+    print(from_date_str)
+    print(to_date_str)
     if loai and from_date_str and to_date_str:
         try:
             from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date()
