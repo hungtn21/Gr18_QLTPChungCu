@@ -189,7 +189,11 @@ def tam_tru_tam_vang(request, pk):
             tamtru = form.save(commit=False)
             tamtru.dan_cu = dan_cu
             tamtru.save()
+            messages.success(request, "Cập nhật Tạm trú/Tạm vắng thành công!")
+            print("Gửi message rồi")
             return redirect('sua_nhan_khau', pk=dan_cu.pk)  # Đổi lại tên URL nếu khác
+            
+
     else:
         form = TamTruTamVangForm()
 
