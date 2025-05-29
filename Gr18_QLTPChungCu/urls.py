@@ -38,5 +38,29 @@ urlpatterns = [
     path('ketoan/create-khoanthu', thu_phi_views.create_khoanthu, name='create_khoanthu'),
     path('ketoan/update-khoanthu/<int:pk>', thu_phi_views.update_khoanthu, name='update_khoanthu' ),
     path('ketoan/delete-khoanthu/<int:pk>', thu_phi_views.delete_khoanthu, name='delete_khoanthu'),
-    path('tamtru-tamvang/', nhan_khau_views.danh_sach_tttv, name='danh_sach_tttv'),
+
+    
+#========================== QLCC routes=========================================================
+    
+    path('thongke_do_tuoi/', nhan_khau_views.thongKeDoTuoi, name='thongKeDoTuoi'),
+    path('thongke_tam_tru/', nhan_khau_views.thongKeTamTru, name='thongKeTamTru'),
+    path('thongke_bien_dong/', nhan_khau_views.thongKeBienDong, name='thongKeBienDong'),
+    path('lichsu_thaydoi/', nhan_khau_views.lichSuThayDoi, name='lichSuThayDoi'),
+    path('bqlcc/change-password/', nhan_khau_views.change_password, name='nhan_khau_change_password'),
+    path('bqlcc/edit-profile/', nhan_khau_views.edit_profile, name='nhan_khau_edit_profile'),
+    path('bqlChungCu/quan-ly-nhan-khau/', nhan_khau_views.quan_ly_nhan_khau, name='quan_ly_nhan_khau'),
+    path('bqlChungCu/quan_ly_ho_khau', nhan_khau_views.quan_ly_ho_khau, name='quan_ly_ho_khau'),
+    path('bqlChungCu/edit-profile/',nhan_khau_views.edit_profile, name='edit_profile'),
+    path('bqlChungCu/change-password/', nhan_khau_views.change_password, name='change_password'),
+    path('bqlChungCu/quan_ly_ho_khau/create/', nhan_khau_views.create_ho_khau, name='create_ho_khau'),
+    path('bqlChungCu/doi-chu-ho/<int:ho_id>/<int:dan_cu_id>/',nhan_khau_views.doi_chu_ho,name='doi_chu_ho'),
+    path('bqlChungCu/xoa-ho-khau/<int:pk>/', nhan_khau_views.xoa_ho_khau, name='xoa_ho_khau'),
+    path('bqlChungCu/sua-ho-khau/<int:pk>/', nhan_khau_views.sua_ho_khau, name='sua_ho_khau'),
+    path('bqlChungCu/sua-nhan-khau/<int:pk>/', nhan_khau_views.sua_nhan_khau, name='sua_nhan_khau'),
+    path('bqlChungCu/tam-tru-tam-vang/<int:pk>/', nhan_khau_views.tam_tru_tam_vang, name='tam_tru_tam_vang'),
+    path('bqlChungCu/xoa-nhan-khau/<int:pk>/', nhan_khau_views.xoa_nhan_khau, name='xoa_nhan_khau'),
+    path('bqlChungCu/them-nhan-khau-modal/<int:ho_id>/', nhan_khau_views.them_nhan_khau_tu_modal, name='them_nhan_khau_tu_modal'),
+    path('bqlChungCu/tach-ho/<int:ho_id>/', nhan_khau_views.tach_ho, name='tach_ho'),
+
 ]
+

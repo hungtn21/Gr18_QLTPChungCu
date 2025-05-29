@@ -1,0 +1,89 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+{% load form_tags %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="fw-bold" style="color: #003366">{{ dan_cu.ho_ten }}</h4>
+
+    <form method="POST" class="row g-3">
+        {% csrf_token %}
+
+        <div class="col-md-6">
+            <label class="form-label">Họ tên</label>
+            {{ form.ho_ten|add_class:"form-control" }}
+            {% if form.ho_ten.errors %}
+                <div class="text-danger">{{ form.ho_ten.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Ngày sinh</label>
+            {{ form.ngay_sinh|add_class:"form-control" }}
+            {% if form.ngay_sinh.errors %}
+                <div class="text-danger">{{ form.ngay_sinh.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Giới tính</label>
+            {{ form.gioi_tinh|add_class:"form-select" }}
+            {% if form.gioi_tinh.errors %}
+                <div class="text-danger">{{ form.gioi_tinh.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Mã căn cước</label>
+            {{ form.ma_can_cuoc|add_class:"form-control" }}
+            {% if form.ma_can_cuoc.errors %}
+                <div class="text-danger">{{ form.ma_can_cuoc.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Số điện thoại</label>
+            {{ form.so_dien_thoai|add_class:"form-control" }}
+            {% if form.so_dien_thoai.errors %}
+                <div class="text-danger">{{ form.so_dien_thoai.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Trạng thái</label>
+            {{ form.trang_thai|add_class:"form-select" }}
+            {% if form.trang_thai.errors %}
+                <div class="text-danger">{{ form.trang_thai.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Thời gian chuyển đến</label>
+            {{ form.thoi_gian_chuyen_den|add_class:"form-control" }}
+            {% if form.thoi_gian_chuyen_den.errors %}
+                <div class="text-danger">{{ form.thoi_gian_chuyen_den.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Thời gian chuyển đi</label>
+            {{ form.thoi_gian_chuyen_di|add_class:"form-control" }}
+            {% if form.thoi_gian_chuyen_di.errors %}
+                <div class="text-danger">{{ form.thoi_gian_chuyen_di.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Trạng thái tạm trú/tạm vắng</label>
+            <input type="text" class="form-control" value="{{ trang_thai_tttv }}" disabled>
+        </div>
+
+
+
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a href="{{ next|default:default_url }}" class="btn btn-secondary">Quay lại</a>
+            <a href="{% url 'tam_tru_tam_vang' dan_cu.id %}" class="btn btn-outline-info">Cập nhật tạm trú tạm vắng</a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

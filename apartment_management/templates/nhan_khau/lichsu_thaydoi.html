@@ -1,0 +1,209 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+
+{% block content %}
+<style>
+    form {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 100%;
+        margin: auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    form label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-size: 14px;
+    }
+
+    form input[type="number"],
+    form input[type="date"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+
+    form button {
+        background-color: #0055aa;
+        color: white;
+        padding: 8px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        height: 36px;
+    }
+
+    form button:hover {
+        background-color: #004488;
+    }
+
+    h2, h3 {
+        text-align: center;
+        color: #333;
+    }
+
+    table {
+        width: 95%;
+        margin: 30px auto;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        text-align: center;
+        padding: 12px;
+    }
+
+    thead {
+        background-color: #0055aa;
+        color: white;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background-color: #ddd;
+    }
+
+    .alert {
+        padding: 15px;
+        margin: 20px auto;
+        border-radius: 5px;
+        max-width: 800px;
+        text-align: center;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+</style>
+
+<h2>Lịch sử biến động dân cư theo số căn hộ</h2>
+
+<form method="get" action=".">
+    <div class="filter-row">
+        <div class="filter-group">
+            <label for="so_can_ho">Số căn hộ</label>
+            <input type="number" id="so_can_ho" name="so_can_ho" value="{{ request.GET.so_can_ho }}" min="1" required>
+        </div>
+        
+        <div class="filter-group">
+            <label for="start_date">Từ ngày</label>
+            <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+        </div>
+        
+        <div class="filter-group">
+            <label for="end_date">Đến ngày</label>
+            <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+            {% if date_error %}
+                <div class="error-message">Ngày bắt đầu không được lớn hơn ngày kết thúc</div>
+            {% endif %}
+        </div>
+        
+        <div class="filter-group">
+            <button type="submit">Xem thống kê</button>
+        </div>
+    </div>
+</form>
+<br>
+{% if date_error %}
+    <div class="alert alert-danger">
+        Lỗi: Ngày bắt đầu không được lớn hơn ngày kết thúc. Vui lòng kiểm tra lại.
+    </div>
+{% elif invalid_apartment %}
+    <div class="alert alert-danger">
+        Số căn hộ không hợp lệ. Vui lòng nhập số căn hộ đúng định dạng.
+    </div>
+{% elif request.GET.so_can_ho and not bien_dong %}
+    <div class="alert alert-warning">
+        Không tìm thấy biến động nào cho căn hộ số {{ request.GET.so_can_ho }} 
+        {% if request.GET.start_date or request.GET.end_date %}
+            trong khoảng thời gian từ {{ request.GET.start_date }} đến {{ request.GET.end_date }}
+        {% endif %}
+    </div>
+{% elif bien_dong %}
+    <h3>Kết quả biến động cho căn hộ {{ request.GET.so_can_ho }}</h3>
+    {% if request.GET.start_date or request.GET.end_date %}
+        <div class="alert alert-info">
+            Hiển thị kết quả từ ngày {{ request.GET.start_date }} đến {{ request.GET.end_date }}
+        </div>
+    {% endif %}
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Họ tên</th>
+                <th>CCCD</th>
+                <th>Giới tính</th>
+                <th>Ngày sinh</th>
+                <th>Tuổi</th>
+                <th>Loại biến động</th>
+                <th>Ngày</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in bien_dong %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.ho_ten }}</td>
+                    <td>{{ item.ma_can_cuoc }}</td>
+                    <td>{{ item.gioi_tinh }}</td>
+                    <td>{{ item.ngay_sinh }}</td>
+                    <td>{{ item.tuoi }}</td>
+                    <td>{{ item.loai_bien_dong }}</td>
+                    <td>{{ item.ngay|date:"d/m/Y" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-info">
+        Vui lòng nhập số căn hộ để xem lịch sử biến động
+    </div>
+{% endif %}
+
+{% endblock %}
