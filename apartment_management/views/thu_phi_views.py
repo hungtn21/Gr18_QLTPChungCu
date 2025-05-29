@@ -302,6 +302,8 @@ def edit_profile(request):
 
     return render(request, 'thu_phi/edit_profile.html', {'form': form})
 
+
+
 @login_required
 def logout_view(request):
     return redirect('login')  # 'login' là tên URL pattern cho trang đăng nhập
