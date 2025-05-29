@@ -178,3 +178,11 @@ class TamTruTamVangForm(forms.ModelForm):
             'thoi_gian_bat_dau': forms.DateInput(attrs={'type': 'date'}),
             'thoi_gian_ket_thuc': forms.DateInput(attrs={'type': 'date'}),
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('thoi_gian_bat_dau')
+        end_date = cleaned_data.get('thoi_gian_ket_thuc')
+
+        if start_date and end_date and start_date > end_date:
+            raise ValidationError("Thời gian bắt đầu không được sau thời gian kết thúc.")

@@ -3,6 +3,11 @@
 {% block content %}
 <div class="container mt-4">
     <h4 class="fw-bold" style="color: #003366">Cập nhật Tạm trú/Tạm vắng: {{ dan_cu.ho_ten }}</h4>
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
 
     <form method="POST" class="row g-3">
         {% csrf_token %}
