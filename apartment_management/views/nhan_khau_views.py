@@ -482,37 +482,43 @@ def thongKeTamTru(request):
     from_date_str = request.GET.get('fromDate')
     to_date_str = request.GET.get('toDate')
 
-    # Map số sang loại
-    loai_mapping = {
-        '1': 'Tạm trú',
-        '2': 'Tạm vắng'
-    }
-    loai = loai_mapping.get(loai_code)
+    # Kiểm tra xem có ít nhất 1 input để xác định người dùng đã ấn gửi chưa
+    is_submitted = loai_code or from_date_str or to_date_str
 
-    if loai and from_date_str and to_date_str:
+    if is_submitted:
+        loai_mapping = {
+            '1': 'Tạm trú',
+            '2': 'Tạm vắng'
+        }
+        loai = loai_mapping.get(loai_code)
+
         try:
-            from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date()
-            to_date = datetime.strptime(to_date_str, '%Y-%m-%d').date()
-
-            # Queryset tách riêng để dễ kiểm soát và test
-            queryset = TamTruTamVang.objects.filter(
-                Q(loai_tttv=loai) &
-                Q(thoi_gian_bat_dau__lte=to_date) &
-                Q(thoi_gian_ket_thuc__gte=from_date)
-            )
-
-            results = queryset
-            total = queryset.count()
-            
-
+            from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date() if from_date_str else None
+            to_date = datetime.strptime(to_date_str, '%Y-%m-%d').date() if to_date_str else None
         except ValueError as ve:
             print("LỖI PARSE NGÀY:", ve)
-        
+            from_date = None
+            to_date = None
+
+        queryset = TamTruTamVang.objects.all()
+
+        if loai:
+            queryset = queryset.filter(loai_tttv=loai)
+
+        if from_date and to_date:
+            queryset = queryset.filter(
+                thoi_gian_bat_dau__lte=to_date,
+                thoi_gian_ket_thuc__gte=from_date
+            )
+
+        results = queryset
+        total = queryset.count()
+
     context = {
         'results': results,
         'total': total,
         'request': request
-        }
+    }
 
     return render(request, 'nhan_khau/thongke_tam_tru.html', context)
 
