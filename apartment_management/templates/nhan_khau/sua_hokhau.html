@@ -27,9 +27,9 @@
     </script>
     {% endif %}
 
-    <h3 class="text-primary">Thông tin căn hộ {{ ho.so_can_ho }}</h3>
+    <h3 class="fw-bold" style="color: #003366">Thông tin căn hộ {{ ho.so_can_ho }}</h3>
 
-    <form method="POST" class="row g-3">
+    <form method="POST" class="row g-3 mt-3">
         {% csrf_token %}
         <div class="col-md-6">
             <label class="form-label">Số căn hộ</label>
@@ -68,7 +68,7 @@
             <a href="{% url 'quan_ly_ho_khau' %}" class="btn btn-secondary">Quay lại</a>
         </div>
     </form>
-        <h5>Danh sách nhân khẩu</h5>
+        <h4 class="mt-5 fw-bold" style="color: #003366">Danh sách nhân khẩu</h4>
         <div class="mb-3 text-end">
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#themNhanKhauModal">
                 <i class="fa fa-user-plus"></i> Thêm nhân khẩu
@@ -357,4 +357,3 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 {% endblock %}
-

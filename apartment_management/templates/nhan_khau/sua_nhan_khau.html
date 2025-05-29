@@ -2,7 +2,7 @@
 {% load form_tags %}
 {% block content %}
 <div class="container mt-4">
-    <h4 class="text-primary">{{ dan_cu.ho_ten }}</h4>
+    <h4 class="fw-bold" style="color: #003366">{{ dan_cu.ho_ten }}</h4>
 
     <form method="POST" class="row g-3">
         {% csrf_token %}
@@ -71,10 +71,19 @@
             {% endif %}
         </div>
 
+        <div class="col-md-6">
+            <label class="form-label">Trạng thái tạm trú/tạm vắng</label>
+            <input type="text" class="form-control" value="{{ trang_thai_tttv }}" disabled>
+        </div>
+
+
+
         <div class="col-12 mt-3">
             <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
             <a href="{{ next|default:default_url }}" class="btn btn-secondary">Quay lại</a>
+            <a href="{% url 'tam_tru_tam_vang' dan_cu.id %}" class="btn btn-outline-info">Cập nhật tạm trú tạm vắng</a>
         </div>
+
     </form>
 </div>
 {% endblock %}

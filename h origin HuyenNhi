@@ -1,0 +1,34 @@
+[33m78916a7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mHuyenNhi[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HuyenNhi[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #10 from hungtn21/Hung
+[33mcd3f61a[m Editing models
+[33mb1eba80[m Merge pull request #9 from hungtn21/Hung
+[33m2045a64[m Finished Admin Function 90%
+[33m1e13881[m Adding apps
+[33medfe6c2[m Delete khoanthu
+[33m653c90b[m Create khoan thu
+[33m8e511dd[m Ktoan dashboard, view list khoan thu, update khoan thu
+[33md04e2f3[m Merge remote-tracking branch 'origin/main' into PhucNgo
+[33m86b5f50[m[33m ([m[1;31morigin/HongPhuc[m[33m, [m[1;32mmain[m[33m)[m Update README.md
+[33m38bacf3[m Merge pull request #7 from hungtn21/Hung
+[33m6ac694f[m Adding role required
+[33m4c737cd[m Update README.md
+[33m9983937[m Merge pull request #6 from hungtn21/Hung
+[33m0b1db18[m Login form finished (fake users included)
+[33m1678920[m Merge pull request #5 from hungtn21/Hung
+[33m06b6d91[m Login form finished (fake users included)
+[33m7c1a9d7[m Login form finished (fake users included)
+[33m8eec99f[m put venv into gitignore
+[33m3545dd3[m put venv into gitignore
+[33me684f54[m Login 3 roles done
+[33m5b30315[m Update README.md
+[33m233d36d[m Merge pull request #4 from hungtn21/main
+[33m8c05ef2[m Adding README
+[33m607cb00[m Merge pull request #3 from hungtn21/Hung
+[33m608e3ca[m Adding requirements and editing .gitignore
+[33me9bfb6b[m Create PhucNgo branch
+[33m475c3a3[m Create PhucNgo branch
+[33md392c90[m Merge pull request #2 from hungtn21/Hung
+[33m42500b3[m Adding models
+[33m766728b[m Merge pull request #1 from hungtn21/Hung
+[33mf78ab6c[m Creating login form
+[33m92fc6e8[m Initial commit
+[33m30230ab[m Initial commit

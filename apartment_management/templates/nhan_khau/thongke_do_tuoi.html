@@ -1,0 +1,190 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+
+{% block content %}
+<style>
+    form {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 1200px;
+        margin: auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    form label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+        color: #333;
+    }
+
+    form input[type="number"],
+    form input[type="date"],
+    form select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    form button {
+        background-color: #0055aa;
+        color: white;
+        padding: 10px 20px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+
+    form button:hover {
+        background-color: #0055aa;
+    }
+
+    h2, h3 {
+        text-align: center;
+        color: #333;
+    }
+
+    #resultTable {
+        max-width: 1200px;
+        margin: 30px auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        text-align: center;
+        padding: 12px;
+    }
+
+    thead {
+        background-color: #0055aa;
+        color: white;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background-color: #ddd;
+    }
+    .form-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .date-label {
+        font-weight: 500;
+    }
+
+</style>
+
+<h2>Thống kê theo độ tuổi/giới tính/thời gian</h2>
+
+<form method="get" action="." onsubmit="return validateForm()">
+    <div class="form-inline">
+    <label for="gender">Giới tính:</label>
+    <select id="gender" name="gender" class="form-control">
+        <option value="">--Chọn--</option>
+        <option value="Nam" {% if request.GET.gender == "Nam" %}selected{% endif %}>Nam</option>
+        <option value="Nữ" {% if request.GET.gender == "Nữ" %}selected{% endif %}>Nữ</option>
+    </select>
+    <br><br>
+
+    <label>Độ tuổi:</label>
+    <input type="number" id="ageFrom" name="ageFrom" placeholder="Từ tuổi" min="0" max="120" class="form-control short-input" value="{{ request.GET.ageFrom }}">
+    <input type="number" id="ageTo" name="ageTo" placeholder="Đến tuổi" min="0" max="120" class="form-control short-input" value="{{ request.GET.ageTo }}">
+    <br><br>
+
+    <label>Thời gian:</label>
+    <input type="date" id="fromDate" name="fromDate" class="form-control short-input" value="{{ request.GET.fromDate }}">
+    <input type="date" id="toDate" name="toDate" class="form-control short-input" value="{{ request.GET.toDate }}">
+    <br><br>
+
+    <button type="submit" name="submit" value="1">Gửi</button>
+</div>
+</form>
+
+<br>
+
+{% if results %}
+    
+    <div id="resultTable">
+        <h3>Tổng số người phù hợp:</strong> {{ results|length }}</h3>
+        <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Họ tên</th>
+                <th>Mã căn hộ</th>
+                <th>Giới tính</th>
+                <th>Tuổi</th>
+                <th>Trạng thái cư trú</th>
+                <th>Số điện thoại</th>
+                <th>Mã căn cước</th>
+                <th>Thời gian chuyển đến</th>
+                <th>Thời gian chuyển đi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for nk in results %}
+            <tr>
+                <td>{{ nk.ho_ten }}</td>
+                <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
+                <td>{{ nk.gioi_tinh }}</td>
+                <td>{{ nk.tinh_tuoi }}</td>
+                <td>{{ nk.trang_thai }}</td>
+                <td>{{ nk.so_dien_thoai }}</td>
+                <td>{{ nk.ma_can_cuoc }}</td>
+                <td>{{ nk.thoi_gian_chuyen_den|date:"d/m/Y" }}</td>
+                <td>
+                    {% if nk.thoi_gian_chuyen_di %}
+                        {{ nk.thoi_gian_chuyen_di|date:"d/m/Y" }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="no-results">
+            <p style="text-align:center; color: #666;">Không tìm thấy bản ghi nào phù hợp.</p>
+        </div>
+{% endif %}
+
+<script>
+    function validateForm() {
+        const ageFrom = parseInt(document.getElementById('ageFrom').value);
+        const ageTo = parseInt(document.getElementById('ageTo').value);
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+
+        if (!isNaN(ageFrom) && !isNaN(ageTo) && ageFrom > ageTo) {
+            alert('Từ tuổi không được lớn hơn Đến tuổi');
+            return false;
+        }
+
+        if (fromDate && toDate && fromDate > toDate) {
+            alert('Ngày bắt đầu phải trước ngày kết thúc');
+            return false;
+        }
+
+        return true;
+    }
+</script>
+{% endblock %}
