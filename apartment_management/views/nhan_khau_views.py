@@ -537,8 +537,12 @@ def thongKeBienDong(request):
     date_from_str = request.GET.get('date_from')
     date_to_str = request.GET.get('date_to')
 
-    if request.method == "GET" and (date_from_str or date_to_str):
+    # Kiểm tra xem có submit form chưa (ấn nút thống kê)
+    is_submitted = 'date_from' in request.GET or 'date_to' in request.GET
+
+    if request.method == "GET" and is_submitted:
         try:
+            # Nếu không nhập ngày nào thì hiển thị tất cả (range rộng nhất)
             date_from = datetime.strptime(date_from_str, "%Y-%m-%d").date() if date_from_str else datetime.min.date()
             date_to = datetime.strptime(date_to_str, "%Y-%m-%d").date() if date_to_str else datetime.max.date()
 
@@ -559,6 +563,8 @@ def thongKeBienDong(request):
         except Exception as e:
             print(f"[DEBUG] Lỗi khi xử lý thống kê biến động: {e}")
 
+    # Nếu chưa submit thì không hiển thị gì (kết quả rỗng)
+
     context = {
         'chuyen_den': chuyen_den,
         'chuyen_di': chuyen_di,
@@ -572,6 +578,7 @@ def thongKeBienDong(request):
     }
 
     return render(request, 'nhan_khau/thongke_bien_dong.html', context)
+
 
 @login_required
 @role_required('BQL Chung cư')
