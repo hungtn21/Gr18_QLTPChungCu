@@ -270,7 +270,7 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
 
-    return render(request, 'thu_phi/change_password.html', {'form': form})
+    return render(request, 'thu_phi/kt_change_password.html', {'form': form})
 
 #---------------------------------Chỉnh sửa thông tin cá nhân----------------------------------------
 @login_required
@@ -298,7 +298,7 @@ def edit_profile(request):
     else:
         form = EditProfileForm(instance=nguoi_dung)
 
-    return render(request, 'thu_phi/edit_profile.html', {'form': form})
+    return render(request, 'thu_phi/kt_edit_profile.html', {'form': form})
 
 
 
