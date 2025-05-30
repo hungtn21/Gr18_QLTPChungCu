@@ -148,6 +148,8 @@ def xoa_nhan_khau(request, pk):
     messages.success(request, 'Đã xóa nhân khẩu.')
     return redirect(next_url or 'sua_ho_khau', pk=ho.id)
 
+from django.utils import timezone
+
 @login_required
 @role_required('BQL Chung cư')
 def sua_nhan_khau(request, pk):
@@ -158,6 +160,16 @@ def sua_nhan_khau(request, pk):
         form = DanCuForm(request.POST, instance=dancu)
         if form.is_valid():
             form.save()
+
+            # Kiểm tra và cập nhật trạng thái theo thời gian chuyển đi
+            if dancu.thoi_gian_chuyen_di:
+                today = timezone.now().date()
+                if dancu.thoi_gian_chuyen_di < today:
+                    dancu.trang_thai = 'Đã chuyển đi'
+                else:
+                    dancu.trang_thai = 'Đang sinh sống'
+                dancu.save(update_fields=['trang_thai'])
+
             messages.success(request, 'Cập nhật nhân khẩu thành công.')
             return redirect(next_url or 'sua_ho_khau', pk=dancu.ho_gia_dinh.id)
     else:
@@ -171,12 +183,13 @@ def sua_nhan_khau(request, pk):
 
     default_url = reverse('sua_ho_khau', args=[dancu.ho_gia_dinh.id])
     return render(request, 'nhan_khau/sua_nhan_khau.html', {
-    'form': form,
-    'dan_cu': dancu,
-    'next': next_url,
-    'default_url': default_url,
-    'trang_thai_tttv': trang_thai_tttv,
-})
+        'form': form,
+        'dan_cu': dancu,
+        'next': next_url,
+        'default_url': default_url,
+        'trang_thai_tttv': trang_thai_tttv,
+    })
+
 
 @login_required
 @role_required('BQL Chung cư')
