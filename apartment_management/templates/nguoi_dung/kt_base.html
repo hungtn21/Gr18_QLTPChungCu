@@ -1,76 +1,199 @@
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-        }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+      }
 
-        .sidebar {
-            width: 200px;
-            background-color: #003366;
-            /* Xanh nước biển đậm */
-            height: 100vh;
-            padding-top: 20px;
-            float: left;
-        }
+      /* Sidebar cố định */
+      .sidebar {
+        width: 200px;
+        background-color: #003366;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100vh;
+        overflow-y: auto;
+        padding-top: 20px;
+        z-index: 1000;
+      }
 
-        .sidebar button {
-            width: 90%;
-            padding: 10px;
-            margin: 10px;
-            background-color: #ffffff;
-            color: #000;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
+      .sidebar button {
+        width: 90%;
+        padding: 10px;
+        margin: 10px;
+        background-color: #ffffff;
+        color: #000;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+      }
 
-        .sidebar button:hover {
-            background-color: #2891fa;
-            color: white;
-        }
+      .sidebar button:hover {
+        background-color: #2891fa;
+        color: white;
+      }
 
-        .content {
-            margin-left: 200px;
-            padding: 40px;
-        }
+      /* Content căn lề phải */
+      .content {
+        margin-left: 200px;
+        padding: 40px;
+        min-height: 100vh;
+      }
 
-        h2 {
-            color: #003366;
-        }
+      h2 {
+        color: #003366;
+      }
+
+      .msg-error {
+        color: red;
+      }
+      .msg-success {
+        color: green;
+      }
+
+      /* Thêm style cho toast */
+      .toast {
+        min-width: 350px;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+      .toggle-status-btn {
+        transition: all 0.3s ease;
+      }
+      .toggle-status-btn:hover {
+        transform: scale(1.05);
+      }
+      .pagination .page-item.active .page-link {
+        background-color: #a2d0ff;
+        border-color: #003366;
+      }
+      .pagination .page-link {
+        color: #003366;
+      }
+      .pagination .page-link:hover {
+        color: #003366;
+        background-color: #e9ecef;
+      }
     </style>
+
     {% block extra_head %}{% endblock %}
-</head>
+  </head>
 
-<body>
-
+  <body>
     <div class="sidebar">
-        <div class="sidebar-header" style="display: flex; align-items: center; padding: 10px; color: white;">
-            <i class="fas fa-home" style="margin-right: 8px;"></i>
-            <span style="font-weight: bold;">Kế toán</span>
-        </div>
-        <!-- <button>Trang chủ</button> -->
-        <a href="{% url 'KTDashboard' %}">
-            <button>Trang chủ</button>
-        </a>
-        <button>Danh sách đợt thu</button>
-        <a href="{% url 'view_list_khoanthu' %}">
-            <button>Danh sách khoản thu</button>
-        </a>
-        <a href="{% url 'view_list_khoannop' %}">
-            <button>Danh sách khoản nộp</button>
-        </a>
-    </div>
-    <div class="content">
-        {% block content %}{% endblock %}
-    </div>
-</body>
+      <div
+        class="sidebar-header"
+        style="display: flex; align-items: center; padding: 10px; color: white"
+      >
+        <i class="fas fa-home" style="margin-right: 8px"></i>
+        <span style="font-weight: bold">Kế toán</span>
+      </div>
 
+      <a href="{% url 'KTDashboard' %}" style="font-size: 14px">
+        <button>Trang chủ</button>
+      </a>
+      <a href="{% url 'list_dot_thu' %}" style="font-size: 14px">
+        <button>Danh sách đợt thu</button>
+      </a>
+      <a href="{% url 'view_list_khoanthu' %}" style="font-size: 14px">
+        <button>Danh sách khoản thu</button>
+      </a>
+      <a href="{% url 'view_list_khoannop' %}" style="font-size: 14px">
+        <button>Quản lý khoản nộp</button>
+      </a>
+      <a href="{% url 'edit_profile' %}" style="font-size: 14px">
+        <button>Chỉnh sửa hồ sơ</button>
+      </a>
+      <a href="{% url 'change_password' %}" style="font-size: 14px">
+        <button>Đổi mật khẩu</button>
+      </a>
+      <a href="{% url 'admin_logout' %}">
+        <button
+          style="
+            background-color: #a60702;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+          "
+        >
+          Đăng xuất
+        </button>
+      </a>
+    </div>
+
+    <div class="content">{% block content %}{% endblock %}</div>
+
+    <!-- Toast Notification -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+      {% comment %} Toast container to be appended dynamically via JS {% endcomment %}
+    </div>
+
+    <!-- Bootstrap JS và jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block extra_js %}
+    <script>
+      // Hiển thị toast khi có thông báo
+      document.addEventListener('DOMContentLoaded', function () {
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+
+        {% for message in messages %}
+          const toastEl = document.createElement('div');
+          toastEl.className = 'toast align-items-center text-white border-0 ' +
+            ({{ message.tags|safe }} === 'error' ? 'bg-danger' : 'bg-success');
+          toastEl.setAttribute('role', 'alert');
+          toastEl.setAttribute('aria-live', 'assertive');
+          toastEl.setAttribute('aria-atomic', 'true');
+
+          toastEl.innerHTML = `
+            <div class="d-flex">
+              <div class="toast-body">
+                <i class="fas ${
+                  '{{ message.tags }}' === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'
+                } me-2"></i>
+                {{ message|escapejs }}
+              </div>
+              <button
+                type="button"
+                class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast"
+                aria-label="Close"
+              ></button>
+            </div>
+          `;
+
+          toastContainer.appendChild(toastEl);
+          const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+          toast.show();
+        {% endfor %}
+      });
+    </script>
+    {% endblock %}
+  </body>
 </html>

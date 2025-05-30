@@ -15,15 +15,25 @@
 </div>
 {% endif %}
 
-<h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Danh sách khoản nộp</h2>
+<h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Quản lý khoản nộp</h2>
+<h3 style="margin-top: 0;text-align: center; color: #434242; font-size: 26px;">cho đợt thu đang tiến hành</h3>
 
-<!-- Search -->
 <form method="get" style="display: flex; justify-content: space-between; margin: 10px 0; align-items: center;">
+    <!-- Ô tìm kiếm bên trái -->
     <div style="position: relative; width: 250px;">
         <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm"
             style="padding: 8px 30px 8px 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
         <i class="fa fa-search"
-            style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); color: gray;"></i>
+            style="position: absolute; right: -30px; top: 50%; transform: translateY(-50%); color: gray;"></i>
+    </div>
+
+    <!-- Ô lọc ngày bên phải -->
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="date" name="start_date" value="{{ start_date }}"
+            style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="date" name="end_date" value="{{ end_date }}"
+            style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+        <button type="submit" class="btn-add">Lọc</button>
     </div>
 </form>
 

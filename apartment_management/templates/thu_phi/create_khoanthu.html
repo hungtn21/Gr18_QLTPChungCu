@@ -10,7 +10,7 @@
 <form method="post" id="khoanthu-form">
     {% csrf_token %}
     <div
-        style="border: 2px solid #00f; padding: 20px; background: #f9f9f9; width: 400px; margin: auto; border-radius: 10px;">
+        style="border: 2px solid rgb(71, 71, 71); padding: 20px; background: #f9f9f9; width: 400px; margin: auto; border-radius: 10px;">
 
         <div style="margin-bottom: 15px;">
             <label><strong>Tên khoản thu:</strong></label><br>
@@ -23,11 +23,11 @@
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label><strong>Số tiền:</strong></label><br>
+            <label><strong>Đơn giá:</strong></label><br>
             {{ form.so_tien }}
         </div>
 
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 20px; ">
             <label><strong>Ghi chú:</strong></label><br>
             {{ form.ghi_chu }}
         </div>
@@ -44,6 +44,14 @@
 <style>
     textarea {
         resize: vertical;
+        width: 100%; /* Đảm bảo full chiều rộng container */
+        box-sizing: border-box;
+    }
+
+    input,
+    select {
+        width: 100%;
+        box-sizing: border-box;
     }
 </style>
 {% endblock %}
