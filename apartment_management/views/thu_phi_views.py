@@ -290,8 +290,6 @@ def edit_profile(request):
             request.user.first_name = ho_ten[-1] if ho_ten else ''
             request.user.email = form.cleaned_data.get('email', '')
             request.user.save()
-            
-            # Chỉ cập nhật số điện thoại
             nguoi_dung.so_dien_thoai = form.cleaned_data.get('so_dien_thoai', '')
             nguoi_dung.save()
             
