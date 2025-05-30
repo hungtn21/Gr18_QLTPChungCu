@@ -1,4 +1,4 @@
-{% extends 'nhan_khau/nhankhau_base.html' %} 
+{% extends 'nhan_khau/nhankhau_base.html' %}
 
 {% block content %}
 <style>
@@ -91,7 +91,7 @@
 
 <h2>Thống kê biến động dân cư</h2>
 
-<form method="get" action=".">
+<form method="get" action="." onsubmit="return validateForm()">
     <label for="date_from">Từ ngày:</label>
     <input type="date" id="date_from" name="date_from" value="{{ request.GET.date_from }}">
 
@@ -100,6 +100,19 @@
 
     <button type="submit">Thống kê</button>
 </form>
+
+<script>
+function validateForm() {
+    const fromDate = document.getElementById('date_from').value;
+    const toDate = document.getElementById('date_to').value;
+
+    if (fromDate && toDate && fromDate > toDate) {
+        alert('Ngày "Từ ngày" phải nhỏ hơn hoặc bằng ngày "Đến ngày".');
+        return false; // ngăn không submit form
+    }
+    return true;
+}
+</script>
 
 {% if tong_bien_dong is not None %}
     <div class="stat-summary">
@@ -112,7 +125,7 @@
         </ul>
     </div>
 
- {% if danh_sach_chuyen_den %}
+    {% if danh_sach_chuyen_den %}
         <h3>Danh sách chuyển đến</h3>
         <table>
             <thead>

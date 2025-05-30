@@ -1,80 +1,74 @@
-{% extends 'nguoi_dung/kt_base.html' %} {% block content %}
+{% extends 'thu_phi/kt_base.html' %} {% block content %}
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-8">
       <div class="card shadow">
         <div class="card-header bg-primary text-white">
-          <h4 class="mb-0"><i class="fas fa-key me-2"></i>Đổi mật khẩu</h4>
+          <h4 class="mb-0">
+            <i class="fas fa-user-edit me-2"></i>Chỉnh sửa thông tin cá nhân
+          </h4>
         </div>
 
         <div class="card-body">
           <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
 
-            <div class="mb-3">
-              <label for="id_old_password" class="form-label"
-                >Mật khẩu hiện tại</label
-              >
-              <input
-                type="password"
-                name="old_password"
-                class="form-control {% if form.old_password.errors %}is-invalid{% endif %}"
-                id="id_old_password"
-                required
-              />
-              {% if form.old_password.errors %}
-              <div class="invalid-feedback">
-                {{ form.old_password.errors.0 }}
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="id_ho_ten" class="form-label">Họ và tên</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="id_ho_ten"
+                  name="ho_ten"
+                  value="{{ form.ho_ten.value }}"
+                  required
+                />
               </div>
-              {% endif %}
             </div>
-
-            <div class="mb-3">
-              <label for="id_new_password1" class="form-label"
-                >Mật khẩu mới</label
-              >
-              <input
-                type="password"
-                name="new_password1"
-                class="form-control {% if form.new_password1.errors %}is-invalid{% endif %}"
-                id="id_new_password1"
-                required
-              />
-              {% if form.new_password1.errors %}
-              <div class="invalid-feedback">
-                {{ form.new_password1.errors.0 }}
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="id_email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="id_email"
+                  name="email"
+                  value="{{ form.email.value }}"
+                  required
+                />
               </div>
-              {% endif %}
-              <small class="form-text text-muted">
-                Mật khẩu phải chứa ít nhất 8 ký tự, không quá phổ biến và không
-                hoàn toàn là số.
-              </small>
             </div>
-
-            <div class="mb-4">
-              <label for="id_new_password2" class="form-label"
-                >Xác nhận mật khẩu mới</label
-              >
-              <input
-                type="password"
-                name="new_password2"
-                class="form-control {% if form.new_password2.errors %}is-invalid{% endif %}"
-                id="id_new_password2"
-                required
-              />
-              {% if form.new_password2.errors %}
-              <div class="invalid-feedback">
-                {{ form.new_password2.errors.0 }}
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="id_so_dien_thoai" class="form-label"
+                  >Số điện thoại</label
+                >
+                <input
+                  type="text"
+                  class="form-control {% if form.so_dien_thoai.errors %}is-invalid{% endif %}"
+                  id="id_so_dien_thoai"
+                  name="so_dien_thoai"
+                  value="{{ form.so_dien_thoai.value|default_if_none:'' }}"
+                  pattern="[0-9]*"
+                  title="Chỉ được nhập số"
+                  required
+                />
+                {% if form.so_dien_thoai.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.so_dien_thoai.errors.0 }}
+                </div>
+                {% endif %}
               </div>
-              {% endif %}
             </div>
+            <div class="mb-3"></div>
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
               <button type="submit" class="btn btn-primary px-4">
-                <i class="fas fa-save me-2"></i>Đổi mật khẩu
+                <i class="fas fa-save me-2"></i>Cập nhật
               </button>
               <a
-                href="{% url 'change_password' %}"
+                href="{% url 'edit_profile' %}"
                 class="btn btn-outline-secondary px-4"
               >
                 <i class="fas fa-times me-2"></i>Hủy bỏ
@@ -88,7 +82,11 @@
 </div>
 {% endblock %} {% block extra_js %}
 <script>
-  // Hiển thị toast thông báo
+      document.getElementById('id_so_dien_thoai').addEventListener('input', function(e) {
+      // Chỉ cho phép nhập số
+      this.value = this.value.replace(/[^0-9]/g, '');
+  });
+  // Xử lý hiển thị toast thông báo
   document.addEventListener('DOMContentLoaded', function() {
       const toastContainer = document.createElement('div');
       toastContainer.className = 'position-fixed top-0 end-0 p-3';
@@ -115,14 +113,9 @@
           toastContainer.appendChild(toastEl);
           const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
           toast.show();
-
-          // Tự động xóa toast sau khi ẩn
-          toastEl.addEventListener('hidden.bs.toast', function() {
-              toastEl.remove();
-          });
       {% endfor %}
 
-      // Thêm validation form
+      // Xử lý validation form
       const forms = document.querySelectorAll('.needs-validation');
       Array.from(forms).forEach(form => {
           form.addEventListener('submit', event => {

@@ -74,7 +74,7 @@ def bqlcc_dashboard(request):
 @role_required('Kế toán')
 def kt_dashboard(request):
     username = request.user.username
-    return render(request, 'nguoi_dung/KTDashboard.html', {'username': username})
+    return render(request, 'thu_phi/KTDashboard.html', {'username': username})
 
 # @login_required
 # @role_required('Quản trị hệ thống')

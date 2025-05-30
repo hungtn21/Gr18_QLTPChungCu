@@ -148,6 +148,8 @@ def xoa_nhan_khau(request, pk):
     messages.success(request, 'Đã xóa nhân khẩu.')
     return redirect(next_url or 'sua_ho_khau', pk=ho.id)
 
+from django.utils import timezone
+
 @login_required
 @role_required('BQL Chung cư')
 def sua_nhan_khau(request, pk):
@@ -158,6 +160,16 @@ def sua_nhan_khau(request, pk):
         form = DanCuForm(request.POST, instance=dancu)
         if form.is_valid():
             form.save()
+
+            # Kiểm tra và cập nhật trạng thái theo thời gian chuyển đi
+            if dancu.thoi_gian_chuyen_di:
+                today = timezone.now().date()
+                if dancu.thoi_gian_chuyen_di < today:
+                    dancu.trang_thai = 'Đã chuyển đi'
+                else:
+                    dancu.trang_thai = 'Đang sinh sống'
+                dancu.save(update_fields=['trang_thai'])
+
             messages.success(request, 'Cập nhật nhân khẩu thành công.')
             return redirect(next_url or 'sua_ho_khau', pk=dancu.ho_gia_dinh.id)
     else:
@@ -171,12 +183,13 @@ def sua_nhan_khau(request, pk):
 
     default_url = reverse('sua_ho_khau', args=[dancu.ho_gia_dinh.id])
     return render(request, 'nhan_khau/sua_nhan_khau.html', {
-    'form': form,
-    'dan_cu': dancu,
-    'next': next_url,
-    'default_url': default_url,
-    'trang_thai_tttv': trang_thai_tttv,
-})
+        'form': form,
+        'dan_cu': dancu,
+        'next': next_url,
+        'default_url': default_url,
+        'trang_thai_tttv': trang_thai_tttv,
+    })
+
 
 @login_required
 @role_required('BQL Chung cư')
@@ -189,7 +202,11 @@ def tam_tru_tam_vang(request, pk):
             tamtru = form.save(commit=False)
             tamtru.dan_cu = dan_cu
             tamtru.save()
+            messages.success(request, "Cập nhật Tạm trú/Tạm vắng thành công!")
+            print("Gửi message rồi")
             return redirect('sua_nhan_khau', pk=dan_cu.pk)  # Đổi lại tên URL nếu khác
+            
+
     else:
         form = TamTruTamVangForm()
 
@@ -478,38 +495,43 @@ def thongKeTamTru(request):
     from_date_str = request.GET.get('fromDate')
     to_date_str = request.GET.get('toDate')
 
-    # Map số sang loại
-    loai_mapping = {
-        '1': 'Tạm trú',
-        '2': 'Tạm vắng'
-    }
-    loai = loai_mapping.get(loai_code)
-    print(from_date_str)
-    print(to_date_str)
-    if loai and from_date_str and to_date_str:
+    # Kiểm tra xem có ít nhất 1 input để xác định người dùng đã ấn gửi chưa
+    is_submitted = loai_code or from_date_str or to_date_str
+
+    if is_submitted:
+        loai_mapping = {
+            '1': 'Tạm trú',
+            '2': 'Tạm vắng'
+        }
+        loai = loai_mapping.get(loai_code)
+
         try:
-            from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date()
-            to_date = datetime.strptime(to_date_str, '%Y-%m-%d').date()
-
-            # Queryset tách riêng để dễ kiểm soát và test
-            queryset = TamTruTamVang.objects.filter(
-                Q(loai_tttv=loai) &
-                Q(thoi_gian_bat_dau__lte=to_date) &
-                Q(thoi_gian_ket_thuc__gte=from_date)
-            )
-
-            results = queryset
-            total = queryset.count()
-            
-
+            from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date() if from_date_str else None
+            to_date = datetime.strptime(to_date_str, '%Y-%m-%d').date() if to_date_str else None
         except ValueError as ve:
             print("LỖI PARSE NGÀY:", ve)
-        
+            from_date = None
+            to_date = None
+
+        queryset = TamTruTamVang.objects.all()
+
+        if loai:
+            queryset = queryset.filter(loai_tttv=loai)
+
+        if from_date and to_date:
+            queryset = queryset.filter(
+                thoi_gian_bat_dau__lte=to_date,
+                thoi_gian_ket_thuc__gte=from_date
+            )
+
+        results = queryset
+        total = queryset.count()
+
     context = {
         'results': results,
         'total': total,
         'request': request
-        }
+    }
 
     return render(request, 'nhan_khau/thongke_tam_tru.html', context)
 
@@ -528,8 +550,12 @@ def thongKeBienDong(request):
     date_from_str = request.GET.get('date_from')
     date_to_str = request.GET.get('date_to')
 
-    if request.method == "GET" and (date_from_str or date_to_str):
+    # Kiểm tra xem có submit form chưa (ấn nút thống kê)
+    is_submitted = 'date_from' in request.GET or 'date_to' in request.GET
+
+    if request.method == "GET" and is_submitted:
         try:
+            # Nếu không nhập ngày nào thì hiển thị tất cả (range rộng nhất)
             date_from = datetime.strptime(date_from_str, "%Y-%m-%d").date() if date_from_str else datetime.min.date()
             date_to = datetime.strptime(date_to_str, "%Y-%m-%d").date() if date_to_str else datetime.max.date()
 
@@ -550,6 +576,8 @@ def thongKeBienDong(request):
         except Exception as e:
             print(f"[DEBUG] Lỗi khi xử lý thống kê biến động: {e}")
 
+    # Nếu chưa submit thì không hiển thị gì (kết quả rỗng)
+
     context = {
         'chuyen_den': chuyen_den,
         'chuyen_di': chuyen_di,
@@ -563,6 +591,7 @@ def thongKeBienDong(request):
     }
 
     return render(request, 'nhan_khau/thongke_bien_dong.html', context)
+
 
 @login_required
 @role_required('BQL Chung cư')

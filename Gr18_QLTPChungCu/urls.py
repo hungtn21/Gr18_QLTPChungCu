@@ -36,6 +36,10 @@ urlpatterns = [
     path('ketoan/create-khoanthu', thu_phi_views.create_khoanthu, name='create_khoanthu'),
     path('ketoan/update-khoanthu/<int:pk>', thu_phi_views.update_khoanthu, name='update_khoanthu'),
     path('ketoan/delete-khoanthu/<int:pk>', thu_phi_views.delete_khoanthu, name='delete_khoanthu'),
+    path('ketoan/view-list-khoannop', thu_phi_views.view_list_khoannop, name='view_list_khoannop'),
+    path('ketoan/khoannop-details/<int:pk>', thu_phi_views.khoannop_details, name='khoannop_details'),
+    path('ketoan/edit-profile', thu_phi_views.edit_profile, name ='kt_edit_profile'),
+    path('ketoan/change-password', thu_phi_views.change_password, name ='kt_change_password'),
 
     
 #========================== QLCC routes=========================================================
@@ -46,8 +50,8 @@ urlpatterns = [
     path('lichsu_thaydoi/', nhan_khau_views.lichSuThayDoi, name='lichSuThayDoi'),
     path('bqlChungCu/quan-ly-nhan-khau/', nhan_khau_views.quan_ly_nhan_khau, name='quan_ly_nhan_khau'),
     path('bqlChungCu/quan_ly_ho_khau', nhan_khau_views.quan_ly_ho_khau, name='quan_ly_ho_khau'),
-    path('bqlChungCu/edit-profile/',nhan_khau_views.edit_profile, name='edit_profile'),
-    path('bqlChungCu/change-password/', nhan_khau_views.change_password, name='change_password'),
+    path('bqlChungCu/edit-profile/',nhan_khau_views.edit_profile, name='nhankhau_edit_profile'),
+    path('bqlChungCu/change-password/', nhan_khau_views.change_password, name='nhankhau_change_password'),
     path('bqlChungCu/quan_ly_ho_khau/create/', nhan_khau_views.create_ho_khau, name='create_ho_khau'),
     path('bqlChungCu/doi-chu-ho/<int:ho_id>/<int:dan_cu_id>/',nhan_khau_views.doi_chu_ho,name='doi_chu_ho'),
     path('bqlChungCu/xoa-ho-khau/<int:pk>/', nhan_khau_views.xoa_ho_khau, name='xoa_ho_khau'),
