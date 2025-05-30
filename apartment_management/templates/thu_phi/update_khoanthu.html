@@ -10,7 +10,7 @@
 <form method="post" id="khoanthu-form">
     {% csrf_token %}
     <div
-        style="border: 2px solid #00f; padding: 20px; background: #f9f9f9; width: 400px; margin: auto; border-radius: 10px;">
+        style="border: 2px solid rgb(96, 96, 97); padding: 20px; background: #f9f9f9; width: 400px; margin: auto; border-radius: 10px;">
 
         <div style="margin-bottom: 15px;">
             <label><strong>Tên khoản thu:</strong></label><br>
@@ -32,6 +32,16 @@
             </div>
         </div>
 
+        <div style="margin-bottom: 15px;">
+            <label><strong>Đơn giá:</strong></label><br>
+            <div style="display: flex; align-items: center;">
+                {{ form.so_tien }}
+                <button type="button" onclick="enableField('id_so_tien')" class="icon-button">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+            </div>
+        </div>
+
         <div style="margin-bottom: 20px;">
             <label><strong>Ghi chú:</strong></label><br>
             <div style="display: flex; align-items: center;">
@@ -44,7 +54,7 @@
 
         <div style="text-align: center;">
             <button type="submit"
-                style="padding: 10px 25px; border-radius: 8px; background: #888; color: white; border: none;">Lưu</button>
+                style="padding: 10px 25px; border-radius: 8px; background: #28a745; color: white; border: none;">Lưu</button>
         </div>
     </div>
 </form>

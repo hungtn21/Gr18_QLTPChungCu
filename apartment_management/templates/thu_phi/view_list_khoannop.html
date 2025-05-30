@@ -1,0 +1,159 @@
+{% extends 'nguoi_dung/kt_base.html' %}
+
+{% block title %}Danh sách khoản nộp{% endblock %}
+
+{% block content %}
+<!-- FontAwesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Toast Message -->
+{% if messages %}
+<div id="toast-container">
+    {% for message in messages %}
+    <div class="toast-message">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2 style="margin-top: 0;text-align: center; color: #000000; font-size: 36px;">Quản lý khoản nộp</h2>
+<h3 style="margin-top: 0;text-align: center; color: #434242; font-size: 26px;">cho đợt thu đang tiến hành</h3>
+
+<form method="get" style="display: flex; justify-content: space-between; margin: 10px 0; align-items: center;">
+    <!-- Ô tìm kiếm bên trái -->
+    <div style="position: relative; width: 250px;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm"
+            style="padding: 8px 30px 8px 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
+        <i class="fa fa-search"
+            style="position: absolute; right: -30px; top: 50%; transform: translateY(-50%); color: gray;"></i>
+    </div>
+
+    <!-- Ô lọc ngày bên phải -->
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="date" name="start_date" value="{{ start_date }}"
+            style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="date" name="end_date" value="{{ end_date }}"
+            style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+        <button type="submit" class="btn-add">Lọc</button>
+    </div>
+</form>
+
+<br>
+
+<!-- Table -->
+<table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+    <thead style="background-color: #f0f0f0;">
+        <tr>
+            <th style="padding: 10px; text-align: left; width: 22%;">Tên đợt thu</th>
+            <th style="padding: 10px; text-align: left; width: 22%;">Tên khoản thu</th>
+            <th style="padding: 10px; text-align: center; width: 18%;">Số lượng hộ đã nộp</th>
+            <th style="padding: 10px; text-align: center; width: 23%;">Thời gian</th>
+            <th style="padding: 10px; text-align: center; width: 15%;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if khoan_nop_info %}
+        {% for item in khoan_nop_info %}
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 10px; text-align: left;">{{ item.dot_thu.ten_dot_thu }}</td>
+            <td style="padding: 10px; text-align: left;">{{ item.ten_khoan_thu }}</td>
+            <td style="padding: 10px; text-align: center;">{{ item.so_luong_nop }}</td>
+            <td style="padding: 10px; text-align: center;">
+                {{ item.dot_thu.thoi_gian_bat_dau|date:"d/m/Y" }} - {{ item.dot_thu.thoi_gian_ket_thuc|date:"d/m/Y" }}
+            </td>
+            <td style="padding: 10px; text-align: center;">
+                <a href="{% url 'khoannop_details' pk=item.dot_thu.id %}" style="color: #218838;">
+                    <i class="fa fa-eye"></i> 
+                </a>
+            </td>
+        
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="5" style="text-align: center; padding: 20px;">Hiện không có khoản nộp nào</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<!-- Styles -->
+<style>
+    .btn-detail {
+        background-color: #28a745;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-detail:hover {
+        background-color: #218838;
+    }
+
+    .btn-add {
+        background-color: #007BFF;
+        color: white;
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .btn-add:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    #toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .toast-message {
+        background-color: #28a745;
+        color: white;
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        animation: fadeInOut 4s ease forwards;
+        font-weight: bold;
+    }
+
+    @keyframes fadeInOut {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        10% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    }
+</style>
+
+<!-- Auto-hide toast -->
+<script>
+    setTimeout(() => {
+        const toast = document.getElementById('toast-container');
+        if (toast) {
+            toast.remove();
+        }
+    }, 4000);
+</script>
+
+{% endblock %}

@@ -2,7 +2,6 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -21,18 +20,12 @@
         background-color: #ffffff;
       }
 
-      /* Sidebar cố định */
       .sidebar {
         width: 200px;
         background-color: #003366;
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
         height: 100vh;
-        overflow-y: auto;
         padding-top: 20px;
-        z-index: 1000;
+        float: left;
       }
 
       .sidebar button {
@@ -44,7 +37,6 @@
         border: none;
         cursor: pointer;
         font-weight: bold;
-        font-size: 14px;
       }
 
       .sidebar button:hover {
@@ -52,11 +44,9 @@
         color: white;
       }
 
-      /* Content căn lề phải */
       .content {
         margin-left: 200px;
         padding: 40px;
-        min-height: 100vh;
       }
 
       h2 {
@@ -102,7 +92,7 @@
   </head>
 
   <body>
-    <div class="sidebar">
+    <div class="sidebar position-fixed">
       <div
         class="sidebar-header"
         style="display: flex; align-items: center; padding: 10px; color: white"
@@ -110,25 +100,19 @@
         <i class="fas fa-home" style="margin-right: 8px"></i>
         <span style="font-weight: bold">Kế toán</span>
       </div>
-
       <a href="{% url 'KTDashboard' %}" style="font-size: 14px">
         <button>Trang chủ</button>
       </a>
       <a href="{% url 'list_dot_thu' %}" style="font-size: 14px">
         <button>Danh sách đợt thu</button>
       </a>
-      <a href="{% url 'view_list_khoanthu' %}" style="font-size: 14px">
-        <button>Danh sách khoản thu</button>
+      <a href="#" style="font-size: 14px">
+        <button>Sửa thông tin cá nhân</button>
       </a>
-      <a href="{% url 'view_list_khoannop' %}" style="font-size: 14px">
-        <button>Quản lý khoản nộp</button>
-      </a>
-      <a href="{% url 'edit_profile' %}" style="font-size: 14px">
-        <button>Chỉnh sửa hồ sơ</button>
-      </a>
-      <a href="{% url 'change_password' %}" style="font-size: 14px">
+      <a href="#" style="font-size: 14px">
         <button>Đổi mật khẩu</button>
       </a>
+      {% comment %}
       <a href="{% url 'admin_logout' %}">
         <button
           style="
@@ -141,57 +125,69 @@
           Đăng xuất
         </button>
       </a>
+      {% endcomment %}
     </div>
 
     <div class="content">{% block content %}{% endblock %}</div>
 
     <!-- Toast Notification -->
-    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
-      {% comment %} Toast container to be appended dynamically via JS {% endcomment %}
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+      <div
+        id="successToast"
+        class="toast align-items-center text-white bg-success border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-check-circle me-2"></i>
+            <span id="toastMessage"></span>
+          </div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
     </div>
 
-    <!-- Bootstrap JS và jQuery -->
+    <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     {% block extra_js %}
     <script>
-      // Hiển thị toast khi có thông báo
-      document.addEventListener('DOMContentLoaded', function () {
-        const toastContainer = document.createElement('div');
-        toastContainer.className = 'position-fixed top-0 end-0 p-3';
-        toastContainer.style.zIndex = '9999';
-        document.body.appendChild(toastContainer);
+          // Hiển thị toast khi có thông báo
+          document.addEventListener('DOMContentLoaded', function() {
+          const toastContainer = document.createElement('div');
+          toastContainer.className = 'position-fixed top-0 end-0 p-3';
+          toastContainer.style.zIndex = '9999';
+          document.body.appendChild(toastContainer);
 
-        {% for message in messages %}
-          const toastEl = document.createElement('div');
-          toastEl.className = 'toast align-items-center text-white border-0 ' +
-            ({{ message.tags|safe }} === 'error' ? 'bg-danger' : 'bg-success');
-          toastEl.setAttribute('role', 'alert');
-          toastEl.setAttribute('aria-live', 'assertive');
-          toastEl.setAttribute('aria-atomic', 'true');
+          {% for message in messages %}
+              const toastEl = document.createElement('div');
+              toastEl.className = `toast align-items-center text-white {% if message.tags == 'error' %}bg-danger{% else %}bg-success{% endif %} border-0`;
+              toastEl.setAttribute('role', 'alert');
+              toastEl.setAttribute('aria-live', 'assertive');
+              toastEl.setAttribute('aria-atomic', 'true');
 
-          toastEl.innerHTML = `
-            <div class="d-flex">
-              <div class="toast-body">
-                <i class="fas ${
-                  '{{ message.tags }}' === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'
-                } me-2"></i>
-                {{ message|escapejs }}
-              </div>
-              <button
-                type="button"
-                class="btn-close btn-close-white me-2 m-auto"
-                data-bs-dismiss="toast"
-                aria-label="Close"
-              ></button>
-            </div>
-          `;
+              toastEl.innerHTML = `
+                  <div class="d-flex">
+                      <div class="toast-body">
+                          <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} me-2"></i>
+                          {{ message|escapejs }}
+                      </div>
+                      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                  </div>
+              `;
 
-          toastContainer.appendChild(toastEl);
-          const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
-          toast.show();
-        {% endfor %}
+              toastContainer.appendChild(toastEl);
+              const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+              toast.show();
+          {% endfor %}
       });
     </script>
     {% endblock %}

@@ -35,32 +35,35 @@
 <br>
 
 <!-- Table -->
+<!-- Table -->
+<!-- Thêm cột Số tiền vào bảng -->
 <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
     <thead style="background-color: #f0f0f0;">
         <tr>
-            <th style="padding: 10px; text-align: left; width: 10%;">ID</th>
-            <th style="padding: 10px; text-align: left; width: 30%;">Tên khoản thu</th>
-            <th style="padding: 10px; text-align: left; width: 20%;">Loại</th>
+            <th style="padding: 10px; text-align: center; width: 5%;">STT</th>
+            <th style="padding: 10px; text-align: center; width: 25%;">Tên khoản thu</th>
+            <th style="padding: 10px; text-align: center; width: 15%;">Loại</th>
+            <th style="padding: 10px; text-align: center; width: 15%;">Đơn giá</th>
             <th style="padding: 10px; text-align: left; width: 30%;">Ghi chú</th>
-            <th style="padding: 10px; text-align: left; width: 10%;">Thao tác</th>
+            <th style="padding: 10px; text-align: center; width: 10%;">Thao tác</th>
         </tr>
     </thead>
     <tbody>
         {% if khoan_thu_list %}
         {% for kt in khoan_thu_list %}
-        <tr style="border-bottom: 1px solid #ccc;">
-            <td style="padding: 10px; text-align: left;">{{ kt.id }}</td>
-            <td style="padding: 10px; text-align: left;">{{ kt.ten_khoan_thu }}</td>
-            <td style="padding: 10px; text-align: left;">{{ kt.loai_khoan_thu }}</td>
+        <tr style="border-bottom: 1px solid #ccc; text-align: center;">
+            <td style="padding: 10px;">{{ forloop.counter }}</td>
+            <td style="padding: 10px;">{{ kt.ten_khoan_thu }}</td>
+            <td style="padding: 10px;">{{ kt.loai_khoan_thu }}</td>
+            <td style="padding: 10px;">{{ kt.so_tien|floatformat:0 }} Đ</td>
             <td style="padding: 10px; text-align: left;">{{ kt.ghi_chu|default:"-" }}</td>
-            <td style="padding: 10px; text-align: left;">
-                <div style="display: flex; gap: 5px;">
-                    <a href="{% url 'update_khoanthu' pk=kt.id %}">
-                        <button>Sửa</button>
+            <td style="padding: 10px;">
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <a href="{% url 'update_khoanthu' pk=kt.id %}" title="Sửa">
+                        <i class="fa fa-edit" style="color: #007bff; cursor: pointer;"></i>
                     </a>
-                
-                    <a href="{% url 'delete_khoanthu' pk=kt.id %}">
-                    <button>Xóa</button>
+                    <a href="{% url 'delete_khoanthu' pk=kt.id %}" title="Xóa">
+                        <i class="fa fa-trash" style="color: #dc3545; cursor: pointer;"></i>
                     </a>
                 </div>
             </td>
@@ -68,11 +71,13 @@
         {% endfor %}
         {% else %}
         <tr>
-            <td colspan="5" style="text-align: center; padding: 20px;">Hiện không có khoản thu nào</td>
+            <td colspan="6" style="text-align: center; padding: 20px;">Hiện không có khoản thu nào</td>
         </tr>
         {% endif %}
     </tbody>
 </table>
+
+
 
 <!-- Styles -->
 <style>

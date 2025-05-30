@@ -71,6 +71,7 @@ class KhoanThu(models.Model):
     ]
     ten_khoan_thu = models.CharField(max_length=100)
     loai_khoan_thu = models.CharField(max_length=20, choices=LOAI_CHOICES)
+    so_tien = models.FloatField(default=0)
     ghi_chu = models.TextField(null=True, blank=True)
 
     def __str__(self):

@@ -1,11 +1,21 @@
+
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, update_session_auth_hash, logout
 from django.contrib import messages
-from ..models import NguoiDung
+from ..models import NguoiDung,User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from functools import wraps
+from django.contrib.auth.forms import PasswordChangeForm
+from django.views.decorators.cache import never_cache
+import secrets
+import string
+from email.message import EmailMessage
+import ssl
+import smtplib
+from ..forms import EditProfileForm
+from django.http import JsonResponse
 
 def role_required(required_role):
     def decorator(view_func):
@@ -64,3 +74,12 @@ def kt_dashboard(request):
 @role_required('Quản trị hệ thống')
 def admin_dashboard(request):
     return render(request, 'nguoi_dung/AdminDashboard.html')
+
+
+
+
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('login')

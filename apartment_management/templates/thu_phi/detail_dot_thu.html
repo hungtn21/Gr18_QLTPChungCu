@@ -1,0 +1,416 @@
+{% extends 'nguoi_dung/kt_base.html' %} {% load static %} {% block extra_head %}
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+  rel="stylesheet"
+/>
+<style>
+  .info-box {
+    background-color: #f9f9f9;
+    padding: 25px;
+    border-radius: 10px;
+    margin-top: 20px;
+  }
+
+  .row-info {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .info-col {
+    flex: 1;
+    min-width: 300px;
+    padding: 10px 20px;
+  }
+
+  .info-col p {
+    margin-bottom: 15px;
+  }
+
+  .info-col strong {
+    display: inline-block;
+    width: 150px;
+  }
+
+  .edit-container {
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .btn-add {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .btn-add:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+
+  .btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 16px;
+  }
+
+  .uneditable {
+    color: #6c757d;
+  }
+
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background: white;
+    margin: 15% auto;
+    padding: 20px;
+    width: 400px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Autocomplete */
+  .ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1060;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    max-width: 400px;
+    width: auto !important; /* Cho phép co giãn theo nội dung */
+    min-width: 200px; /* Độ rộng tối thiểu */
+  }
+
+  .ui-autocomplete .ui-menu-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap; /* Ngăn text xuống dòng */
+    overflow: hidden; /* Ẩn phần dư thừa */
+    text-overflow: ellipsis; /* Hiện dấu ... khi text quá dài */
+  }
+
+  .ui-autocomplete .ui-menu-item:hover {
+    background-color: #f5f5f5;
+  }
+
+  .ui-autocomplete .ui-state-active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+
+  .form-group {
+    padding-bottom: 12px;
+  }
+</style>
+{% endblock %} {% block content %}
+<h2>Chi tiết đợt thu:</h2>
+
+<!-- Hiển thị thông tin -->
+<div id="info-display">
+  <div class="info-box">
+    <div class="row-info">
+      <div class="info-col">
+        <p><strong>Tên đợt thu:</strong> {{ dot_thu.ten_dot_thu }}</p>
+        <p><strong>Nội dung:</strong> {{ dot_thu.noi_dung }}</p>
+        <p>
+          <strong>Thời gian:</strong> {{dot_thu.thoi_gian_bat_dau|date:"d-m-Y"}}
+          - {{dot_thu.thoi_gian_ket_thuc|date:"d-m-Y"}}
+        </p>
+        <p><strong>Số hộ đã nộp:</strong> {{ ho_da_nop }}</p>
+      </div>
+      <div class="info-col">
+        <p><strong>Tên khoản thu:</strong> {{ khoan_thu.ten_khoan_thu }}</p>
+        <p><strong>Loại khoản thu:</strong> {{ khoan_thu.loai_khoan_thu }}</p>
+        <p><strong>Ghi chú:</strong> {{ khoan_thu.ghi_chu|default:"-" }}</p>
+        <p>
+          <strong>Tổng tiền đã nộp:</strong> {{ tong_da_nop|floatformat:0 }} đ
+        </p>
+      </div>
+    </div>
+  </div>
+  <!-- Nút chỉnh sửa -->
+  <div class="edit-container">
+    <button id="btn-edit" class="btn-add">Chỉnh sửa</button>
+  </div>
+</div>
+
+<!-- Form chỉnh sửa (ẩn ban đầu) -->
+<div id="edit-form" style="display: none">
+  <form id="form-edit" method="post">
+    {% csrf_token %}
+    <div class="info-box">
+      <div class="row-info">
+        <div class="info-col">
+          <div class="form-group">
+            <label for="ten_dot_thu"><strong>Tên đợt thu:</strong></label>
+            <input
+              type="text"
+              id="ten_dot_thu"
+              name="ten_dot_thu"
+              class="form-control"
+              value="{{ dot_thu.ten_dot_thu }}"
+              required
+            />
+            <small id="khoan-thu-error" class="text-danger"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="noi_dung"><strong>Nội dung:</strong></label>
+            <input
+              type="text"
+              id="noi_dung"
+              name="noi_dung"
+              class="form-control"
+              value="{{ dot_thu.noi_dung }}"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="thoi_gian_bat_dau"
+              ><strong>Thời gian bắt đầu:</strong></label
+            >
+            <input
+              type="date"
+              id="thoi_gian_bat_dau"
+              name="thoi_gian_bat_dau"
+              class="form-control"
+              value="{{dot_thu.thoi_gian_bat_dau|date:'Y-m-d'}}"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="thoi_gian_ket_thuc"
+              ><strong>Thời gian kết thúc:</strong></label
+            >
+            <input
+              type="date"
+              id="thoi_gian_ket_thuc"
+              name="thoi_gian_ket_thuc"
+              class="form-control"
+              value="{{dot_thu.thoi_gian_ket_thuc|date:'Y-m-d'}}"
+              required
+            />
+          </div>
+
+          <p class="uneditable">
+            <strong>Số hộ đã nộp:</strong> {{ ho_da_nop }}
+          </p>
+        </div>
+
+        <div class="info-col">
+          <div class="form-group">
+            <label class="uneditable" for="ten_khoan_thu"
+              ><strong>Tên khoản thu:</strong>
+              {{khoan_thu.ten_khoan_thu}}</label
+            >
+          </div>
+          <div class="form-group">
+            <label class="uneditable" for="loai_khoan_thu"
+              ><strong>Loại khoản thu:</strong>
+              {{khoan_thu.loai_khoan_thu}}</label
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="uneditable" for="ghi_chu"
+              ><strong>Ghi chú:</strong>
+              {{khoan_thu.ghi_chu|default:"-"}}</label
+            >
+          </div>
+
+          <p class="uneditable">
+            <strong>Tổng tiền đã nộp:</strong> {{tong_da_nop|floatformat:0}} đ
+          </p>
+        </div>
+      </div>
+
+      <div id="form-error" style="color: red; margin-top: 15px"></div>
+
+      <div style="margin-top: 20px; text-align: right">
+        <button type="button" id="btn-save" class="btn-add" disabled>
+          Lưu
+        </button>
+        <button type="button" id="btn-cancel" class="btn-delete">Huỷ</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Popup xác nhận -->
+<div id="popup-confirm" class="modal">
+  <div class="modal-content">
+    <p>
+      Bạn chắc chắn muốn sửa đổi thông tin đợt thu "<span
+        id="popup-dot-thu-name"
+      ></span
+      >"?
+    </p>
+    <div style="text-align: right; margin-top: 20px">
+      <button id="confirm-yes" class="btn-add">Đồng ý</button>
+      <button id="confirm-no" class="btn-delete">Huỷ</button>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    const btnEdit = $("#btn-edit");
+    const btnSave = $("#btn-save");
+    const btnCancel = $("#btn-cancel");
+    const infoDisplay = $("#info-display");
+    const editForm = $("#edit-form");
+    const popup = $("#popup-confirm");
+    const confirmYes = $("#confirm-yes");
+    const confirmNo = $("#confirm-no");
+    const form = $("#form-edit");
+    const errorBox = $("#form-error");
+    const popupDotThuName = $("#popup-dot-thu-name");
+
+    let originalValues = {};
+
+    // ===== Kiểm tra ngày tháng =====
+    function validateDates() {
+      const startDate = new Date($("#thoi_gian_bat_dau").val());
+      const endDate = new Date($("#thoi_gian_ket_thuc").val());
+
+      if (startDate > endDate) {
+        errorBox.text("Thời gian kết thúc phải sau thời gian bắt đầu");
+        return false;
+      }
+      return true;
+    }
+
+    // ===== Kiểm tra form =====
+    function validateForm() {
+      errorBox.text("");
+      let isValid = true;
+
+      $("[required]").each(function () {
+        if (!$(this).val().trim()) {
+          isValid = false;
+          errorBox.text("Vui lòng điền đầy đủ tất cả các trường bắt buộc");
+          return false;
+        }
+      });
+
+      if (!isValid) return false;
+      if (!validateDates()) return false;
+
+      return true;
+    }
+
+    // ===== Mở form chỉnh sửa =====
+    btnEdit.click(function () {
+      infoDisplay.hide();
+      editForm.show();
+      btnSave.prop("disabled", true);
+      errorBox.text("");
+
+      // Lưu lại giá trị ban đầu
+      originalValues = {};
+      form.find("input[name], select[name]").each(function () {
+        originalValues[this.name] = $(this).val();
+      });
+    });
+
+    // ===== Theo dõi thay đổi form =====
+    form.on("input", "input, select", function () {
+      let isChanged = false;
+      form.find("input, select").each(function () {
+        if ($(this).val() !== originalValues[this.name]) {
+          isChanged = true;
+          return false;
+        }
+      });
+      btnSave.prop("disabled", !isChanged);
+    });
+
+    // ===== Huỷ chỉnh sửa =====
+    btnCancel.click(function () {
+      infoDisplay.show();
+      editForm.hide();
+      popup.hide();
+      errorBox.text("");
+
+      // Reset lại form
+      $.each(originalValues, function (name, value) {
+        form.find('[name="' + name + '"]').val(value);
+      });
+    });
+
+    // ===== Ấn Lưu =====
+    btnSave.click(function () {
+      if (!validateForm()) return;
+
+      popupDotThuName.text("{{ dot_thu.ten_dot_thu }}");
+      popup.show();
+    });
+
+    // ===== Huỷ trong popup =====
+    confirmNo.click(function () {
+      popup.hide();
+    });
+
+    // ===== Đồng ý lưu =====
+    confirmYes.click(function () {
+      const formData = form.serialize();
+
+      $.ajax({
+        url: "{% url 'edit_dot_thu' dot_thu.id %}",
+        method: "POST",
+        data: formData,
+        dataType: "json",
+        success: function (data) {
+          if (data.success) {
+            popup.hide();
+            toastr.success("Đã lưu thông tin thành công");
+            setTimeout(function () {
+              location.reload();
+            }, 1500);
+          } else {
+            errorBox.text(data.error || "Có lỗi xảy ra khi lưu dữ liệu");
+            popup.hide();
+          }
+        },
+        error: function (xhr) {
+          errorBox.text("Lỗi kết nối đến server");
+          popup.hide();
+        },
+      });
+    });
+  });
+</script>
+{% endblock %}
