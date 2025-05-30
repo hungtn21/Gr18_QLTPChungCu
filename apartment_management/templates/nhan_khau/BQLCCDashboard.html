@@ -1,3 +1,105 @@
-<h1>
-    BQLCC dashboard
-</h1>
+{% extends 'nhan_khau/nhankhau_base.html' %}
+
+
+{% block content %}
+
+<style>
+    .dashboard-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+    }
+
+    .dashboard-card {
+        flex: 1 1 calc(50% - 120px);
+        max-width: calc(50% - 120px);
+        background-color: white;
+        border: 1.5px solid #ccc;
+        border-radius: 15px;
+        padding: 25px 20px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .dashboard-card i {
+        font-size: 40px;
+        margin-bottom: 15px;
+        color: #003366;
+    }
+
+    .dashboard-card h3 {
+        font-size: 17px;
+        margin-bottom: 15px;
+        color: #000;
+    }
+
+    .round-button {
+        background-color: #003366;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .round-button:hover {
+        background-color: #0055aa;
+        transform: scale(1.05);
+    }
+
+    @media screen and (max-width: 768px) {
+        .dashboard-card {
+            flex: 1 1 100%;
+            max-width: none;
+        }
+    }
+</style>
+<h2 style="color: #003366;" class="text-center">Bảng điều khiển Thống kê - Tìm kiếm</h2>
+
+<div class="dashboard-container mt-5">
+    <div class="dashboard-card">
+        <i class="fas fa-chart-pie"></i>
+        <h3>Thống kê theo độ tuổi/giới tính/thời gian</h3>
+        <a href="{% url 'thongKeDoTuoi' %}">
+            <button class="round-button">Thống kê</button>
+        </a>
+    </div>
+
+    <div class="dashboard-card">
+        <i class="fas fa-house"></i>
+        <h3>Thống kê theo tạm trú tạm vắng</h3>
+        <a href="{% url 'thongKeTamTru' %}">
+            <button class="round-button">Thống kê</button>
+        </a>
+    </div>
+
+    <div class="dashboard-card">
+        <i class="fas fa-chart-line"></i>
+        <h3>Thống kê biến động</h3>
+        <a href="{% url 'thongKeBienDong' %}">
+            <button class="round-button">Thống kê</button>
+        </a>
+    </div>
+
+    <div class="dashboard-card">
+        <i class="fas fa-history"></i>
+        <h3>Xem lịch sử thay đổi nhân khẩu</h3>
+        <a href="{% url 'lichSuThayDoi' %}">
+            <button class="round-button">Xem</button>
+        </a>
+    </div>
+</div>
+
+
+{% endblock %}

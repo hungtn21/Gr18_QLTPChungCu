@@ -1,0 +1,141 @@
+{% extends 'nhan_khau/nhankhau_base.html' %}
+
+{% block title %}Quản lý nhân khẩu{% endblock %}
+
+{% block content %}
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Toast Message -->
+{% if messages %}
+<div id="toast-container">
+    {% for message in messages %}
+    <div class="toast-message">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2 class="fw-bold" style="margin-top: 0; text-align: center; color: #003366; font-size: 36px;">Quản lý nhân khẩu</h2>
+
+<!-- Search bar -->
+<form method="get" style="display: flex; justify-content: flex-start; margin: 10px 0; align-items: center;">
+    <div style="position: relative; width: 300px;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Tìm kiếm theo họ tên, CCCD, căn hộ..."
+               style="padding: 8px 30px 8px 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
+        <i class="fa fa-search"
+           style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: gray;"></i>
+    </div>
+</form>
+
+<!-- Table -->
+<table class="table table-bordered mt-5">
+    <thead class="table-light">
+    <tr>
+        <th>STT</th>
+        <th>Họ tên</th>
+        <th>Ngày sinh</th>
+        <th>CCCD</th>
+        <th>Số điện thoại</th>
+        <th>Căn hộ</th>
+        <th>Trạng thái</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if nhan_khau_list %}
+        {% for nk in nhan_khau_list %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ nk.ho_ten }}</td>
+            <td>{{ nk.ngay_sinh|date:"d/m/Y" }}</td>
+            <td>{{ nk.ma_can_cuoc }}</td>
+            <td>{{ nk.so_dien_thoai }}</td>
+            <td>{{ nk.ho_gia_dinh.so_can_ho }}</td>
+            <td>{{ nk.trang_thai }}</td>
+            <td>
+            <!-- Nút sửa -->
+             <a href="{% url 'sua_nhan_khau' nk.id %}?next={% url 'quan_ly_nhan_khau' %}" class="btn btn-sm btn-outline-primary" title="Sửa">
+                  <i class="fa fa-edit"></i>
+             </a>
+            <!-- Nút xoá -->
+            {% if nk.id != nk.ho_gia_dinh.id_chu_ho_id %}
+                  <form method="POST" action="{% url 'xoa_nhan_khau' nk.id %}" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa nhân khẩu này?');">
+            {% csrf_token %}
+                 <input type="hidden" name="next" value="{% url 'quan_ly_nhan_khau' %}">
+                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Xoá">
+                     <i class="fa fa-trash"></i>
+                 </button>
+                   </form>
+
+            {% else %}
+                <button class="btn btn-sm btn-outline-secondary" title="Không thể xoá chủ hộ" disabled>
+                     <i class="fa fa-trash"></i>
+                 </button>
+             {% endif %}
+</td>
+
+
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="8" class="text-center py-3">Không có nhân khẩu nào</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+<!-- Styles -->
+<style>
+    #toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .toast-message {
+        background-color: #28a745;
+        color: white;
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        animation: fadeInOut 4s ease forwards;
+        font-weight: bold;
+    }
+
+    @keyframes fadeInOut {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        10% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    }
+</style>
+
+<!-- Auto-hide toast -->
+<script>
+    setTimeout(() => {
+        const toast = document.getElementById('toast-container');
+        if (toast) {
+            toast.remove();
+        }
+    }, 4000);
+</script>
+
+{% endblock %}

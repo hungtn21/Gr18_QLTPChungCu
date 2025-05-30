@@ -64,7 +64,9 @@
         <a href="{% url 'view_list_khoanthu' %}">
             <button>Danh sách khoản thu</button>
         </a>
-        <button>Danh sách khoản nộp</button>
+        <a href="{% url 'view_list_khoannop' %}">
+            <button>Danh sách khoản nộp</button>
+        </a>
     </div>
     <div class="content">
         {% block content %}{% endblock %}
