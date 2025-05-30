@@ -1,0 +1,424 @@
+{% extends 'thu_phi/kt_base.html' %}
+{% load custom_filters %}
+
+{% block title %}Danh sách đợt thu{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+<!-- Thêm jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Thêm toastr CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<!-- Thêm script toastr -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<!-- Thêm jQuery UI CSS -->
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+<!-- Select2 -->
+<link
+  href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+  rel="stylesheet"
+/>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<h2 style="text-align: center; font-size: 36px;">Danh sách đợt thu</h2>
+<div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+    <button id="btn-them-dot-thu" class="btn-add">+ Thêm đợt thu mới</button>
+</div>
+<form method="get">
+  <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+    <thead style="background-color: #f0f0f0;">
+        <tr>
+            <th style="padding: 10px; text-align: center; width: 5%">STT</th>
+            <th style="padding: 10px; text-align: center; width: 20%">Tên đợt thu</th>
+            <th style="padding: 10px; text-align: center; width: 25%">Thời gian</th>
+            <th style="padding: 10px; text-align: center; width: 20%">Khoản thu</th>
+            <th style="padding: 10px; text-align: center; width: 15%">Trạng thái</th>
+            <th style="padding: 10px; text-align: center; width: 15%">Thao tác</th>
+        </tr>
+        <tr>
+            <th></th>
+            <th><input type="text" name="ten_dot_thu" value="{{ search_ten }}" placeholder="Tìm tên" style="width: 90%;"></th>
+            <th>
+                <input type="date" name="start_date" value="{{ start_date }}" style="width: 45%; margin-bottom: 4px;">
+                <input type="date" name="end_date" value="{{ end_date }}" style="width: 45%;">
+            </th>
+            <th><input type="text" name="khoan_thu" value="{{ search_khoan }}" placeholder="Tìm khoản thu" style="width: 90%;"></th>
+            <th>
+              <select name="trang_thai" style="width: 90%;">
+                <option value="">-- Tất cả --</option>
+                <option value="Chưa bắt đầu" {% if search_trang_thai == "Chưa bắt đầu" %}selected{% endif %}>Chưa bắt đầu</option>
+                <option value="Đang tiến hành" {% if search_trang_thai == "Đang tiến hành" %}selected{% endif %}>Đang tiến hành</option>
+                <option value="Đã kết thúc" {% if search_trang_thai == "Đã kết thúc" %}selected{% endif %}>Đã kết thúc</option>
+              </select>
+            </th>
+            <th><button type="submit" style="display: none;"></button></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if dot_thu_list %}
+        {% for dot in dot_thu_list %}
+        <tr style="text-align: center; border-bottom: 1px solid #ccc;">
+          <td style="padding: 10px">{{ forloop.counter0|add:page_start_index }}</td>
+          <td style="padding: 10px">{{ dot.ten_dot_thu }}</td>
+          <td style="padding: 10px">{{ dot.thoi_gian_bat_dau|date:"d/m/Y" }} → {{ dot.thoi_gian_ket_thuc|date:"d/m/Y" }}</td>
+          <td style="padding: 10px">{{ dot.khoan_thu.ten_khoan_thu }}</td>
+          <td style="padding: 10px">{{ dot.trang_thai }}</td>
+          <td style="padding: 10px">
+            <a href="{% url 'detail_dot_thu' dot.id %}" title="Xem chi tiết" style="margin-right: 12px; color: #007bff; text-decoration: none;">
+              <i class="fa fa-eye"></i> 
+            </a>
+            <a href="javascript:void(0);" class="btn-delete-dot-thu" data-id="{{ dot.id }}" data-name="{{ dot.ten_dot_thu }}" title="Xoá đợt thu" style="color: #dc3545;">
+              <i class="fas fa-trash-alt fa-lg"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="6" style="text-align: center; padding: 20px;">Không có đợt thu nào</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+  <input type="hidden" name="per_page" value="{{ per_page }}">
+</form>
+
+<!-- PHÂN TRANG -->
+{% if page_obj %}
+<div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div>Tổng số bản ghi: {{ total_count }}</div>
+  <div style="display: flex; align-items: center; gap: 5px;">
+    {% if page_obj.has_previous %}
+      <a class="page-link" href="?{% querystring request page=page_obj.previous_page_number %}">‹</a>
+    {% else %}
+      <span style="color: #ccc;">‹</span>
+    {% endif %}
+
+    {% for i in start_page|range_custom:end_page %}
+      {% if i == page_obj.number %}
+        <strong style="color: white; background: #c00; padding: 5px 10px; border-radius: 50%;">{{ i }}</strong>
+      {% else %}
+        <a class="page-link" href="?{% querystring request page=i %}">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a class="page-link" href="?{% querystring request page=page_obj.next_page_number %}">›</a>
+    {% else %}
+      <span style="color: #ccc;">›</span>
+    {% endif %}
+
+    <form method="get" style="margin-left: 10px;">
+      <input type="hidden" name="id" value="{{ search_id }}">
+      <input type="hidden" name="ten_dot_thu" value="{{ search_ten }}">
+      <input type="hidden" name="thoi_gian" value="{{ search_thoi_gian }}">
+      <input type="hidden" name="khoan_thu" value="{{ search_khoan }}">
+      <input type="hidden" name="trang_thai" value="{{ search_trang_thai }}">
+      <select name="per_page" onchange="this.form.submit()">
+        <option value="5" {% if per_page == 5 %}selected{% endif %}>5</option>
+        <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+        <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+      </select>
+      <span> Dòng trên trang</span>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- MODAL XÁC NHẬN XOÁ -->
+<div id="popup-xoa-dot-thu" class="modal" style="display:none;">
+  <div class="modal-content" style="max-width: 400px;">
+    <p style="font-size: 16px;">Bạn có chắc chắn muốn xoá đợt thu "<span id="ten-dot-thu-xoa"></span>" không?</p>
+    <div style="text-align: right; margin-top: 20px;">
+      <button id="btn-xac-nhan-xoa" class="btn-delete">Xoá</button>
+      <button id="btn-huy-xoa" class="btn-add" style="margin-left: 10px;">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP TẠO ĐỢT THU MỚI -->
+<div id="popup-them-dot-thu" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+      <h3 style="margin-bottom: 10px;">Tạo đợt thu mới</h3>
+      <form id="form-them-dot-thu">
+        {% csrf_token %}
+        <div class="form-group">
+          <label><strong>Tên đợt thu:</strong></label>
+          <input type="text" name="ten_dot_thu" required class="form-control" style="width: 100%;">
+        </div>
+        <div class="form-group">
+          <label><strong>Nội dung:</strong></label>
+          <input type="text" name="noi_dung" required class="form-control" style="width: 100%;">
+        </div>
+        <div class="form-group">
+          <label><strong>Thời gian bắt đầu:</strong></label>
+          <input type="date" name="thoi_gian_bat_dau" required class="form-control">
+        </div>
+        <div class="form-group">
+          <label><strong>Thời gian kết thúc:</strong></label>
+          <input type="date" name="thoi_gian_ket_thuc" required class="form-control">
+        </div>
+        <div class="form-group">
+          <label><strong>Tên khoản thu:</strong></label>
+          <select name="ten_khoan_thu" id="dropdown-khoan-thu" required class="form-control">
+          <option value="">-- Chọn khoản thu --</option>
+          {% for khoan in danh_sach_khoan_thu %}
+            <option value="{{ khoan.ten_khoan_thu }}">{{ khoan.ten_khoan_thu }}</option>
+          {% endfor %}
+          </select>
+          <small id="autocomplete-error" style="color: red;"></small>
+        </div>
+  
+        <div style="margin-top: 20px; text-align: right;">
+          <button type="submit" class="btn-add">Lưu</button>
+          <button type="button" id="btn-huy-them-dot-thu" class="btn-delete" style="margin-left: 10px;">Huỷ</button>
+        </div>
+      </form>
+    </div>
+</div>
+
+<!-- STYLE -->
+<style>
+  a.page-link {
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background-color: #f1f1f1;
+    color: #333;
+  }
+  a.page-link:hover {
+    background-color: #ddd;
+  }
+  strong {
+    font-weight: bold;
+  }
+  input[type="text"], input[type="date"] {
+    padding: 4px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  select {
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.4);
+  }
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 100%; /* giữ chiều ngang đúng theo max-width */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .btn-delete, .btn-add {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .btn-delete {
+    background-color: #dc3545;
+    color: white;
+  }
+  .btn-add {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .toast-success {
+    background-color: #28a745 !important;
+  }
+  .toast-error {
+    background-color: #dc3545 !important;
+  }
+
+  .form-group {
+    margin: 15px;
+  }
+
+  .ui-autocomplete {
+    max-height: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1065 !important; /* lớn hơn modal */
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    max-width: 400px;
+    width: auto !important;
+    min-width: 200px;
+    position: absolute !important;
+  }
+  
+  .ui-autocomplete .ui-menu-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .ui-autocomplete .ui-menu-item:hover,
+  .ui-autocomplete .ui-state-active {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .select2-results__options {
+    max-height: 150px !important;
+    overflow-y: auto !important;
+  }
+</style>
+
+<!-- SCRIPT -->
+<script>
+  $('select[name="trang_thai"]').on('change', function() {
+    $(this).closest('form').submit();
+  });
+
+  let dotIdToDelete = null;
+
+  document.querySelectorAll('.btn-delete-dot-thu').forEach(btn => {
+    btn.addEventListener('click', function () {
+      dotIdToDelete = this.dataset.id;
+      document.getElementById('ten-dot-thu-xoa').innerText = this.dataset.name;
+      document.getElementById('popup-xoa-dot-thu').style.display = 'block';
+    });
+  });
+
+  document.getElementById('btn-huy-xoa').addEventListener('click', function () {
+    document.getElementById('popup-xoa-dot-thu').style.display = 'none';
+    dotIdToDelete = null;
+  });
+
+  document.getElementById('btn-xac-nhan-xoa').addEventListener('click', function () {
+    if (dotIdToDelete) {
+      fetch(`/ketoan/dot-thu/delete/${dotIdToDelete}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+        },
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          toastr.success("Xoá đợt thu thành công");
+          document.getElementById('popup-xoa-dot-thu').style.display = 'none';
+          // Đợi 1.5 giây để người dùng đọc rồi reload
+          setTimeout(() => {
+            location.reload();
+          }, 500);
+        } else {
+          toastr.error(data.error || 'Đã có lỗi xảy ra.');
+          document.getElementById('popup-xoa-dot-thu').style.display = 'none';
+        }
+      });
+      
+    }
+  });
+
+  $(document).ready(function () {
+  let danhSachKhoanThu = [];
+
+  // Mở popup
+  $('#btn-them-dot-thu').click(() => {
+    $('#popup-them-dot-thu').show();
+    $('#form-them-dot-thu')[0].reset();
+    $('#autocomplete-error').text('');
+  });
+
+  // Huỷ
+  $('#btn-huy-them-dot-thu').click(() => {
+    $('#popup-them-dot-thu').hide();
+    $('#form-them-dot-thu')[0].reset(); // reset input thường
+
+    // Reset giá trị dropdown Select2
+    $('select[name="ten_khoan_thu"]').val('').trigger('change');
+
+    // Xoá lỗi nếu có
+    $('#autocomplete-error').text('');
+  });
+
+  // Lấy danh sách khoản thu
+  {% comment %} $.get("{% url 'api_khoan_thu_list' %}", function(data) {
+    danhSachKhoanThu = data;
+    $("#autocomplete-khoan-thu").autocomplete({
+      source: danhSachKhoanThu,
+      minLength: 1
+    });
+  }); {% endcomment %}
+
+  // Gửi form tạo đợt thu mới
+  $('#form-them-dot-thu').submit(function (e) {
+    e.preventDefault();
+    const form = $(this);
+    const data = form.serializeArray();
+    const tenKhoanThu = form.find('[name="ten_khoan_thu"]').val().trim();
+
+    {% comment %} 
+    if (!danhSachKhoanThu.includes(tenKhoanThu)) {
+      $('#autocomplete-error').text('Khoản thu không tồn tại trong hệ thống');
+      return;
+    } else {
+      $('#autocomplete-error').text('');
+    }
+    {% endcomment %}
+
+    const startDate = new Date(form.find('[name="thoi_gian_bat_dau"]').val());
+    const endDate = new Date(form.find('[name="thoi_gian_ket_thuc"]').val());
+
+    if (startDate > endDate) {
+      toastr.error('Thời gian bắt đầu không được sau thời gian kết thúc');
+      return;
+    }
+
+    $.ajax({
+      url: "{% url 'tao_dot_thu_view' %}",
+      method: "POST",
+      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+      data: form.serialize(),
+      success: function (res) {
+        if (res.success) {
+          $('#popup-them-dot-thu').hide();
+          toastr.success('Tạo đợt thu thành công');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          toastr.error(res.error || 'Tạo thất bại');
+        }
+      },
+      error: () => {
+        toastr.error('Lỗi kết nối đến server');
+      }
+    });
+  });
+});
+
+
+  $(document).ready(function() {
+    $('select[name="ten_khoan_thu"]').select2({
+      width: '35%',
+      minimumResultsForSearch: Infinity, // ẩn ô tìm kiếm
+      placeholder: '-- Chọn khoản thu --',
+      dropdownParent: $('#popup-them-dot-thu')  // đảm bảo popup đúng ngữ cảnh
+    });
+  });
+</script>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'nguoi_dung/kt_base.html' %}
+{% extends 'thu_phi/kt_base.html' %}
 
 {% block title %}Danh sách khoản thu{% endblock %}
 
@@ -40,10 +40,10 @@
 <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
     <thead style="background-color: #f0f0f0;">
         <tr>
-            <th style="padding: 10px; text-align: center; width: 5%;">ID</th>
+            <th style="padding: 10px; text-align: center; width: 5%;">STT</th>
             <th style="padding: 10px; text-align: center; width: 25%;">Tên khoản thu</th>
             <th style="padding: 10px; text-align: center; width: 15%;">Loại</th>
-            <th style="padding: 10px; text-align: center; width: 15%;">Số tiền</th>
+            <th style="padding: 10px; text-align: center; width: 15%;">Đơn giá</th>
             <th style="padding: 10px; text-align: left; width: 30%;">Ghi chú</th>
             <th style="padding: 10px; text-align: center; width: 10%;">Thao tác</th>
         </tr>
@@ -52,7 +52,7 @@
         {% if khoan_thu_list %}
         {% for kt in khoan_thu_list %}
         <tr style="border-bottom: 1px solid #ccc; text-align: center;">
-            <td style="padding: 10px;">{{ kt.id }}</td>
+            <td style="padding: 10px;">{{ forloop.counter }}</td>
             <td style="padding: 10px;">{{ kt.ten_khoan_thu }}</td>
             <td style="padding: 10px;">{{ kt.loai_khoan_thu }}</td>
             <td style="padding: 10px;">{{ kt.so_tien|floatformat:0 }} Đ</td>

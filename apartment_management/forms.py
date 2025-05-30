@@ -1,4 +1,5 @@
 from django import forms
+
 from datetime import date
 from .models import ChiTietThu, DanCu, HoGiaDinh, KhoanThu, TamTruTamVang
 from .models import KhoanThu
@@ -34,28 +35,6 @@ class EditProfileForm(forms.ModelForm):
             self.fields['email'].initial = self.instance.user.email
             self.fields['so_dien_thoai'].initial = self.instance.so_dien_thoai
 
-# class KhoanThuForm(forms.ModelForm):
-#     class Meta:
-#         model = KhoanThu
-#         fields = ['ten_khoan_thu', 'loai_khoan_thu', 'ghi_chu']
-#         widgets = {
-#             'ten_khoan_thu': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
-#             'loai_khoan_thu': forms.Select(attrs={
-#                 'class': 'form-control readonly-select',
-#             }),
-#             'ghi_chu': forms.Textarea(attrs={'class': 'form-control', 'readonly': 'readonly', 'rows': 10}),
-#         }
-
-
-# class KhoanThuCreateForm(forms.ModelForm):
-#     class Meta:
-#         model = KhoanThu
-#         fields = ['ten_khoan_thu', 'loai_khoan_thu', 'ghi_chu']
-#         widgets = {
-#             'ten_khoan_thu': forms.TextInput(attrs={'class': 'form-control'}),
-#             'loai_khoan_thu': forms.Select(attrs={'class': 'form-control'}),
-#             'ghi_chu': forms.Textarea(attrs={'class': 'form-control', 'rows': 10}),
-#         }
 
 class KhoanThuForm(forms.ModelForm):
     class Meta:

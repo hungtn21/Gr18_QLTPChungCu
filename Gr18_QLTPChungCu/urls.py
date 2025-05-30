@@ -1,27 +1,26 @@
 """
 URL configuration for Gr18_QLTPChungCu project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import redirect
 from apartment_management.views import nguoi_dung_views, nhan_khau_views, thu_phi_views
 
 urlpatterns = [
+    # Authentication & Dashboards
     path('login/', nguoi_dung_views.login_view, name='login'),
     path('', lambda request: redirect('login')),
+    # Kế toán - Đợt thu
+    path('ketoan/view-list-dot-thu/', thu_phi_views.list_dot_thu_view, name='list_dot_thu'),
+    path('ketoan/dot-thu-details/<int:dot_id>/', thu_phi_views.chi_tiet_dot_thu_view, name='detail_dot_thu'),
+    path('ketoan/dot-thu/edit/<int:dot_id>/', thu_phi_views.sua_dot_thu_view, name='edit_dot_thu'),
+    path('ketoan/dot-thu/delete/<int:dot_id>/', thu_phi_views.xoa_dot_thu_view, name='xoa_dot_thu'),
+    path('ketoan/dot-thu/create/', thu_phi_views.tao_dot_thu_view, name='tao_dot_thu_view'),
+
+    # Kế toán - Khoản thu
+    path('api/khoan-thu/', thu_phi_views.api_khoan_thu_list, name='api_khoan_thu_list'),
+
     #==========================Admin routes=========================================================
     path('admin/user-management/', nguoi_dung_views.user_management, name='admin_user_management'),
     path('admin/user-management/create-new-user', nguoi_dung_views.create_new_user, name='create_new_user'),
@@ -36,8 +35,9 @@ urlpatterns = [
     #==========================Ke toan routes=========================================================
     path('ketoan/view-list-khoanthu', thu_phi_views.view_list_khoanthu, name='view_list_khoanthu'),
     path('ketoan/create-khoanthu', thu_phi_views.create_khoanthu, name='create_khoanthu'),
-    path('ketoan/update-khoanthu/<int:pk>', thu_phi_views.update_khoanthu, name='update_khoanthu' ),
+    path('ketoan/update-khoanthu/<int:pk>', thu_phi_views.update_khoanthu, name='update_khoanthu'),
     path('ketoan/delete-khoanthu/<int:pk>', thu_phi_views.delete_khoanthu, name='delete_khoanthu'),
+
 
     
 #========================== QLCC routes=========================================================
@@ -63,4 +63,3 @@ urlpatterns = [
     path('bqlChungCu/tach-ho/<int:ho_id>/', nhan_khau_views.tach_ho, name='tach_ho'),
 
 ]
-
