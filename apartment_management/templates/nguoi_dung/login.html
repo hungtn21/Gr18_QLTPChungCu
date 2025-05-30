@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Chung cư Bluemoon - Đăng nhập</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Google Fonts - Tuỳ chọn: font chữ đẹp -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
+
     <style>
         body {
-            background-color: #f4f4f9;
+            background-color: #e9ecef;
+            font-family: 'Open Sans', sans-serif;
             height: 100vh;
+            margin: 0;
         }
         .login-container {
             display: flex;
@@ -18,17 +25,44 @@
             height: 100%;
         }
         .login-box {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            padding: 50px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        .login-box:hover {
+            transform: translateY(-2px);
         }
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            color: #007bff;
+            font-weight: 600;
         }
-        .form-group {
-            margin-bottom: 20px;
+        .form-group label {
+            font-weight: 600;
+        }
+        /* Thay đổi màu nút */
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+        /* Toast tùy chỉnh */
+        .toast {
+            min-width: 250px;
+            border-radius: 8px;
+        }
+        /* Responsive for small devices */
+        @media (max-width: 500px) {
+            .login-box {
+                padding: 40px 20px;
+            }
         }
     </style>
 </head>
@@ -40,21 +74,43 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="username">Tên đăng nhập</label>
-                    <input type="text" class="form-control" id="username" name="username" required placeholder="Nhập tên đăng nhập">
+                    <input type="text" class="form-control" id="username" name="username" required placeholder="Nhập tên đăng nhập" />
                 </div>
                 <div class="form-group">
                     <label for="password">Mật khẩu</label>
-                    <input type="password" class="form-control" id="password" name="password" required placeholder="Nhập mật khẩu">
+                    <input type="password" class="form-control" id="password" name="password" required placeholder="Nhập mật khẩu" />
                 </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary btn-block py-2">Đăng nhập</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Bootstrap JS (Optional, for animations or functionality like dropdowns) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toast container -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        {% for message in messages %}
+        <div class="toast align-items-center text-white {% if message.tags == 'error' %}bg-danger{% else %}bg-success{% endif %} border-0 show mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ message }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const toastElements = document.querySelectorAll('.toast');
+    toastElements.forEach(toastEl => {
+      const bsToast = new bootstrap.Toast(toastEl, { delay: 3000 }); // Hiển thị toast trong 3 giây
+      bsToast.show(); // Kích hoạt toast
+    });
+  });
+</script>
 </body>
 </html>
