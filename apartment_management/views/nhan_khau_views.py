@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_http_methods, require_POST
 
-from apartment_management.models import DanCu, ChiTietThu, DotThu, HoGiaDinh, KhoanThu, TamTruTamVang, NguoiDung
+from apartment_management.models import DanCu, ChiTietThu, DotThu, HoGiaDinh, KhoanThu, TamTruTamVang, NguoiDung, PhuongTien
 from apartment_management.forms import (
     DanCuForm, HoGiaDinhForm, EditProfileForm, TamTruTamVangForm,
     KhoanThuCreateForm, KhoanThuForm, KhoanNopCreateForm
@@ -365,7 +365,7 @@ def change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)  # Cập nhật session để không bị đăng xuất
             messages.success(request, 'Mật khẩu đã được thay đổi thành công.')
-            return redirect('change_password')
+            return redirect('nhankhau_change_password')
         else:
             messages.error(request, 'Vui lòng kiểm tra lại thông tin.')
     else:
@@ -397,7 +397,7 @@ def edit_profile(request):
             nguoi_dung.save()
 
             messages.success(request, 'Cập nhật thông tin thành công!')
-            return redirect('nhan_khau/edit_profile')
+            return redirect('nhankhau_edit_profile')
     else:
         form = EditProfileForm(instance=nguoi_dung)
 
@@ -414,36 +414,6 @@ def role_required(required_role):
             return redirect('login')  
         return _wrapped_view
     return decorator
-
-#---------------------------------Chỉnh sửa thông tin cá nhân----------------------------------------
-@login_required
-def edit_profile(request):
-    try:
-        nguoi_dung = request.user.nguoidung
-    except NguoiDung.DoesNotExist:
-        messages.error(request, "Không tìm thấy thông tin người dùng")
-        return redirect('BQLCCDashboard')
-
-    if request.method == 'POST':
-        form = EditProfileForm(request.POST, instance=nguoi_dung)
-        if form.is_valid():
-            # Cập nhật thông tin User
-            ho_ten = form.cleaned_data.get('ho_ten', '').split()
-            request.user.last_name = ' '.join(ho_ten[:-1]) if len(ho_ten) > 1 else ''
-            request.user.first_name = ho_ten[-1] if ho_ten else ''
-            request.user.email = form.cleaned_data.get('email', '')
-            request.user.save()
-            
-            # Chỉ cập nhật số điện thoại
-            nguoi_dung.so_dien_thoai = form.cleaned_data.get('so_dien_thoai', '')
-            nguoi_dung.save()
-            
-            messages.success(request, 'Cập nhật thông tin thành công!')
-            return redirect('nhan_khau_edit_profile')
-    else:
-        form = EditProfileForm(instance=nguoi_dung)
-
-    return render(request, 'nhan_khau/edit_profile.html', {'form': form})
 
 @login_required
 def logout_view(request):
@@ -655,4 +625,39 @@ def lichSuThayDoi(request):
         'end_date': end_date_raw,
     }
     return render(request, 'nhan_khau/lichsu_thaydoi.html', context)
+@login_required
+def them_phuong_tien(request, ho_id):
+    if request.method == 'POST':
+        try:
+            ho = HoGiaDinh.objects.get(id=ho_id)
+            pt = PhuongTien.objects.create(
+                ho_gia_dinh=ho,
+                loai_phuong_tien=request.POST.get('loai_phuong_tien'),
+                bien_so=request.POST.get('bien_so'),
+                mau=request.POST.get('mau'),
+                mo_ta=request.POST.get('mo_ta', '')
+            )
+            return JsonResponse({
+                'success': True,
+                'pt_id': pt.id
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+    return JsonResponse({'success': False}, status=405)
 
+@login_required
+def xoa_phuong_tien(request, pt_id):
+    if request.method == 'POST':
+        try:
+            pt = PhuongTien.objects.get(id=pt_id)
+            pt.delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+    return JsonResponse({'success': False}, status=405)
