@@ -61,7 +61,8 @@ urlpatterns = [
     path('bqlChungCu/xoa-nhan-khau/<int:pk>/', nhan_khau_views.xoa_nhan_khau, name='xoa_nhan_khau'),
     path('bqlChungCu/them-nhan-khau-modal/<int:ho_id>/', nhan_khau_views.them_nhan_khau_tu_modal, name='them_nhan_khau_tu_modal'),
     path('bqlChungCu/tach-ho/<int:ho_id>/', nhan_khau_views.tach_ho, name='tach_ho'),
-
+    path('them-phuong-tien/<int:ho_id>/', nhan_khau_views.them_phuong_tien, name='them_phuong_tien'),
+    path('xoa-phuong-tien/<int:pt_id>/', nhan_khau_views.xoa_phuong_tien, name='xoa_phuong_tien'),
     # Kế toán - Khoản nộp
     path('ketoan/view-list-khoannop', thu_phi_views.view_list_khoannop, name='view_list_khoannop'),
     path('ketoan/khoannop-details/<int:pk>', thu_phi_views.khoannop_details, name='khoannop_details'),

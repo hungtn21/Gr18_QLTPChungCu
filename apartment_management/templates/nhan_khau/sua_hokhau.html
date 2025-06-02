@@ -76,6 +76,10 @@
             <button type="button" class="btn btn-outline-warning ms-2" data-bs-toggle="modal" data-bs-target="#tachHoModal">
                 <i class="fa fa-code-branch"></i> Tách hộ
             </button>
+            <!-- Thêm nút mới ở đây -->
+            <button type="button" class="btn btn-outline-info ms-2" data-bs-toggle="modal" data-bs-target="#quanLyPhuongTienModal">
+                <i class="fas fa-car"></i> Quản lý phương tiện
+            </button>
         </div>
 
         <table class="table table-bordered mt-3">
@@ -314,7 +318,82 @@
         </div>
     </div>
 </div>
+<!-- Modal Quản lý phương tiện -->
+<div class="modal fade" id="quanLyPhuongTienModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quản lý phương tiện hộ {{ ho.so_can_ho }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form thêm phương tiện mới -->
+                <form id="form-them-phuong-tien" method="POST" action="{% url 'them_phuong_tien' ho.id %}">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-4 p-3 border rounded">
+                        <h6>Thêm phương tiện mới</h6>
+                        <div class="col-md-4">
+                            <label class="form-label">Loại phương tiện</label>
+                            <select name="loai_phuong_tien" class="form-select" required>
+                                <option value="Ô tô">Ô tô</option>
+                                <option value="Xe máy">Xe máy</option>
+                                <option value="Xe đạp">Xe đạp</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Biển số</label>
+                            <input type="text" name="bien_so" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Màu sắc</label>
+                            <input type="text" name="mau" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Mô tả</label>
+                            <textarea name="mo_ta" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary">Thêm phương tiện</button>
+                        </div>
+                    </div>
+                </form>
 
+                <!-- Danh sách phương tiện hiện có -->
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Loại phương tiện</th>
+                                <th>Biển số</th>
+                                <th>Màu sắc</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="phuong-tien-table-body">
+                            {% for pt in ho.phuongtien_set.all %}
+                            <tr data-pt-id="{{ pt.id }}">
+                                <td>{{ pt.loai_phuong_tien }}</td>
+                                <td>{{ pt.bien_so }}</td>
+                                <td>{{ pt.mau }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger xoa-phuong-tien-btn" 
+                                            data-pt-id="{{ pt.id }}"
+                                            title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Script cập nhật dropdown chủ hộ -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -355,5 +434,85 @@ document.addEventListener("DOMContentLoaded", function () {
     // Gọi ban đầu
     updateChuHoOptions();
 });
+</script>
+<script>
+    // Xử lý form thêm phương tiện
+document.getElementById('form-them-phuong-tien').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Thêm hàng mới vào bảng
+            const newRow = `
+                <tr data-pt-id="${data.pt_id}">
+                    <td>${formData.get('loai_phuong_tien')}</td>
+                    <td>${formData.get('bien_so')}</td>
+                    <td>${formData.get('mau')}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger xoa-phuong-tien-btn" 
+                                data-pt-id="${data.pt_id}"
+                                title="Xóa">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('phuong-tien-table-body').insertAdjacentHTML('beforeend', newRow);
+            this.reset();
+            showToast('Thêm phương tiện thành công', 'success');
+        } else {
+            showToast(data.error || 'Có lỗi xảy ra', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Lỗi kết nối', 'error');
+    });
+});
+
+// Xử lý xóa phương tiện
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.xoa-phuong-tien-btn')) {
+        const btn = e.target.closest('.xoa-phuong-tien-btn');
+        const ptId = btn.dataset.ptId;
+        
+        if (confirm('Bạn có chắc muốn xóa phương tiện này?')) {
+            fetch(`/xoa-phuong-tien/${ptId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelector(`tr[data-pt-id="${ptId}"]`).remove();
+                    showToast('Đã xóa phương tiện', 'success');
+                } else {
+                    showToast(data.error || 'Xóa thất bại', 'error');
+                }
+            });
+        }
+    }
+});
+
+function showToast(message, type) {
+    // Sử dụng hàm hiển thị toast đã có trong hệ thống của bạn
+    const toastEl = document.getElementById('successToast');
+    const toastMessage = document.getElementById('toastMessage');
+    toastMessage.textContent = message;
+    toastEl.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+}
 </script>
 {% endblock %}
