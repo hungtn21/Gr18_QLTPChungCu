@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.utils.dateparse import parse_date
 from django.db.models import Q
 
-from apartment_management.models import DotThu, ChiTietThu, KhoanThu, DanCu, NguoiDung, HoGiaDinh
+from apartment_management.models import DotThu, ChiTietThu, KhoanThu, DanCu, NguoiDung, HoGiaDinh, PhuongTien
 from apartment_management.forms import EditProfileForm
 from ..forms import KhoanThuCreateForm, KhoanThuForm
 from .nguoi_dung_views import role_required
@@ -444,6 +444,131 @@ def view_list_khoannop(request):
 
 
 
+# def tinh_tien_ho(ho, don_gia):
+#     xe = PhuongTien.objects.filter(ho_gia_dinh=ho)
+#     tong_o_to = xe.filter(loai='Ô tô').count()
+#     tong_xe_may = xe.filter(loai='Xe máy').count()
+#     tong_xe_dap = xe.filter(loai='Xe đạp').count()
+#     return tong_o_to * don_gia + tong_xe_may * don_gia / 2 + tong_xe_dap * don_gia / 4
+
+
+
+# @login_required
+# @role_required('Kế toán')
+# def khoannop_details(request, pk):
+#     dot_thu = get_object_or_404(DotThu, pk=pk)
+#     khoan_thu = dot_thu.khoan_thu
+
+#     if request.method == "POST" and request.headers.get("x-requested-with") == "XMLHttpRequest":
+#         ho_id = request.POST.get("ho_id")
+#         ho = get_object_or_404(HoGiaDinh, id=ho_id)
+
+#         new_date = request.POST.get("ngay_nop")
+#         new_so_tien_raw = request.POST.get("so_tien_can_nop")
+#         try:
+#             new_so_tien = int(new_so_tien_raw) if new_so_tien_raw not in [None, ""] else 0
+#         except ValueError:
+#             return JsonResponse({'success': False, 'error': 'Số tiền không hợp lệ.'})
+
+#         chi_tiet = ChiTietThu.objects.filter(dot_thu=dot_thu, ho_gia_dinh=ho).first()
+
+#         if not chi_tiet:
+#             if new_so_tien == 0:
+#                 return JsonResponse({'success': True})  # Không tạo bản ghi khi tiền = 0
+          
+#             try:
+#                 so_tien_int = int(new_so_tien)
+#             except ValueError:
+#                 return JsonResponse({'success': False, 'error': 'Số tiền không hợp lệ.'})
+
+#             chi_tiet = ChiTietThu.objects.create(
+#                 dot_thu=dot_thu,
+#                 ho_gia_dinh=ho,
+#                 so_tien_can_nop=so_tien_int,
+#                 ngay_nop=parse_date(new_date) if new_date else None,
+#                 trang_thai_nop="Đã nộp" if new_date else "Chưa nộp"
+#             )
+#         else:
+#             if (not new_date or new_date.strip() == ""):
+#                 chi_tiet.delete()
+#                 return JsonResponse({'success': True, 'deleted': True})
+#             if new_so_tien is not None:
+#                 try:
+#                     chi_tiet.so_tien_can_nop = int(new_so_tien)
+#                 except ValueError:
+#                     return JsonResponse({'success': False, 'error': 'Số tiền không hợp lệ.'})
+
+#             if new_date is not None:
+#                 chi_tiet.ngay_nop = parse_date(new_date) if new_date else None
+#                 chi_tiet.trang_thai_nop = "Đã nộp" if chi_tiet.ngay_nop else "Chưa nộp"
+
+#             chi_tiet.save()
+
+#         return JsonResponse({'success': True})
+
+#     tat_ca_ho = HoGiaDinh.objects.select_related('id_chu_ho').prefetch_related('dancu_set').all()
+#     danh_sach_ho = []
+
+#     for ho in tat_ca_ho:
+#         chi_tiet = ChiTietThu.objects.filter(dot_thu=dot_thu, ho_gia_dinh=ho).first()
+
+#         if khoan_thu.loai_khoan_thu == "Cố định":
+#             # Tính toán số tiền theo phương tiện
+#             don_gia = khoan_thu.so_tien
+#             so_oto = ho.phuongtien_set.filter(loai_phuong_tien="Ô tô").count()
+#             so_xe_may = ho.phuongtien_set.filter(loai_phuong_tien="Xe máy").count()
+#             so_xe_dap = ho.phuongtien_set.filter(loai_phuong_tien="Xe đạp").count()
+
+#             so_tien = (
+#                 so_oto * don_gia
+#                 + so_xe_may * don_gia / 2
+#                 + so_xe_dap * don_gia / 4
+#             )
+
+#             # Nếu chưa có chi tiết thì tạo mới (tùy chọn: hoặc chỉ hiển thị thôi)
+#             if not chi_tiet and so_tien > 0:
+#                 chi_tiet = ChiTietThu.objects.create(
+#                     dot_thu=dot_thu,
+#                     ho_gia_dinh=ho,
+#                     so_tien_can_nop=so_tien,
+#                     trang_thai_nop="Chưa nộp"
+#                 )
+#             elif chi_tiet:
+#                 chi_tiet.so_tien_can_nop = so_tien
+#                 chi_tiet.save()
+#         else:
+#             # Với các loại khác thì giữ logic cũ
+#             so_tien = chi_tiet.so_tien_can_nop if chi_tiet else 0
+
+#         ngay_nop = chi_tiet.ngay_nop if chi_tiet else None
+#         so_nguoi = ho.dancu_set.count()
+
+#         danh_sach_ho.append({
+#             'ho_id': ho.id,
+#             'ten_chu_ho': ho.id_chu_ho.ho_ten,
+#             'so_can_ho': ho.so_can_ho,
+#             'dien_tich': ho.dien_tich,
+#             'so_nguoi': so_nguoi,
+#             'so_tien': so_tien,
+#             'ngay_nop': ngay_nop,
+#             'trang_thai_nop': "Đã nộp" if ngay_nop else "Chưa nộp",
+#         })
+
+#     return render(request, 'thu_phi/khoannop_details.html', {
+#         'dot_thu': dot_thu,
+#         'khoan_thu': khoan_thu,
+#         'danh_sach_ho': danh_sach_ho,
+#     })
+
+
+
+def tinh_tien_ho(ho, don_gia):
+    xe = ho.phuongtien_set.all()
+    tong_o_to = xe.filter(loai_phuong_tien='Ô tô').count()
+    tong_xe_may = xe.filter(loai_phuong_tien='Xe máy').count()
+    tong_xe_dap = xe.filter(loai_phuong_tien='Xe đạp').count()
+    return tong_o_to * don_gia + tong_xe_may * don_gia / 2 + tong_xe_dap * don_gia / 4
+
 
 @login_required
 @role_required('Kế toán')
@@ -451,12 +576,13 @@ def khoannop_details(request, pk):
     dot_thu = get_object_or_404(DotThu, pk=pk)
     khoan_thu = dot_thu.khoan_thu
 
+    # Xử lý AJAX cập nhật
     if request.method == "POST" and request.headers.get("x-requested-with") == "XMLHttpRequest":
         ho_id = request.POST.get("ho_id")
         ho = get_object_or_404(HoGiaDinh, id=ho_id)
-
         new_date = request.POST.get("ngay_nop")
         new_so_tien_raw = request.POST.get("so_tien_can_nop")
+
         try:
             new_so_tien = int(new_so_tien_raw) if new_so_tien_raw not in [None, ""] else 0
         except ValueError:
@@ -466,56 +592,59 @@ def khoannop_details(request, pk):
 
         if not chi_tiet:
             if new_so_tien == 0:
-                return JsonResponse({'success': True})  # Không tạo bản ghi khi tiền = 0
-          
-            try:
-                so_tien_int = int(new_so_tien)
-            except ValueError:
-                return JsonResponse({'success': False, 'error': 'Số tiền không hợp lệ.'})
-
+                return JsonResponse({'success': True})  # Không tạo nếu không có tiền
             chi_tiet = ChiTietThu.objects.create(
                 dot_thu=dot_thu,
                 ho_gia_dinh=ho,
-                so_tien_can_nop=so_tien_int,
+                so_tien_can_nop=new_so_tien,
                 ngay_nop=parse_date(new_date) if new_date else None,
                 trang_thai_nop="Đã nộp" if new_date else "Chưa nộp"
             )
         else:
-            if (not new_date or new_date.strip() == ""):
+            if not new_date:
                 chi_tiet.delete()
                 return JsonResponse({'success': True, 'deleted': True})
-            if new_so_tien is not None:
-                try:
-                    chi_tiet.so_tien_can_nop = int(new_so_tien)
-                except ValueError:
-                    return JsonResponse({'success': False, 'error': 'Số tiền không hợp lệ.'})
 
-            if new_date is not None:
-                chi_tiet.ngay_nop = parse_date(new_date) if new_date else None
-                chi_tiet.trang_thai_nop = "Đã nộp" if chi_tiet.ngay_nop else "Chưa nộp"
-
+            chi_tiet.so_tien_can_nop = new_so_tien
+            chi_tiet.ngay_nop = parse_date(new_date) if new_date else None
+            chi_tiet.trang_thai_nop = "Đã nộp" if chi_tiet.ngay_nop else "Chưa nộp"
             chi_tiet.save()
 
         return JsonResponse({'success': True})
 
-    tat_ca_ho = HoGiaDinh.objects.select_related('id_chu_ho').prefetch_related('dancu_set').all()
+    # Xử lý GET hiển thị danh sách hộ
+    tat_ca_ho = HoGiaDinh.objects.select_related('id_chu_ho').prefetch_related('dancu_set', 'phuongtien_set')
     danh_sach_ho = []
 
     for ho in tat_ca_ho:
         chi_tiet = ChiTietThu.objects.filter(dot_thu=dot_thu, ho_gia_dinh=ho).first()
-        so_tien = chi_tiet.so_tien_can_nop if chi_tiet else 0
-        ngay_nop = chi_tiet.ngay_nop if chi_tiet else None
-        so_nguoi = ho.dancu_set.count()
+
+        if khoan_thu.loai_khoan_thu == "Cố định":
+            don_gia = khoan_thu.so_tien
+            so_tien = tinh_tien_ho(ho, don_gia)
+
+            if not chi_tiet and so_tien > 0:
+                chi_tiet = ChiTietThu.objects.create(
+                    dot_thu=dot_thu,
+                    ho_gia_dinh=ho,
+                    so_tien_can_nop=so_tien,
+                    trang_thai_nop="Chưa nộp"
+                )
+            elif chi_tiet:
+                chi_tiet.so_tien_can_nop = so_tien
+                chi_tiet.save()
+        else:
+            so_tien = chi_tiet.so_tien_can_nop if chi_tiet else 0
 
         danh_sach_ho.append({
             'ho_id': ho.id,
             'ten_chu_ho': ho.id_chu_ho.ho_ten,
             'so_can_ho': ho.so_can_ho,
             'dien_tich': ho.dien_tich,
-            'so_nguoi': so_nguoi,
+            'so_nguoi': ho.dancu_set.count(),
             'so_tien': so_tien,
-            'ngay_nop': ngay_nop,
-            'trang_thai_nop': "Đã nộp" if ngay_nop else "Chưa nộp",
+            'ngay_nop': chi_tiet.ngay_nop if chi_tiet else None,
+            'trang_thai_nop': "Đã nộp" if chi_tiet and chi_tiet.ngay_nop else "Chưa nộp",
         })
 
     return render(request, 'thu_phi/khoannop_details.html', {
