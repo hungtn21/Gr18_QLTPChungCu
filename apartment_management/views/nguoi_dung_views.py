@@ -84,12 +84,14 @@ def kt_dashboard(request):
 
 #---------------------------Gửi password qua email--------------------------------- 
 
-def send_password_through_email(email,password):
+def send_password_through_email(email,ten_dang_nhap,password,vai_tro):
     email_sender = 'bluemoon.system1@gmail.com'
     email_password = 'yexb gudc yveh bgjm'
     email_receiver = email
     subject = "Thông báo: Đăng ký thành công tài khoản hệ thống quản lý Chung cư Bluemoon"
-    body = "Mật khẩu của bạn là: {password}. Hãy tiến hành đổi mật khẩu sau khi đăng nhập.".format(password=password)
+    body = """Đăng ký tài khoản vai trò {vai_tro} thành công. 
+Username của bạn là {ten_dang_nhap}. Mật khẩu của bạn là: {password}. 
+Hãy tiến hành đổi mật khẩu sau khi đăng nhập.""".format(password=password,ten_dang_nhap=ten_dang_nhap,vai_tro=vai_tro)
 
     em = EmailMessage()
     em['From'] = email_sender
@@ -155,7 +157,7 @@ def create_new_user(request):
                 so_dien_thoai=so_dien_thoai,
                 trang_thai='Đang hoạt động'
             )
-            send_password_through_email(email,password)
+            send_password_through_email(email,ten_dang_nhap,password,vai_tro)
             messages.success(request, 'Tạo tài khoản thành công!')
             return redirect('create_new_user')
             
