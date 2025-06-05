@@ -77,6 +77,7 @@ class KhoanThu(models.Model):
     LOAI_CHOICES = [
         ('Bắt buộc', 'Bắt buộc'),
         ('Tự nguyện', 'Tự nguyện'),
+        ('Cố định', 'Cố định'),
     ]
     ten_khoan_thu = models.CharField(max_length=100)
     loai_khoan_thu = models.CharField(max_length=20, choices=LOAI_CHOICES)
