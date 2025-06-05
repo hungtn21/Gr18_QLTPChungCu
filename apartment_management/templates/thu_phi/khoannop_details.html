@@ -147,9 +147,12 @@
             <td>{{ ho.so_nguoi }}</td>
             <td>
                 <span class="so-tien-hien">{{ ho.so_tien|floatformat:0 }} đ</span>
-                <input type="number" class="input-so-tien" value="{{ ho.so_tien }}" data-ho-id="{{ ho.ho_id }}"
-                    style="display:none; width: 90px;">
-                <i class="fa fa-pencil edit-icon-tien" style="cursor:pointer; margin-left: 8px;"></i>
+                
+                {% if khoan_thu.loai_khoan_thu != 'Cố định' %}
+                    <input type="number" class="input-so-tien" value="{{ ho.so_tien }}" data-ho-id="{{ ho.ho_id }}"
+                        style="display:none; width: 90px;">
+                    <i class="fa fa-pencil edit-icon-tien" style="cursor:pointer; margin-left: 8px;"></i>
+                {% endif %}
             </td>
             <td>
                 <span class="ngay-nop-hien">
@@ -188,6 +191,7 @@
 "></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+    var isKhoanThuCoDinh = "{{ khoan_thu.loai_khoan_thu }}" === "Cố định";
     function showToast(message, type) {
         var toast = $('#toast');
         toast.text(message);
@@ -195,85 +199,37 @@
         toast.fadeIn(200).delay(2500).fadeOut(400);
     }
     $(document).ready(function () {
-        $('.edit-icon-tien').click(function () {
-            var td = $(this).closest('td');
-            td.find('.so-tien-hien').hide();
-            $(this).hide();
-            td.find('.input-so-tien').show().focus();
-        });
+    if (isKhoanThuCoDinh) {
+        $('.edit-icon-tien').hide();  // Ẩn icon chỉnh sửa nếu là cố định
+    }
 
-        $('.input-so-tien').on('blur keypress', function (e) {
-            if (e.type === 'blur' || (e.type === 'keypress' && e.which === 13)) {
-                var input = $(this);
-                var newTienRaw = input.val();
-                var newTien = newTienRaw.trim() === "" ? 0 : parseInt(newTienRaw);
-                var hoId = input.data('ho-id');
+    // Bật chế độ chỉnh sửa số tiền
+    $('.edit-icon-tien').click(function () {
+        var td = $(this).closest('td');
+        td.find('.so-tien-hien').hide();
+        $(this).hide();
+        td.find('.input-so-tien').show().focus();
+    });
 
-                // Kiểm tra xem ngày nộp có tồn tại không
-                var row = input.closest('tr');
-                var ngayNopInput = row.find('.input-ngay-nop');
-                var ngayNopValue = ngayNopInput.val();
-
-                if (ngayNopValue && newTien !== 0) {
-                    showToast("Clear ngày nộp trước khi thay đổi số tiền nộp", "danger");
-
-                    // Khôi phục lại input như ban đầu
-                    input.hide();
-                    input.siblings('.so-tien-hien').show();
-                    input.siblings('.edit-icon-tien').show();
-                    return;
-                }
-
-                $.ajax({
-                    url: "",
-                    method: "POST",
-                    headers: { "X-Requested-With": "XMLHttpRequest" },
-                    data: {
-                        'csrfmiddlewaretoken': '{{ csrf_token }}',
-                        'ho_id': hoId,
-                        'so_tien_can_nop': newTien
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            input.hide();
-                            var hienThi = input.siblings('.so-tien-hien');
-                            hienThi.text((newTien || 0).toLocaleString() + ' đ');
-                            hienThi.show();
-                            input.siblings('.edit-icon-tien').show();
-                        } else if (response.error) {
-                            showToast(response.error, "danger");
-                        }
-                    }
-                });
-            }
-        });
-        $('.edit-icon').click(function () {
-            var td = $(this).closest('td');
-            td.find('.ngay-nop-hien').hide();
-            $(this).hide();
-            td.find('.input-ngay-nop').show().focus();
-        });
-
-        $('.input-ngay-nop').change(function () {
+    // Xử lý lưu số tiền khi blur hoặc enter
+    $('.input-so-tien').on('blur keypress', function (e) {
+        if (e.type === 'blur' || (e.type === 'keypress' && e.which === 13)) {
             var input = $(this);
-            var newDate = input.val();
+            var newTienRaw = input.val();
+            var newTien = newTienRaw.trim() === "" ? 0 : parseInt(newTienRaw);
             var hoId = input.data('ho-id');
 
-
             var row = input.closest('tr');
-            var soTienInput = row.find('.input-so-tien');
-            var soTien = soTienInput.val();
-            var soTienInt = parseInt(soTien);
+            var ngayNopInput = row.find('.input-ngay-nop');
+            var ngayNopValue = ngayNopInput.val();
 
+            // Nếu đã chọn ngày nộp rồi thì không cho đổi số tiền
+            if (ngayNopValue && newTien !== 0) {
+                showToast("Clear ngày nộp trước khi thay đổi số tiền nộp", "danger");
 
-            if ((!soTien || soTien.trim() === "" || isNaN(soTienInt) || soTienInt === 0) && newDate) {
-                showToast("Vui lòng nhập số tiền nộp!", "danger");
-                // Reset giao diện Ngày nộp về trạng thái ban đầu
-                input.hide();  // Ẩn input date
-                let hienThi = input.siblings('.ngay-nop-hien'); // span hiển thị ngày nộp
-                hienThi.text('-').show(); // Gán lại "-" và show
-                input.siblings('.edit-icon').show(); // Hiện icon bút ✏️ trở lại
-
+                input.hide();
+                input.siblings('.so-tien-hien').show();
+                input.siblings('.edit-icon-tien').show();
                 return;
             }
 
@@ -284,39 +240,86 @@
                 data: {
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                     'ho_id': hoId,
-                    'ngay_nop': newDate,
-                    'so_tien_can_nop': soTienInt
+                    'so_tien_can_nop': newTien
                 },
                 success: function (response) {
                     if (response.success) {
                         input.hide();
-                        let hienThi = input.siblings('.ngay-nop-hien');
-                        if (newDate) {
-                            hienThi.text(formatDate(newDate));
-                        } else {
-                            hienThi.text('-');
-                        }
-                        hienThi.show();
-                        input.siblings('.edit-icon').show();
+                        var hienThi = input.siblings('.so-tien-hien');
+                        hienThi.text(newTien.toLocaleString() + ' đ').show();
+                        input.siblings('.edit-icon-tien').show();
 
-                        var tdTrangThai = input.closest('tr').find('.trang-thai');
-                        if (newDate) {
-                            tdTrangThai.html('<span class="text-success">Đã nộp</span>');
-                        } else {
-                            tdTrangThai.html('<span class="text-danger">Chưa nộp</span>');
-                        }
+                        // Cập nhật giá trị input để lần sau lấy đúng
+                        input.val(newTien);
+                    } else if (response.error) {
+                        showToast(response.error, "danger");
                     }
                 }
             });
-        });
-
-
-        function formatDate(dateStr) {
-            if (!dateStr) return "-";
-            const d = new Date(dateStr);
-            if (isNaN(d)) return "-";
-            return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
         }
     });
+
+    // Chỉnh sửa ngày nộp
+    $('.edit-icon').click(function () {
+        var td = $(this).closest('td');
+        td.find('.ngay-nop-hien').hide();
+        $(this).hide();
+        td.find('.input-ngay-nop').show().focus();
+    });
+
+    // Xử lý thay đổi ngày nộp
+    $('.input-ngay-nop').change(function () {
+        var input = $(this);
+        var newDate = input.val();
+        var hoId = input.data('ho-id');
+
+        var row = input.closest('tr');
+        // Lấy số tiền từ phần hiển thị, tránh lấy từ input có thể đang ẩn
+        var soTienText = row.find('.so-tien-hien').text().replace(/[^\d]/g, '');
+        var soTienInt = parseInt(soTienText);
+
+        if ((!soTienInt || isNaN(soTienInt) || soTienInt === 0) && newDate) {
+            showToast("Vui lòng nhập số tiền nộp!", "danger");
+
+            // Reset giao diện
+            input.hide();
+            let hienThi = input.siblings('.ngay-nop-hien');
+            hienThi.text('-').show();
+            input.siblings('.edit-icon').show();
+            return;
+        }
+
+        $.ajax({
+            url: "",
+            method: "POST",
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'ho_id': hoId,
+                'ngay_nop': newDate,
+                'so_tien_can_nop': soTienInt
+            },
+            success: function (response) {
+                if (response.success) {
+                    input.hide();
+                    let hienThi = input.siblings('.ngay-nop-hien');
+                    hienThi.text(newDate ? formatDate(newDate) : '-').show();
+                    input.siblings('.edit-icon').show();
+
+                    var tdTrangThai = input.closest('tr').find('.trang-thai');
+                    tdTrangThai.html(newDate ? '<span class="text-success">Đã nộp</span>' : '<span class="text-danger">Chưa nộp</span>');
+                }
+            }
+        });
+    });
+
+    // Hàm format ngày dd-mm-yyyy
+    function formatDate(dateStr) {
+        if (!dateStr) return "-";
+        const d = new Date(dateStr);
+        if (isNaN(d)) return "-";
+        return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+    }
+});
 </script>
 {% endblock %}
