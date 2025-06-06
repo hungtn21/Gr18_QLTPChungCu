@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_http_methods, require_POST
 
-from apartment_management.models import DanCu, ChiTietThu, DotThu, HoGiaDinh, KhoanThu, TamTruTamVang, NguoiDung, PhuongTien
+from apartment_management.models import DanCu, ChiTietThu, DotThu, HoGiaDinh, KhoanThu, TamTruTamVang, NguoiDung, PhuongTien, BienDong
 from apartment_management.forms import (
     DanCuForm, HoGiaDinhForm, EditProfileForm, TamTruTamVangForm,
     KhoanThuCreateForm, KhoanThuForm, KhoanNopCreateForm
@@ -301,6 +301,63 @@ def quan_ly_nhan_khau(request):
         'query': query or ''
     })
     
+# @login_required
+# @role_required('BQL Chung cư')
+# @require_POST
+# def tach_ho(request, ho_id):
+#     ho_cu = get_object_or_404(HoGiaDinh, id=ho_id)
+
+#     # Lấy dữ liệu từ form
+#     so_can_ho = request.POST.get('so_can_ho')
+#     dien_tich = request.POST.get('dien_tich')
+#     ghi_chu = request.POST.get('ghi_chu', '')
+#     ids_thanh_vien = request.POST.getlist('thanh_vien_ids')
+#     id_chu_ho_moi = request.POST.get('id_chu_ho_moi')
+
+#     # Kiểm tra dữ liệu bắt buộc
+#     if not ids_thanh_vien:
+#         messages.error(request, 'Vui lòng chọn ít nhất một thành viên để tách.')
+#         return redirect('sua_ho_khau', pk=ho_id)
+
+#     if id_chu_ho_moi not in ids_thanh_vien:
+#         messages.error(request, 'Chủ hộ mới phải là một trong các thành viên được chọn.')
+#         return redirect('sua_ho_khau', pk=ho_id)
+
+#     # Xử lý trường hợp hộ đã tồn tại
+#     ho_da_ton_tai = HoGiaDinh.objects.filter(so_can_ho=so_can_ho).first()
+
+#     if ho_da_ton_tai:
+#         # Nếu đã tồn tại và còn người đang sinh sống thì không cho tách
+#         if DanCu.objects.filter(ho_gia_dinh=ho_da_ton_tai, trang_thai='Đang sinh sống').exists():
+#             messages.error(request, f'Căn hộ số {so_can_ho} đã tồn tại và vẫn còn người đang sinh sống.')
+#             return redirect('sua_ho_khau', pk=ho_id)
+#         ho_moi = ho_da_ton_tai
+#     else:
+#         # Tạo hộ mới nếu chưa có
+#         ho_moi = HoGiaDinh.objects.create(
+#             so_can_ho=so_can_ho,
+#             dien_tich=dien_tich,
+#             ghi_chu=ghi_chu,
+#             thoi_gian_bat_dau_o=date.today().isoformat(),
+#             trang_thai='Đang ở',
+#         )
+
+#     # Cập nhật các thành viên
+#     danh_sach_dan_cu = DanCu.objects.filter(id__in=ids_thanh_vien)
+#     for dancu in danh_sach_dan_cu:
+#         dancu.ho_gia_dinh = ho_moi
+#         dancu.save()
+
+#     # Cập nhật chủ hộ
+#     chu_ho_obj = DanCu.objects.get(id=id_chu_ho_moi)
+#     ho_moi.id_chu_ho = chu_ho_obj
+#     ho_moi.save()
+
+#     messages.success(request, f'Đã tách hộ thành công sang căn hộ {so_can_ho}.')
+#     return redirect('sua_ho_khau', pk=ho_id)
+
+from datetime import date
+
 @login_required
 @role_required('BQL Chung cư')
 @require_POST
@@ -327,13 +384,11 @@ def tach_ho(request, ho_id):
     ho_da_ton_tai = HoGiaDinh.objects.filter(so_can_ho=so_can_ho).first()
 
     if ho_da_ton_tai:
-        # Nếu đã tồn tại và còn người đang sinh sống thì không cho tách
         if DanCu.objects.filter(ho_gia_dinh=ho_da_ton_tai, trang_thai='Đang sinh sống').exists():
             messages.error(request, f'Căn hộ số {so_can_ho} đã tồn tại và vẫn còn người đang sinh sống.')
             return redirect('sua_ho_khau', pk=ho_id)
         ho_moi = ho_da_ton_tai
     else:
-        # Tạo hộ mới nếu chưa có
         ho_moi = HoGiaDinh.objects.create(
             so_can_ho=so_can_ho,
             dien_tich=dien_tich,
@@ -342,9 +397,26 @@ def tach_ho(request, ho_id):
             trang_thai='Đang ở',
         )
 
-    # Cập nhật các thành viên
+    # Cập nhật các thành viên và ghi biến động
     danh_sach_dan_cu = DanCu.objects.filter(id__in=ids_thanh_vien)
     for dancu in danh_sach_dan_cu:
+        # Ghi biến động: Chuyển đi khỏi hộ cũ
+        BienDong.objects.create(
+            id_nhan_khau=dancu,
+            loai_bien_dong='Chuyển đi',
+            thoi_gian=date.today(),
+            so_can_ho=ho_cu.so_can_ho,
+        )
+
+        # Ghi biến động: Chuyển đến hộ mới
+        BienDong.objects.create(
+            id_nhan_khau=dancu,
+            loai_bien_dong='Chuyển đến',
+            thoi_gian=date.today(),
+            so_can_ho=ho_moi.so_can_ho,
+        )
+
+        # Cập nhật sang hộ mới
         dancu.ho_gia_dinh = ho_moi
         dancu.save()
 
@@ -355,6 +427,7 @@ def tach_ho(request, ho_id):
 
     messages.success(request, f'Đã tách hộ thành công sang căn hộ {so_can_ho}.')
     return redirect('sua_ho_khau', pk=ho_id)
+
 #--------------------------------------Thay đổi mật khẩu---------------------------------------
 
 @login_required
@@ -506,6 +579,62 @@ def thongKeTamTru(request):
     return render(request, 'nhan_khau/thongke_tam_tru.html', context)
 
 
+# @login_required
+# @role_required('BQL Chung cư')
+# def thongKeBienDong(request):
+#     danh_sach_chuyen_den = []
+#     danh_sach_chuyen_di = []
+#     danh_sach_qua_doi = []
+#     chuyen_den = 0
+#     chuyen_di = 0
+#     qua_doi = 0
+#     tong_bien_dong = None
+
+#     date_from_str = request.GET.get('date_from')
+#     date_to_str = request.GET.get('date_to')
+
+#     # Kiểm tra xem có submit form chưa (ấn nút thống kê)
+#     is_submitted = 'date_from' in request.GET or 'date_to' in request.GET
+
+#     if request.method == "GET" and is_submitted:
+#         try:
+#             # Nếu không nhập ngày nào thì hiển thị tất cả (range rộng nhất)
+#             date_from = datetime.strptime(date_from_str, "%Y-%m-%d").date() if date_from_str else datetime.min.date()
+#             date_to = datetime.strptime(date_to_str, "%Y-%m-%d").date() if date_to_str else datetime.max.date()
+
+#             queryset_chuyen_den = DanCu.objects.filter(thoi_gian_chuyen_den__range=(date_from, date_to))
+#             queryset_chuyen_di = DanCu.objects.filter(thoi_gian_chuyen_di__range=(date_from, date_to))
+#             queryset_qua_doi = DanCu.objects.filter(trang_thai='Đã qua đời', thoi_gian_chuyen_di__range=(date_from, date_to))
+
+#             chuyen_den = queryset_chuyen_den.count()
+#             chuyen_di = queryset_chuyen_di.count()
+#             qua_doi = queryset_qua_doi.count()
+
+#             danh_sach_chuyen_den = queryset_chuyen_den
+#             danh_sach_chuyen_di = queryset_chuyen_di
+#             danh_sach_qua_doi = queryset_qua_doi
+
+#             tong_bien_dong = chuyen_den + chuyen_di + qua_doi
+
+#         except Exception as e:
+#             print(f"[DEBUG] Lỗi khi xử lý thống kê biến động: {e}")
+
+#     # Nếu chưa submit thì không hiển thị gì (kết quả rỗng)
+
+#     context = {
+#         'chuyen_den': chuyen_den,
+#         'chuyen_di': chuyen_di,
+#         'qua_doi': qua_doi,
+#         'tong_bien_dong': tong_bien_dong,
+#         'danh_sach_chuyen_den': danh_sach_chuyen_den,
+#         'danh_sach_chuyen_di': danh_sach_chuyen_di,
+#         'danh_sach_qua_doi': danh_sach_qua_doi,
+#         'date_from': date_from_str,
+#         'date_to': date_to_str,
+#     }
+
+#     return render(request, 'nhan_khau/thongke_bien_dong.html', context)
+
 @login_required
 @role_required('BQL Chung cư')
 def thongKeBienDong(request):
@@ -520,33 +649,37 @@ def thongKeBienDong(request):
     date_from_str = request.GET.get('date_from')
     date_to_str = request.GET.get('date_to')
 
-    # Kiểm tra xem có submit form chưa (ấn nút thống kê)
+    # Kiểm tra xem có submit form chưa
     is_submitted = 'date_from' in request.GET or 'date_to' in request.GET
 
     if request.method == "GET" and is_submitted:
         try:
-            # Nếu không nhập ngày nào thì hiển thị tất cả (range rộng nhất)
+            # Xử lý ngày
             date_from = datetime.strptime(date_from_str, "%Y-%m-%d").date() if date_from_str else datetime.min.date()
             date_to = datetime.strptime(date_to_str, "%Y-%m-%d").date() if date_to_str else datetime.max.date()
 
-            queryset_chuyen_den = DanCu.objects.filter(thoi_gian_chuyen_den__range=(date_from, date_to))
-            queryset_chuyen_di = DanCu.objects.filter(thoi_gian_chuyen_di__range=(date_from, date_to))
-            queryset_qua_doi = DanCu.objects.filter(trang_thai='Đã qua đời', thoi_gian_chuyen_di__range=(date_from, date_to))
+            # Lọc theo khoảng thời gian
+            bien_dong_queryset = BienDong.objects.filter(thoi_gian__range=(date_from, date_to))
 
+            # Chuyển đến
+            queryset_chuyen_den = bien_dong_queryset.filter(loai_bien_dong='Chuyển đến')
             chuyen_den = queryset_chuyen_den.count()
-            chuyen_di = queryset_chuyen_di.count()
-            qua_doi = queryset_qua_doi.count()
-
             danh_sach_chuyen_den = queryset_chuyen_den
+
+            # Chuyển đi
+            queryset_chuyen_di = bien_dong_queryset.filter(loai_bien_dong='Chuyển đi')
+            chuyen_di = queryset_chuyen_di.count()
             danh_sach_chuyen_di = queryset_chuyen_di
+
+            # Qua đời
+            queryset_qua_doi = bien_dong_queryset.filter(loai_bien_dong='Qua đời')
+            qua_doi = queryset_qua_doi.count()
             danh_sach_qua_doi = queryset_qua_doi
 
             tong_bien_dong = chuyen_den + chuyen_di + qua_doi
 
         except Exception as e:
-            print(f"[DEBUG] Lỗi khi xử lý thống kê biến động: {e}")
-
-    # Nếu chưa submit thì không hiển thị gì (kết quả rỗng)
+            print(f"[DEBUG] Lỗi khi thống kê biến động: {e}")
 
     context = {
         'chuyen_den': chuyen_den,

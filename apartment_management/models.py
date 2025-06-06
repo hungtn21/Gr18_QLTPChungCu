@@ -149,3 +149,19 @@ class PhuongTien(models.Model):
 
     def __str__(self):
         return self.bien_so
+
+class BienDong(models.Model):
+    LOAI_CHOICES = [
+        ('Chuyển đến', 'Chuyển đến'),
+        ('Chuyển đi', 'Chuyển đi'),
+        ('Qua đời', 'Qua đời'),
+    ]
+
+    id_nhan_khau = models.ForeignKey(DanCu, on_delete=models.CASCADE)
+    loai_bien_dong = models.CharField(max_length=20, choices=LOAI_CHOICES)
+    thoi_gian = models.DateField()
+    so_can_ho = models.IntegerField()
+    ghi_chu = models.TextField(blank=True, null=True)  
+    
+    def __str__(self):
+        return f"{self.id_nhan_khau.ho_ten} - {self.loai_bien_dong} - {self.thoi_gian}"
