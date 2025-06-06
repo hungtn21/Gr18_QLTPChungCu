@@ -46,17 +46,19 @@ def login_view(request):
             login(request, user)
             try:
                 nguoi_dung = NguoiDung.objects.get(user=user)
-                if nguoi_dung.vai_tro == 'BQL Chung cư':
+                if nguoi_dung.vai_tro == 'BQL Chung cư' and nguoi_dung.trang_thai == 'Đang hoạt động':
                     return redirect('BQLCCDashboard')
-                elif nguoi_dung.vai_tro == 'Kế toán':
+                elif nguoi_dung.vai_tro == 'Kế toán' and nguoi_dung.trang_thai == 'Đang hoạt động':
                     return redirect('KTDashboard')
-                elif nguoi_dung.vai_tro == 'Quản trị hệ thống':
+                elif nguoi_dung.vai_tro == 'Quản trị hệ thống' and nguoi_dung.trang_thai == 'Đang hoạt động':
                     return redirect('admin_user_management')
                 else:
                     messages.error(request, "Không xác định được vai trò người dùng.")
             except NguoiDung.DoesNotExist:
+                print("Not exists")
                 messages.error(request, "Không tìm thấy thông tin người dùng.")
         else:
+            print("Wrong account")
             messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
         
         return redirect('login')  # Thực hiện redirect để đảm bảo thông báo được hiển thị và toast được kích hoạt.
@@ -163,6 +165,7 @@ def create_new_user(request):
             
         except Exception as e:
             messages.error(request, f'Có lỗi xảy ra: {str(e)}')
+            print(f'Có lỗi xảy ra: {str(e)}')
             return redirect('create_new_user')
     
     return render(request, 'nguoi_dung/create_new_user.html')

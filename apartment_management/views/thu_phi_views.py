@@ -619,7 +619,7 @@ def khoannop_details(request, pk):
     for ho in tat_ca_ho:
         chi_tiet = ChiTietThu.objects.filter(dot_thu=dot_thu, ho_gia_dinh=ho).first()
 
-        if khoan_thu.loai_khoan_thu == "Cố định":
+        if khoan_thu.loai_khoan_thu == "Phương tiện":
             don_gia = khoan_thu.so_tien
             so_tien = tinh_tien_ho(ho, don_gia)
 
